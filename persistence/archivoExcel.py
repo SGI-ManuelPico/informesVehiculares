@@ -407,52 +407,54 @@ def infracUbicar(file1):
 
 # Infractores diario MDVR
 
-def convertirASegs(duration_str):
-    """Convierte una cadena de tiempo en el formato 'Xmin Ys' a segundos."""
-    parts = duration_str.split()
-    minutes = 0
-    seconds = 0
-    for part in parts:
-        if 'min' in part:
-            minutes = int(part.replace('min', ''))
-        elif 's' in part:
-            seconds = int(part.replace('s', ''))
-    return minutes * 60 + seconds
-
-def infracMDVR(file1):
+def infracMDVR(file):
+    # Abrir el archivo Excel ignorando posibles corrupciones
+    workbook = xlrd.open_workbook(file, ignore_workbook_corruption=True)
+    
     # Leer el archivo Excel ignorando las primeras dos filas y la última fila
-    df = pd.read_excel(file1, skiprows=2).iloc[:-1]
-    
+    df = pd.read_excel(workbook, skiprows=2).iloc[:-1]
+
     # Extraer la placa del vehículo de la celda B1
-    placa = pd.read_excel(file1).columns[1].replace('-', '')
-    
+    placa = pd.read_excel(workbook).columns[1].replace(' ', '')
+
     # Convertir la columna 'Comienzo' a datetime y extraer la fecha y hora
-    df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst= True)
+    df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst=True)
     df['Fecha'] = df['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
-    
+
     # Dividir la columna 'Posición' en 'Latitud' y 'Longitud'
     df[['Latitud', 'Longitud']] = df['Posición'].str.split(',', expand=True)
     df['Latitud'] = df['Latitud'].astype(float)
     df['Longitud'] = df['Longitud'].astype(float)
-    
+
     # Convertir el tiempo de exceso a segundos
+    def convertirASegs(duration_str):
+        parts = duration_str.split(' ')
+        minutes = 0
+        seconds = 0
+        for part in parts:
+            if 'min' in part:
+                minutes += int(part.replace('min', ''))
+            if 's' in part:
+                seconds += int(part.replace('s', ''))
+        return minutes * 60 + seconds
+
     df['Duración exceso de velocidad'] = df['Duración exceso de velocidad'].apply(convertirASegs)
-    
-    # Crear el diccionario con el formato requerido
+
+    # Crear el diccionario en el formato requerido
     registros = []
     for index, row in df.iterrows():
         registro = {
             'PLACA': placa,
             'TIEMPO DE EXCESO': row['Duración exceso de velocidad'],
-            'DURACIÓN EN KM DE EXCESO': '',
+            'DURACIÓN EN KM DE EXCESO': None,
             'VELOCIDAD MÁXIMA': float(row['Velocidad máxima'].replace('kph', '')),
             'PROYECTO': '',
-            'RUTA DE EXCESO': f"{row['Latitud']}, {row['Longitud']}", # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
+            'RUTA DE EXCESO': f"{row['Latitud']}, {row['Longitud']}",  # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
             'CONDUCTOR': '',
             'FECHA': row['Fecha']
         }
         registros.append(registro)
-    
+
     print(f"Número total de registros: {len(registros)}")
     return registros
 
