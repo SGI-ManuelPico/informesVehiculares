@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 import os
 import glob
 
@@ -105,8 +106,10 @@ def rpaMDVR():
 
     # Seleccionar Tipo y "Excesos de velocidad"
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div > div > div > ul > li:nth-child(17) > a")))
-    driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div > div > div > ul > li:nth-child(17) > a").click()
+    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(17)")))
+    driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[16]/a").send_keys(Keys.PAGE_DOWN)
+    time.sleep(1)
+    driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[17]/a").click()
 
     # Descargar
     driver.find_element(By.CSS_SELECTOR,".generate").click()
@@ -129,5 +132,3 @@ def rpaMDVR():
         driver.quit()
     else:
         time.sleep(2)
-
-
