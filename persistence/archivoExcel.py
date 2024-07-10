@@ -617,3 +617,60 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
             df_final.to_excel(writer, sheet_name='Infractores', index=False)
         except Exception as e:
             print(f"Error al actualizar el archivo Excel: {e}")
+
+# Odómetro Ituran 
+
+def OdomIturan(file):
+    # Leer el archivo de Excel
+    od = pd.read_excel(file)
+
+    # Extraer la placa y el odómetro
+
+    df = od[['V_PLATE_NUMBER', 'END_ODOMETER']]
+
+    # Renombrar las columnas
+
+    df.columns = ['PLACA', 'KILOMETRAJE']
+
+    # Crear el diccionario con el formato requerido
+
+    datos = df.to_dict('records')
+    return datos
+
+# Odómetro Ubicar 
+
+def odomUbicar(file):
+    # Leer el archivo de Excel
+    df = pd.read_excel(file)  # Ajustar skiprows si es necesario
+
+    # Extraer la placa del vehículo de la celda B1, si agregan otro carro a esta plataforma toca cambiar como se extrae esto.
+    placa = 'JYT620'
+
+    # Extraer el odómetro de la celda correspondiente
+    odometro = df.iloc[11, 2]  # Ajustar el índice si es necesario
+
+    # Crear el diccionario con el formato requerido
+    registro = {
+        'PLACA': placa,
+        'KILOMETRAJE': float(odometro.split()[0].replace(',', ''))
+    }
+
+    return [registro]
+
+# Actualizar hoja de Odómetro en el Excel
+
+def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
+    # Obtener todos los odómetros combinados
+    todos_registros = OdomIturan(file_ituran) + odomUbicar(file_ubicar)
+    df_odometros = pd.DataFrame(todos_registros)
+
+    # Cargar el archivo existente y añadir una nueva hoja, sobreescribiendo si ya existe
+    with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a') as writer:
+        # Verificar si la hoja ya existe
+        if 'Odómetro' in writer.book.sheetnames:
+            # Eliminar la hoja existente
+            std = writer.book['Odometro']
+            writer.book.remove(std)
+        # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
+        df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
+
