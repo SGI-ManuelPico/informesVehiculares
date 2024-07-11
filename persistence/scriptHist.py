@@ -642,7 +642,20 @@ def actualizarInfractoresSQL(file_Ituran, file_MDVR, file_Ubicar, file_Wialon, f
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
     df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
-    # Falta hacer la conexión aca.
+    # Conexión
+
+    user = 'root'
+    password = '123456678'  
+    host = 'localhost'
+    port = '3306'
+    schema = 'vehiculos'
+
+    engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
+
+     # Insertar los datos en la tabla seguimiento
+    df_infractores.to_sql('infractores', con=engine, if_exists='append', index=False)
+
+    print("Datos insertados correctamente en la tabla seguimiento.")
 
     return(df_infractores)
 
