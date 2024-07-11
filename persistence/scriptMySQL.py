@@ -2,14 +2,15 @@ import pandas as pd
 import openpyxl
 import re
 import xlrd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from datetime import datetime
+from archivoExcel import OdomIturan, odomUbicar
 
 # ACTUALIZAR SEGUIMIENTO EN LA BASE DE DATOS 'vehiculos'
 
 # Las siguientes funciones extraen la información de cada uno de los archivos de las 6 plataformas y lo reunen todo en un único dataframe para actualizar la tabla 'seguimiento'.
 
-# Ituran 
+    # Ituran 
 
 def sqlIturan(file):
     # Cargar el archivo Excel usando xlrd
@@ -55,7 +56,7 @@ def sqlIturan(file):
 
     return datos_extraidos
 
-# MDVR
+    # MDVR
 
 def sqlMDVR(file1, file2): #file2 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
@@ -98,7 +99,7 @@ def sqlMDVR(file1, file2): #file2 es el informe general, file2 es el informe de 
 
     return [datos_extraidos]
 
-# Ubicar
+    # Ubicar
 
 def sqlUbicar(file1, file2): # file 1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
     # Cargar el archivo de Excel
@@ -142,7 +143,7 @@ def sqlUbicar(file1, file2): # file 1 es el informe general, file2 es el informe
 
     return [datos_extraidos]
 
-# Ubicom
+    # Ubicom
 
 def sqlUbicom(file1, file2):
     # Cargar el archivo de Excel usando xlrd
@@ -189,7 +190,7 @@ def sqlUbicom(file1, file2):
 
     return [datos_extraidos]
 
-# Securitrac
+    # Securitrac
 
 def sqlSecuritrac(file):
    # Cargar el archivo de Excel usando pandas
@@ -235,7 +236,7 @@ def sqlSecuritrac(file):
     return datos
 
 
-# Wialon
+    # Wialon
 
 def sqlWialon(file1, file2, file3):
     datos_extraidos = []
@@ -300,7 +301,7 @@ def sqlWialon(file1, file2, file3):
     
     return datos_extraidos
 
-# Crear DF
+    # Crear DF
 
 def ejecutarTodasExtraccionesSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
     # Ejecutar cada función de extracción con los archivos proporcionados
@@ -343,7 +344,7 @@ def ejecutarTodasExtraccionesSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubica
 
     return df_final
 
-# Actualizar 'seguimiento'
+    # Actualizar 'seguimiento'
 
 def actualizarSeguimientoSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
 
@@ -369,15 +370,68 @@ def actualizarSeguimientoSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, 
 
     engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
 
-# Insertar los datos en la tabla seguimiento
+     # Insertar los datos en la tabla seguimiento
     df_seguimiento.to_sql('seguimiento', con=engine, if_exists='append', index=False)
 
     print("Datos insertados correctamente en la tabla seguimiento.")
 
 
+# Actulzar infractores (Esto ya está en otra parte, me toca moverlo acá)
 
+# Actualizar Kilometraje. Esto todavía no está 100% testeado, toca revisarlo.
 
+def actualizarKilometraje(file_ituran, file_ubicar):
+    # Credenciales y parámetros de conexión
+    user = 'root'
+    password = '123456678'
+    host = 'localhost'
+    port = '3306'
+    schema = 'vehiculos'
+    table_name = 'carro'
 
+    # Crear la cadena de conexión usando las variables
+    engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
+
+    # Leer la tabla 'carro' desde MySQL
+    df_carro = pd.read_sql_table(table_name, con=engine)
+
+    # Generar df_odometro combinando registros de Ituran y Ubicar
+    todos_registros = OdomIturan(file_ituran) + odomUbicar(file_ubicar)
+    df_odometro = pd.DataFrame(todos_registros)
+
+    # Convertir los valores de las columnas a mayúsculas para evitar problemas de coincidencia
+    df_carro['placa'] = df_carro['placa'].str.upper().str.replace('-', '')
+    df_odometro['PLACA'] = df_odometro['PLACA'].str.upper()
+
+    # Renombrar la columna 'PLACA' en df_odometro a 'placa'
+    df_odometro.rename(columns={'PLACA': 'placa'}, inplace=True)
+
+    # Verificar si la columna 'KILOMETRAJE' existe y agregarla si es necesario
+    with engine.connect() as connection:
+        result = connection.execute(text(f"SHOW COLUMNS FROM {table_name} LIKE 'KILOMETRAJE';"))
+        if result.rowcount == 0:
+            connection.execute(text(f"ALTER TABLE {table_name} ADD COLUMN KILOMETRAJE FLOAT;"))
+
+    # Unir los DataFrames en la columna 'placa'
+    df_result = pd.merge(df_carro, df_odometro[['placa', 'KILOMETRAJE']], on='placa', how='left')
+
+    # Crear una tabla temporal para almacenar los resultados y actualizar la tabla 'carro'
+    with engine.connect() as connection:
+        # Cargar los datos de df_result en una tabla temporal
+        df_result.to_sql('carro_temp', con=engine, if_exists='replace', index=False)
+        
+        # Actualizar la columna 'KILOMETRAJE' en la tabla 'carro' usando la tabla temporal
+        update_query = """
+        UPDATE carro c
+        JOIN carro_temp t ON c.placa = t.placa
+        SET c.KILOMETRAJE = t.KILOMETRAJE;
+        """
+        connection.execute(text(update_query))
+        
+        # Eliminar la tabla temporal
+        connection.execute(text("DROP TABLE carro_temp;"))
+
+    print("Datos actualizados correctamente en la tabla carro.")
 
 
 
