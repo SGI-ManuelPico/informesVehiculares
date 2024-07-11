@@ -10,6 +10,9 @@ from forms.ubicarForm import archivoUbicar1, archivoUbicar2
 from forms.wialonForm import archivoWialon1, archivoWialon2, archivoWialon3
 from openpyxl import load_workbook
 
+
+##### PASAR
+
 # Extraer información del informe de Ubicar.
 
 def extraerUbicar(file1, file2): # file 1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
@@ -618,7 +621,7 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
         except Exception as e:
             print(f"Error al actualizar el archivo Excel: {e}")
 
-# Odómetro Ituran 
+# Odómetro Ituran
 
 def OdomIturan(file):
     # Leer el archivo de Excel
