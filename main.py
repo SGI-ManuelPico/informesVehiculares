@@ -18,7 +18,11 @@ def main():
     rpaUbicom()
     rpaWialon()
 
+    # SE DEBERÍA COLOCAR COMO TRY EXCEPT POR SI ACASO EL INTERNET LO DAÑA y que solo ejecute si no hay archivos ahí.
+    # TAMBIÉN ALGO PARA QUE MIRE SI EL INTERNET ESTÁ BIEN PARA CORRERLO, AUNQUE CREO QUE ESTO YA SERÍA DENTRO DEL BAT.
+
     # Ejecutar informe.
+
 
     # Enviar correo.
     enviarCorreo()
