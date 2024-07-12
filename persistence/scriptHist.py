@@ -1042,6 +1042,69 @@ def juntarDatos(file_ituran1, file_ituran2, file_mdvr1, file_mdvr2, file_ubicar1
 
     return df_hist
 
+# Esta función crea la hoja 'Indicadores Total' en el Excel. Todavía la puedo optimizar pero ya funciona. . 
+
+def histTotalIndicadores(file_seguimiento, file_ubicar1, file_ubicar2, file_mdvr1, file_mdvr2, file_ubicom1, file_ubicom2, file_securitrac, file_wialon1, file_wialon2, file_wialon3, file_ituran1, file_ituran2):
+    data_historica = []
+    data_historica.extend(histUbicom(file_ubicom1, file_ubicom2))
+    data_historica.extend(histUbicar(file_ubicar1, file_ubicar2))
+    data_historica.extend(histMDVR(file_mdvr1, file_mdvr2))
+    data_historica.extend(histSecuritrac(file_securitrac))
+    data_historica.extend(histWialon(file_wialon1))
+    data_historica.extend(histWialon(file_wialon2))
+    data_historica.extend(histWialon(file_wialon3))
+    data_historica.extend(histIturan(file_ituran1, file_ituran2))
+    df_hist = pd.DataFrame(data_historica)
+# Corregir las fechas NaN copiando el valor de la columna 'Fecha'
+
+    df_hist['fecha'] = df_hist.apply(lambda row: row['Fecha'] if pd.isna(row['fecha']) else row['fecha'], axis=1)
+
+    df_hist['fecha'] = pd.to_datetime(df_hist['fecha'], format='%d/%m/%Y')
+
+    
+
+# Asegurarse de que las columnas existan en df_hist y en el formato esperado
+    expected_columns = ['placa', 'fecha', 'num_excesos', 'num_desplazamientos', 'dia_trabajado', 'preoperacional', 'km_recorridos']
+    for col in expected_columns:
+      if col not in df_hist.columns:
+        df_hist[col] = None
+    df_diario = df_hist.groupby('fecha').agg({
+    'km_recorridos': 'sum',
+    'num_excesos': 'sum',
+    'num_desplazamientos': 'sum',
+    'dia_trabajado': 'sum',
+    'preoperacional': 'sum'
+    }).reset_index()
+
+# Renombramos las columnas para que coincidan con el formato deseado
+    df_diario.columns = [
+    'FECHA',
+    'KILOMETROS RECORRIDOS',
+    'EXCESOS VELOCIDAD',
+    'DESPLAZAMIENTOS',
+    'DÍA TRABAJADO',
+    'PREOPERACIONAL'
+    ]
+
+
+# Convertir la columna 'FECHA' a datetime y luego formatear para quitar la hora
+    df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'], format='%Y-%m-%d').dt.strftime('%d/%m/%Y')
+
+# Ordenar el DataFrame por la columna 'FECHA'
+    df_diario = df_diario.sort_values(by='FECHA', key=lambda x: pd.to_datetime(x, format='%d/%m/%Y'))
+
+# Reiniciar el índice
+    df_diario = df_diario.reset_index(drop=True)
+
+# Crear la hoja 'Indicadores Total'
+
+    with pd.ExcelWriter(file_seguimiento, mode='a', engine='openpyxl') as writer:
+        df_diario.to_excel(writer, sheet_name='Indicadores Total', index=False)
+    
+
+    print(f"Agregado como hoja 'Indicadores Total' en {file_seguimiento}")
+
+    
 
 
 #### Esto probablemente sea mejor ejectutarlo en otro lado y dejar el script solo con las funciones, pero como esto es un script que en teoría solo se va a usar esta vez vale la pena revisar ###
