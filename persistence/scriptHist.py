@@ -1112,24 +1112,24 @@ def histTotalIndicadores(file_seguimiento, file_ubicar1, file_ubicar2, file_mdvr
 
 ## ESTAS RUTAS TOCA ACTUALIZARLAS CON LAS MÄS RECIENTES
 
-# seguimiento = r"C:\Users\Soporte\Documents\Vehículos\scripts\seguimiento.xlsx"
-# fileUbicar1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicar\travel_sheet_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720449216.xls"
-# fileUbicar2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicar\overspeeds_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720449079.xlsx"
-# fileMDVR1 = "C:\\Users\\Soporte\\Documents\\Vehículos\\Informes historicos\\MDVR\\travel_sheet_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720447772.xls"
-# fileMDVR2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\MDVR\overspeeds_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720446976.xlsx"
-# fileUbicom1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicom\Reporte diario.xlsx"
-# fileUbicom2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicom\Estacionados.xlsx"
-# fileSecuritrac = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Securitrac\securitracTodo.xls"
-# fileWialon1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-08_09-43-09.xlsx"
-# fileWialon2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-08_09-43-40.xlsx"
-# fileWialon3 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-08_09-44-04.xlsx"
-# fileIturan1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\ITURAN\Desplazamientos y Kilometraje.xls"
-# fileIturan2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\ITURAN\Excesos.xls"
+seguimiento = r"C:\Users\Soporte\Documents\Vehículos\scripts\seguimiento.xlsx"
+fileUbicar1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicar\travel_sheet_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720449216.xls"
+fileUbicar2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicar\overspeeds_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720449079.xlsx"
+fileMDVR1 = "C:\\Users\\Soporte\\Documents\\Vehículos\\Informes historicos\\MDVR\\travel_sheet_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720447772.xls"
+fileMDVR2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\MDVR\overspeeds_report_2024_01_01_00_00_00_2024_07_05_00_00_00_1720446976.xlsx"
+fileUbicom1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicom\Reporte diario.xlsx"
+fileUbicom2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Ubicom\Estacionados.xlsx"
+fileSecuritrac = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Securitrac\securitracTodo.xls"
+fileWialon1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-08_09-43-09.xlsx"
+fileWialon2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-08_09-43-40.xlsx"
+fileWialon3 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\Wialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-08_09-44-04.xlsx"
+fileIturan1 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\ITURAN\Desplazamientos y Kilometraje.xls"
+fileIturan2 = r"C:\Users\Soporte\Documents\Vehículos\Informes historicos\ITURAN\Excesos.xls"
 
 
 ## Esto llena la hoja de seguimiento en el Excel.
 
-#agregar_datos_historicos(seguimiento, file_ubicar1, file_ubicar2, file_mdvr1, file_mdvr2, file_ubicom1, file_ubicom2, file_securitrac, file_wialon1, file_wialon2, file_wialon3, file_ituran1, file_ituran2)
+# agregar_datos_historicos(seguimiento, fileUbicar1, fileUbicar2, fileMDVR1, fileMDVR2, fileUbicom1, fileUbicom2, fileSecuritrac, fileWialon1, fileWialon2, fileWialon3, fileIturan1, fileIturan2)
 
 ## Esta para que sigue es la que llena la tabla de seguimiento
 
