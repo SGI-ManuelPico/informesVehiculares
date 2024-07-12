@@ -288,51 +288,53 @@ def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan, archi
 
     return listaFinal
 
-# Crear el archivo Excel seguimiento.xlsx con los datos extraídos.
+# Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-def crear_excel(archivoMDVR1, archivoMDVR2, archivoIturan, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2):
-    data = ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2)
-    df = pd.DataFrame(data)
-
-    # Crear un DataFrame para el formato específico
-    placas = df['placa'].unique()
-    fechas = pd.date_range(start='2024-01-01', periods=366, freq='D')  # Rango de fechas para todo el año
-
-    # Crear una estructura de DataFrame vacía con el formato deseado
-    rows = []
-    for placa in placas:
-        rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
-        rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Desplazamiento'})
-        rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
-        rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
-        rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
-
-    df_formato = pd.DataFrame(rows)
-
-    # Agregar columnas para cada día del año
-    for fecha in fechas:
-        df_formato[fecha.strftime('%d/%m')] = ''
-
+def crear_excel(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx'):
+    # Ejecutar todas las extracciones
+    nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
+    
+    # Convertir la lista de nuevos datos a DataFrame
+    df_nuevos = pd.DataFrame(nuevos_datos)
+    
+    # Esto es para la persistencia
+    if not os.path.exists(output_file):
+        placas = df_nuevos['placa'].unique()
+        fechas = pd.date_range(start='2024-01-01', periods=365, freq='D')  # Ajustar el rango de fechas según sea necesario
+        
+        rows = []
+        for placa in placas:
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Desplazamiento'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
+        
+        df_formato = pd.DataFrame(rows)
+        
+        # Agrega columnas para cada día del año con nombres de meses (No pude hacer que quedara tal cual como en el formato ejemplo)
+        for fecha in fechas:
+            mes_dia = fecha.strftime('%d/%m')
+            df_formato[mes_dia] = ''
+    else:
+        print('Ya existe seguimiento.xlsx')
+        # Leer el DataFrame existente
+        df_formato = pd.read_excel(output_file)
+    
     # Rellenar los datos en el DataFrame con el formato deseado
-    for _, row in df.iterrows():
+    for _, row in df_nuevos.iterrows():
         fecha = pd.to_datetime(row['fecha'], format='%d/%m/%Y')
         dia = fecha.strftime('%d/%m')
-        df_formato.loc[(df_formato['PLACA'] == row['placa']) & (df_formato['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
-        df_formato.loc[(df_formato['PLACA'] == row['placa']) & (df_formato['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
-        df_formato.loc[(df_formato['PLACA'] == row['placa']) & (df_formato['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
-        df_formato.loc[(df_formato['PLACA'] == row['placa']) & (df_formato['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
-        df_formato.loc[(df_formato['PLACA'] == row['placa']) & (df_formato['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
-
+        placa = row['placa']
+        
+        df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+        df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+        df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+        df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+        df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+    
     # Guardar el DataFrame en un archivo Excel
-    writer = pd.ExcelWriter('seguimiento.xlsx', engine='openpyxl')
-    df_formato.to_excel(writer, index=False, sheet_name='Sheet1')
-
-    # Congelar paneles
-    workbook  = writer.book
-    worksheet = writer.sheets['Sheet1']
-    worksheet.freeze_panes = worksheet['C2']  # Congelar la primera fila y las dos primeras columnas
-
-    writer.close()
+    df_formato.to_excel(output_file, index=False)
 
 
 # Infractores diario Ubicar
