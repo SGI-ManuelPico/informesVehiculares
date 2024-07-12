@@ -31,7 +31,7 @@ class wialonDatos(Navegador):
             print("Error.")
         
         #Consulta de las placas que componen a Wialon.
-        cursor.execute("select * from vehiculos.vehiculos where numeroExcesosVelocidad >0")
+        cursor.execute("select * from vehiculos.placasVehiculos where plataforma = 'Wialon'")
         placasPWialon = cursor.fetchall() #Obtener todos los resultados
         
         #Desconectar BD
@@ -40,8 +40,8 @@ class wialonDatos(Navegador):
         ##########
 
 
-        placasPWialon = pd.DataFrame(placasPWialon, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa']).drop(['eliminar','Placa'],axis=1)
-        placasWialon = placasPWialon['Conductor'].tolist()
+        placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma','proyecto','marca','propietario'])
+        placasWialon = placasPWialon['Placa'].tolist()
 
         Navegador.rutaNavegador()
 

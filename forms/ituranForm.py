@@ -47,11 +47,10 @@ class IturanDatos(Navegador):
         # Botón ingreso
         driver.find_element(By.ID,"btnLogon").click()
 
-        time.sleep(50)
+
         ####################################
         ##### Selección Informe General ####
         ####################################
-
 
 
         # Seleccionar "Reportes de flota".
@@ -97,7 +96,7 @@ class IturanDatos(Navegador):
 
         driver.switch_to.default_content()
 
-        # Seleccionar "Exceso de velocidad por vehículo (resumen)"
+        # Seleccionar "Exceso de velocidad por vehículo (detallado)"
         WebDriverWait(driver,50).until(EC.presence_of_element_located((By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[2]")))
         time.sleep(1)
         driver.find_element(By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[2]").click()
