@@ -89,7 +89,7 @@ def extraerIturan(file1, file2):
 
 # Extraer los datos de los informes de MDVR.
 
-def extraerMDVR(file1, file2): #file2 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
+def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
 # Cargar el archivo de Excel usando xlrd
     workbook = xlrd.open_workbook(file1)
@@ -271,10 +271,10 @@ def extraerWialon(file1, file2, file3):
 
 # Ejecuta todas las extracciones y las une en una única lista.
 
-def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2):
+def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2):
     # Ejecutar cada función de extracción con los archivos proporcionados
     datosMDVR = extraerMDVR(archivoMDVR1, archivoMDVR2)
-    datosIturan = extraerIturan(archivoIturan)
+    datosIturan = extraerIturan(archivoIturan1 , archivoIturan2)
     datosSecuritrac = extraerSecuritrac(archivoSecuritrac)
     datosWialon = extraerWialon(archivoWialon1, archivoWialon2, archivoWialon3)
     datosUbicar = extraerUbicar(archivoUbicar1, archivoUbicar2)
@@ -287,9 +287,9 @@ def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan, archi
 
 # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-def crear_excel(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx'):
+def crear_excel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx'):
     # Ejecutar todas las extracciones
-    nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
+    nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
     
     # Convertir la lista de nuevos datos a DataFrame
     df_nuevos = pd.DataFrame(nuevos_datos)
@@ -650,4 +650,21 @@ def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
             writer.book.remove(std)
         # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
         df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
+
+mdvr_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804327.xls"
+mdvr_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804333.xlsx"
+archivoIturan1 = r"C:\Users\SGI SAS\Downloads\report.csv"
+archivoIturan2 = r"C:\Users\SGI SAS\Downloads\report(1).csv"
+securitrac_file = r"C:\Users\SGI SAS\Downloads\exported-excel.xls"
+wialon_file1 = r"C:\Users\SGI SAS\Downloads\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-46.xlsx"
+wialon_file2 = r"C:\Users\SGI SAS\Downloads\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-57.xlsx"
+wialon_file3 = r"C:\Users\SGI SAS\Downloads\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-28.xlsx"
+ubicar_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803683.xlsx"
+ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
+ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
+ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
+
+
+
+crear_excel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx')
 
