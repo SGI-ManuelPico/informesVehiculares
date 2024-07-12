@@ -1,14 +1,15 @@
 import sys
-from forms.ituranForm import rpaIturan
-from forms.MDVRForm import rpaMDVR
-from forms.securitracForm import rpaSecuritrac
-from forms.ubicarForm import rpaUbicar
-from forms.ubicomForm import rpaUbicom
-from forms.wialonForm import rpaWialon
-from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput
+# from forms.ituranForm import rpaIturan
+# from forms.MDVRForm import rpaMDVR
+# from forms.securitracForm import rpaSecuritrac
+# from forms.ubicarForm import rpaUbicar
+# from forms.ubicomForm import rpaUbicom
+# from forms.wialonForm import rpaWialon
+# from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput
+
 
 def main():
-
+    print("A")
     # Realizar los RPA en orden.
     # rpaIturan()
     # rpaMDVR()
@@ -24,7 +25,7 @@ def main():
 
 
     # # Enviar correo.
-    enviarCorreoPersonal()
+    #enviarCorreoPersonal()
     
     # Eliminar las carpetas del output ya que se tiene toda la información.
     #eliminarArchivosOutput()
