@@ -8,12 +8,12 @@ import os
 from util.funcionalidadVehicular import Navegador
 
 class IturanDatos(Navegador):
-   def __init__(self):
+   def __init__(self, opcionesNavegador, opcionDescarga):
     self.archivoIturan1 = os.getcwd() + "\\outputIturan\\report.csv"
     self.archivoIturan2 = os.getcwd() + "\\outputIturan\\report (1).csv"
     self.archivoIturan3 = os.getcwd() + "\\outputIturan\\report (2).csv"
-    self.self.opcionesNavegador = self.self.opcionesNavegador
-    self.self.opcionDescarga = self.self.opcionDescarga
+    self.opcionesNavegador = opcionesNavegador
+    self.opcionDescarga = opcionDescarga
 
     def rpaIturan():
         """

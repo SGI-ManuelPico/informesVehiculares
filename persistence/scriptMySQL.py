@@ -376,7 +376,7 @@ def actualizarSeguimientoSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, 
     print("Datos insertados correctamente en la tabla seguimiento.")
 
 
-# Actulzar infractores (Esto ya está en otra parte, me toca moverlo acá)
+# Actualizar infractores (Esto ya está en otra parte, me toca moverlo acá)
 
 # Actualizar Kilometraje. Esto todavía no está 100% testeado, toca revisarlo.
 

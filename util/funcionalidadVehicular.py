@@ -33,9 +33,9 @@ def enviarCorreoPersonal():
         print("Error.")
     
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("select * from vehiculos.pablo where numeroExcesosVelocidad >0")
+    cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
     tablaExcesos = cursor.fetchall()
-    cursor.execute("select * from vehiculos.pablo2")
+    cursor.execute("select * from vehiculos.correoVehicular")
     tablaCorreos = cursor.fetchall()
 
     #Desconectar BD
@@ -122,7 +122,7 @@ def enviarCorreoConductor():
         print("Error.")
     
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("select * from vehiculos.pablo where numeroExcesosVelocidad >0")
+    cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
     tablaExcesos2 = cursor.fetchall() #Obtener todos los resultados
     
     #Desconectar BD

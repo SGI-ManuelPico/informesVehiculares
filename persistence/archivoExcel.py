@@ -3,15 +3,8 @@ import openpyxl
 import re
 import xlrd
 import os
-from forms.securitracForm import archivoSecuritrac
-from forms.ubicomForm import archivoUbicom1, archivoUbicom2
-from forms.MDVRForm import archivoMDVR1, archivoMDVR2
-from forms.ubicarForm import archivoUbicar1, archivoUbicar2
-from forms.wialonForm import archivoWialon1, archivoWialon2, archivoWialon3
 from openpyxl import load_workbook
 
-
-##### PASAR
 
 # Extraer información del informe de Ubicar.
 
@@ -341,24 +334,6 @@ def crear_excel(archivoMDVR1, archivoMDVR2, archivoIturan, archivoSecuritrac, ar
 
     writer.close()
 
-
-# Definir ruta de los archivos de cada plataforma de manera universal.
-archivoIturan = os.getcwd() + "\\outputIturan\\Over speed by vehicle (summary).xls"
-
-# ESTO ES UN EJEMPLO DE COMO SE EJECUTA LA FUNCIÓN
-crear_excel(
-    archivoMDVR1,
-    archivoMDVR2,
-    archivoIturan,
-    archivoSecuritrac,
-    archivoWialon1,
-    archivoWialon2,
-    archivoWialon3,
-    archivoUbicar1,
-    archivoUbicar2,
-    archivoUbicom1,
-    archivoUbicom2
-)
 
 # Infractores diario Ubicar
 

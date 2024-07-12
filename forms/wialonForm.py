@@ -4,124 +4,142 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from util.funcionalidadVehicular import Navegador
+from db.conexionDB import conexionDB
+import pandas as pd
 import os
 import glob
 
-#class WialonDatos:
-#   def __init__(self):
+class wialonDatos(Navegador):
+    def __init__(self):
+        self.opcionesNavegador = Navegador.opcionesNavegador
+        self.opcionDescarga = Navegador.opcionDescarga
+        self.lugarDescargas = Navegador.lugarDescargas 
 
-def rpaWialon():
-    """
-    Realiza el proceso del RPA para la plataforma Wialon.
-    """
-    placasWialon = ["JTV645", "LPN816", "LPN821"] # ESTO DEBERÍA SALIR DE LA CONEXIÓN A LA BASE DE DATOS.
+    def rpaWialon():
+        """
+        Realiza el proceso del RPA para la plataforma Wialon.
+        """
 
-    opcionesNavegador = webdriver.ChromeOptions()
-    lugarDescargasWialon = os.getcwd() + r"\outputWialon"
-    if not os.path.exists(lugarDescargasWialon):
-        os.makedirs(lugarDescargasWialon)
+        ########### Conexión con la base de datos.
 
-    opcionDescarga = {
-        "download.default_directory": lugarDescargasWialon,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-    }
+        # Tabla del correo.
+        conexionBaseCorreos = conexionDB().establecerConexion()
+        if conexionBaseCorreos:
+            cursor = conexionBaseCorreos.cursor()
+        else:
+            print("Error.")
+        
+        #Consulta de las placas que componen a Wialon.
+        cursor.execute("select * from vehiculos.vehiculos where numeroExcesosVelocidad >0")
+        placasPWialon = cursor.fetchall() #Obtener todos los resultados
+        
+        #Desconectar BD
+        conexionDB().cerrarConexion()
 
-    opcionesNavegador.add_experimental_option("prefs", opcionDescarga)
-    driver = webdriver.Chrome(options= opcionesNavegador)
-    driver.set_window_size(1280, 720)
-
-
-    ####################################
-    #### Entrada e inicio de sesión ####
-    ####################################
-
-
-    # Entrada a página web de Wialon
-    driver.get("https://hosting.wialon.com/?lang=en")
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
+        ##########
 
 
-    # Usuario
-    driver.find_element(By.ID,"LoginInputControl").send_keys("DEIMER")
+        placasPWialon = pd.DataFrame(placasPWialon, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa']).drop(['eliminar','Placa'],axis=1)
+        placasWialon = placasPWialon['Conductor'].tolist()
 
-    # Contraseña
-    driver.find_element(By.CSS_SELECTOR,".PasswordInput").send_keys("Deimer*1")
+        Navegador.rutaNavegador()
 
-    # Botón ingreso
-    driver.find_element(By.ID,"monitoringLoginMainSubmitButton").click()
-
-
-    ####################################
-    ##### Selección Informe General ####
-    ####################################
+        Navegador.opcionesNavegador.add_experimental_option("prefs", Navegador.opcionDescarga)
+        driver = webdriver.Chrome(options= Navegador.opcionesNavegador)
+        driver.set_window_size(1280, 720)
 
 
-
-    # Seleccionar template "INFORME DETALLADO POR UNIDAD".
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
-    time.sleep(2)
-    driver.find_element(By.ID,"report_templates_filter_reports").click()
-    time.sleep(1)
-    driver.find_element(By.ID,"report_templates_filter_reports").send_keys("INFORME GENERAL")
-    time.sleep(1)
-    driver.find_element(By.XPATH,"/html/body/div[13]/div/div/div[3]/div/div[1]/div[1]/div[2]/div/div/div[2]/div/ul/li").click()
+        ####################################
+        #### Entrada e inicio de sesión ####
+        ####################################
 
 
-    ####################################
-    ####### Descargar por placa ########
-    ####################################
-
-    for placa in placasWialon:
-        # Seleccionar la placa.
-        driver.find_element(By.ID,"report_templates_filter_units").click()
-        time.sleep(1)
-        driver.find_element(By.ID,"report_templates_filter_units").send_keys(placa)
-        time.sleep(1)
-        driver.find_element(By.XPATH,"/html/body/div[13]/div/div/div[3]/div/div[1]/div[2]/div[2]/div[1]/div/div/div[1]/div/div[2]/div/ul/li").click()
+        # Entrada a página web de Wialon
+        driver.get("https://hosting.wialon.com/?lang=en")
+        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
 
 
-        # Oprimir el botón execute.
-        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
-        driver.find_element(By.ID,"report_templates_filter_params_execute").click()
+        # Usuario
+        driver.find_element(By.ID,"LoginInputControl").send_keys("DEIMER")
+
+        # Contraseña
+        driver.find_element(By.CSS_SELECTOR,".PasswordInput").send_keys("Deimer*1")
+
+        # Botón ingreso
+        driver.find_element(By.ID,"monitoringLoginMainSubmitButton").click()
 
 
-        # Oprimir botón Export.
-        WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
+        ####################################
+        ##### Selección Informe General ####
+        ####################################
+
+
+
+        # Seleccionar template "INFORME DETALLADO POR UNIDAD".
+        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
         time.sleep(2)
-        driver.find_element(By.XPATH,"/html/body/div[14]/div[6]/div/div/div[1]/div[7]/div/span/div").click()
-
-        # Descargar en Excel para el día seleccionado. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
+        driver.find_element(By.ID,"report_templates_filter_reports").click()
         time.sleep(1)
-        driver.find_element(By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)").click()
+        driver.find_element(By.ID,"report_templates_filter_reports").send_keys("INFORME GENERAL")
+        time.sleep(1)
+        driver.find_element(By.XPATH,"/html/body/div[13]/div/div/div[3]/div/div[1]/div[1]/div[2]/div/div/div[2]/div/ul/li").click()
 
 
-    ####################################
-    ####### Cierre del Webdriver #######
-    ####################################
+        ####################################
+        ####### Descargar por placa ########
+        ####################################
+
+        for placa in placasWialon:
+            # Seleccionar la placa.
+            driver.find_element(By.ID,"report_templates_filter_units").click()
+            time.sleep(1)
+            driver.find_element(By.ID,"report_templates_filter_units").send_keys(placa)
+            time.sleep(1)
+            driver.find_element(By.XPATH,"/html/body/div[13]/div/div/div[3]/div/div[1]/div[2]/div[2]/div[1]/div/div/div[1]/div/div[2]/div/ul/li").click()
 
 
-    archivoWialon1=archivoWialon2=archivoWialon3 = str()
-    archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
+            # Oprimir el botón execute.
+            WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
+            driver.find_element(By.ID,"report_templates_filter_params_execute").click()
 
-    # Si  se encuentran 3 archivos xlsx, para cada uno mire si la placa coincide con una placa de la lista que sale de la base de datos.
-    while len(archivos) == 3:
-        for archivo in archivos:
-            for placa in placasWialon:
-                # Colocar el nombre del archivo. Esta parte será importante para el archivo de Excel.
-                # Creo que se puede hacer más eficiente, sin tantos if, pero no estoy seguro.
-                if placa == placasWialon[0]:
-                    archivoWialon1 += archivo
-                elif placa == placasWialon[1]:
-                    archivoWialon2 += archivo
-                else:
-                    archivoWialon3 += archivo
 
-        # Si se encuentran 3 archivos xlsx, puede cerrarse el driver.
-        time.sleep(2)
-        driver.quit()
-    else:
-        time.sleep(2)
+            # Oprimir botón Export.
+            WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
+            time.sleep(2)
+            driver.find_element(By.XPATH,"/html/body/div[14]/div[6]/div/div/div[1]/div[7]/div/span/div").click()
 
-    # if os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon1)) and os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon2)) and os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon4)):
+            # Descargar en Excel para el día seleccionado. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
+            WebDriverWait(driver,50).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
+            time.sleep(1)
+            driver.find_element(By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)").click()
+
+
+        ####################################
+        ####### Cierre del Webdriver #######
+        ####################################
+
+
+        archivoWialon1=archivoWialon2=archivoWialon3 = str()
+        archivos = glob.glob(os.path.join(self.lugarDescargas, '*.xlsx'))
+
+        # Si  se encuentran 3 archivos xlsx, para cada uno mire si la placa coincide con una placa de la lista que sale de la base de datos.
+        while len(archivos) == 3:
+            for archivo in archivos:
+                for placa in placasWialon:
+                    # Colocar el nombre del archivo. Esta parte será importante para el archivo de Excel.
+                    # Creo que se puede hacer más eficiente, sin tantos if, pero no estoy seguro.
+                    if placa == placasWialon[0]:
+                        archivoWialon1 += archivo
+                    elif placa == placasWialon[1]:
+                        archivoWialon2 += archivo
+                    else:
+                        archivoWialon3 += archivo
+
+            # Si se encuentran 3 archivos xlsx, puede cerrarse el driver.
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
+
+        # if os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon1)) and os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon2)) and os.path.isfile(str(lugarDescargasWialon + "\\" + archivoWialon4)):
