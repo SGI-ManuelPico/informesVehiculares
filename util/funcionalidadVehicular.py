@@ -122,7 +122,7 @@ def enviarCorreoConductor():
         print("Error.")
     
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("select PLACA FECHA CONDUCTOR TIEMPO DE EXCESO CORREOCOPIA from vehiculos.infractores where numeroExcesosVelocidad >0")
+    cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
     tablaExcesos2 = cursor.fetchall() #Obtener todos los resultados
     
     #Desconectar BD
@@ -131,7 +131,7 @@ def enviarCorreoConductor():
     ##########
 
     # Ajustes adicionales a la tabla de excesos 2.
-    tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa', 'Duración de excesos de velocidad']).drop(['eliminar','Placa'],axis=1)
+    tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa', 'Duración de excesos de velocidad', 'correoCopia']).drop(['eliminar'],axis=1)
     listaConductores = tablaExcesos2['Conductor'].tolist()
     tablaExcesos2 = tablaExcesos2.drop(columns='FECHA')
     tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Tiempo de exceso de velocidad': 'sum', 'Conductor':'first', 'correo': 'first'})
@@ -144,8 +144,10 @@ def enviarCorreoConductor():
 
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = tablaExcesos3.loc[conductorVehicular]['Correo']
-        correoCopia = "pab.aoarc@gmail.com"
+        correoReceptor = []
+        correoCopia = []
+        correoReceptor = correoReceptor.append(tablaExcesos3.loc[conductorVehicular]['Correo'])
+        correoCopia = correoCopia.append(tablaExcesos3.loc[conductorVehicular]['correoCopia'])
         correoDestinatarios = [correoReceptor] + [correoCopia]
 
         # Texto del correo.
@@ -155,7 +157,8 @@ def enviarCorreoConductor():
         Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
         
         Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
-        Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}"""
+        Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
+        Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}"""
 
         if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
             correoTexto = correoTexto + f"""
@@ -177,8 +180,8 @@ def enviarCorreoConductor():
 
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-        mensajeCorreo['To'] = correoReceptor
-        mensajeCorreo['Cc'] = correoCopia
+        mensajeCorreo['To'] = ", ".join(correoReceptor)
+        mensajeCorreo['Cc'] = ", ".join(correoCopia)
         mensajeCorreo['Subject'] = correoAsunto
         mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
 
@@ -192,7 +195,7 @@ def enviarCorreoConductor():
 
 
 ####################################
-###### Definir ruta navegador ######
+###### Definir ruta navegador ###### NO ESTÁ SIENDO USADO EN ESTE MOMENTO.
 ####################################
 
 def rutaNavegador(plataforma):
