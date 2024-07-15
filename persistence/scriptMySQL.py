@@ -13,48 +13,44 @@ from sqlalchemy.orm import sessionmaker
 
     # Ituran 
 
-def sqlIturan(file):
-    # Cargar el archivo Excel usando xlrd
-    workbook = xlrd.open_workbook(file)
-    sheet = workbook.sheet_by_index(0)
-
-    fecha_texto = sheet.cell_value(3, 0)  # La celda A4 es la cuarta fila (índice 3) y primera columna (índice 0)
-
-    # Extraer la fecha del texto usando expresiones regulares
-    fechas = re.findall(r'\d{2}/\d{2}/\d{4}', fecha_texto)
-    fecha_inicio = fechas[0]  # Primera fecha encontrada
-
-    # Lista para almacenar los datos extraídos
-    datos_extraidos = []
-
+def sqlIturan(file1, file2):
+    # Cargar el archivo csv
+    itu = pd.read_csv(file1)[['NICK_NAME', 'TOTAL_TRIP_DISTANCE', 'TOTAL_NUMBER_OF_TRIPS']]
+    itu2 = pd.read_csv(file2)
     current_datetime = datetime.now()
     current_time = current_datetime.strftime("%H:%M:%S")
 
-    # Iterar sobre las filas del reporte
-    for row_idx in range(7, sheet.nrows-1):
-        placa = sheet.cell_value(row_idx, 2)
-        km_recorridos = sheet.cell_value(row_idx, 8)
-        num_excesos = int(sheet.cell_value(row_idx, 3))
-        dia_trabajado = 1 if km_recorridos > 0 else 0
-        preoperacional = 1 if dia_trabajado == 1 else '-'
-        desplazamientos = sheet.cell_value(row_idx, 10)
+    fecha = datetime.now().strftime('%d/%m/%Y') + ' ' + current_time
     
+    # Cambiar el nombre de las columnas
+    itu = itu.rename(columns={
+        'NICK_NAME': 'placa',
+        'TOTAL_TRIP_DISTANCE': 'km_recorridos',
+        'TOTAL_NUMBER_OF_TRIPS': 'num_desplazamientos'
+    })
+    
+    # Agregar columna 'fecha'
+    itu['fecha'] = fecha
+    
+    # Agregar columnas 'dia_trabajado' y 'preoperacional'
+    itu['dia_trabajado'] = itu['km_recorridos'].apply(lambda x: 1 if x > 0 else 0)
+    itu['preoperacional'] = itu['dia_trabajado'].apply(lambda x: 1 if x == 1 else '-')
+    
+    # Calcular el número de excesos de velocidad y crear DataFrame para fusiones
+    excesos = itu2[itu2['TOP_SPEED'] > 80].groupby('V_NICK_NAME').size().reset_index(name='num_excesos')
+    excesos = excesos.rename(columns={'V_NICK_NAME': 'placa'})
+    
+    # Unir el DataFrame de excesos con el DataFrame itu
+    itu = itu.merge(excesos, on='placa', how='left')
+    
+    # Reemplazar los valores NaN en la columna num_excesos por 0
+    itu['num_excesos'] = itu['num_excesos'].fillna(0).astype(int)
 
-        # Crear el diccionario con los datos de cada fila
-        datos_fila = {
-            'placa': placa,
-            'fecha': fecha_inicio + ' ' + current_time,
-            'km_recorridos': km_recorridos,
-            'dia_trabajado': dia_trabajado,
-            'preoperacional': preoperacional,
-            'num_excesos': num_excesos,
-            'num_desplazamientos': desplazamientos,
-            'proveedor': 'Ituran'
-        }
-
-        # Añadir los datos de la fila a la lista
-        datos_extraidos.append(datos_fila)
-
+    itu['proveedor'] = 'Ituran'
+    
+    # Convertir el DataFrame filtrado a un diccionario sin incluir el índice
+    datos_extraidos = itu.to_dict(orient='records')
+    
     return datos_extraidos
 
     # MDVR
@@ -304,10 +300,10 @@ def sqlWialon(file1, file2, file3):
 
     # Crear DF
 
-def ejecutarTodasExtraccionesSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
+def ejecutarTodasExtraccionesSQL(file_ituran, file_ituran2, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
     # Ejecutar cada función de extracción con los archivos proporcionados
     datos_mdvr = sqlMDVR(file_MDVR1, file_MDVR2)
-    datos_ituran = sqlIturan(file_ituran)
+    datos_ituran = sqlIturan(file_ituran, file_ituran2)
     datos_securitrac = sqlSecuritrac(file_Securitrac)
     datos_wialon = sqlWialon(file_Wialon1, file_Wialon2, file_Wialon3)
     datos_ubicar = sqlUbicar(file_Ubicar1, file_Ubicar2)
@@ -347,10 +343,11 @@ def ejecutarTodasExtraccionesSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubica
 
     # Actualizar 'seguimiento'
 
-def actualizarSeguimientoSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
+def actualizarSeguimientoSQL(file_ituran, file_ituran2, file_MDVR1, file_MDVR2, file_Ubicar1, file_Ubicar2, file_Ubicom1, file_Ubicom2, file_Securitrac, file_Wialon1, file_Wialon2, file_Wialon3):
 
     df_seguimiento = ejecutarTodasExtraccionesSQL(
-    file_ituran, 
+    file_ituran,
+    file_ituran2, 
     file_MDVR1, 
     file_MDVR2, 
     file_Ubicar1, 
@@ -411,5 +408,5 @@ def actualizarKilometraje(file_ituran, file_ubicar):
 
         session.execute(consulta_sql, {'nuevo_valor': kilometraje, 'primary_key_value': placa1})
         session.commit()
-    session.close()
+    session.close() 
     
