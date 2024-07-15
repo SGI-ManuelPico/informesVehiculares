@@ -393,7 +393,7 @@ def actualizarKilometraje(file_ituran, file_ubicar):
     schema = 'vehiculos'
     tabla = 'carro'
 
-# Crear la cadena de conexión usando las variables
+    # Crear la cadena de conexión usando las variables
     engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
 
     Session = sessionmaker(bind=engine)
@@ -408,8 +408,8 @@ def actualizarKilometraje(file_ituran, file_ubicar):
 
         kilometraje = placa['KILOMETRAJE']
         placa1 = placa['PLACA']
-    
+
         session.execute(consulta_sql, {'nuevo_valor': kilometraje, 'primary_key_value': placa1})
         session.commit()
+    session.close()
     
-    session.close() 
