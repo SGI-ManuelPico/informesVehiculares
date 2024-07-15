@@ -2,9 +2,10 @@ import pandas as pd
 import openpyxl
 import re
 import xlrd
-from sqlalchemy import create_engine, text
 from datetime import datetime
 from archivoExcel import OdomIturan, odomUbicar
+from sqlalchemy import create_engine, text, Table, update
+from sqlalchemy.orm import sessionmaker
 
 # ACTUALIZAR SEGUIMIENTO EN LA BASE DE DATOS 'vehiculos'
 
@@ -378,60 +379,37 @@ def actualizarSeguimientoSQL(file_ituran, file_MDVR1, file_MDVR2, file_Ubicar1, 
 
 # Actualizar infractores (Esto ya está en otra parte, me toca moverlo acá)
 
-# Actualizar Kilometraje. Esto todavía no está 100% testeado, toca revisarlo.
+# Actualizar Kilometraje. 
 
 def actualizarKilometraje(file_ituran, file_ubicar):
-    # Credenciales y parámetros de conexión
-    user = 'root'
-    password = '123456678'
-    host = 'localhost'
-    port = '3306'
-    schema = 'vehiculos'
-    table_name = 'carro'
-
-    # Crear la cadena de conexión usando las variables
-    engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
-
-    # Leer la tabla 'carro' desde MySQL
-    df_carro = pd.read_sql_table(table_name, con=engine)
-
-    # Generar df_odometro combinando registros de Ituran y Ubicar
     todos_registros = OdomIturan(file_ituran) + odomUbicar(file_ubicar)
     df_odometro = pd.DataFrame(todos_registros)
 
-    # Convertir los valores de las columnas a mayúsculas para evitar problemas de coincidencia
-    df_carro['placa'] = df_carro['placa'].str.upper().str.replace('-', '')
-    df_odometro['PLACA'] = df_odometro['PLACA'].str.upper()
 
-    # Renombrar la columna 'PLACA' en df_odometro a 'placa'
-    df_odometro.rename(columns={'PLACA': 'placa'}, inplace=True)
+    user = 'root'
+    password = '12345678'
+    host = 'localhost'
+    port = '3306'
+    schema = 'vehiculos'
+    tabla = 'carro'
 
-    # Verificar si la columna 'KILOMETRAJE' existe y agregarla si es necesario
-    with engine.connect() as connection:
-        result = connection.execute(text(f"SHOW COLUMNS FROM {table_name} LIKE 'KILOMETRAJE';"))
-        if result.rowcount == 0:
-            connection.execute(text(f"ALTER TABLE {table_name} ADD COLUMN KILOMETRAJE FLOAT;"))
+# Crear la cadena de conexión usando las variables
+    engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{schema}')
 
-    # Unir los DataFrames en la columna 'placa'
-    df_result = pd.merge(df_carro, df_odometro[['placa', 'KILOMETRAJE']], on='placa', how='left')
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-    # Crear una tabla temporal para almacenar los resultados y actualizar la tabla 'carro'
-    with engine.connect() as connection:
-        # Cargar los datos de df_result en una tabla temporal
-        df_result.to_sql('carro_temp', con=engine, if_exists='replace', index=False)
-        
-        # Actualizar la columna 'KILOMETRAJE' en la tabla 'carro' usando la tabla temporal
-        update_query = """
-        UPDATE carro c
-        JOIN carro_temp t ON c.placa = t.placa
-        SET c.KILOMETRAJE = t.KILOMETRAJE;
-        """
-        connection.execute(text(update_query))
-        
-        # Eliminar la tabla temporal
-        connection.execute(text("DROP TABLE carro_temp;"))
+    consulta_sql = text(f'''
+    UPDATE {tabla}
+    SET {'Kilometraje'} = :nuevo_valor
+    WHERE {'Placas'} = :primary_key_value
+    ''')
+    for index, placa in df_odometro.iterrows():
 
-    print("Datos actualizados correctamente en la tabla carro.")
-
-
-
+        kilometraje = placa['KILOMETRAJE']
+        placa1 = placa['PLACA']
+    
+        session.execute(consulta_sql, {'nuevo_valor': kilometraje, 'primary_key_value': placa1})
+        session.commit()
+    
+    session.close() 
