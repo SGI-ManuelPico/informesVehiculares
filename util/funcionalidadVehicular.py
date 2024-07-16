@@ -200,17 +200,3 @@ def enviarCorreoConductor():
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
-
-
-
-    opcionesNavegador = webdriver.ChromeOptions()
-    carpetaOutput = r"\output" + "\\" + plataforma
-    lugarDescargas = os.getcwd() + carpetaOutput
-    if not os.path.exists(lugarDescargas):
-        os.makedirs(lugarDescargas)
-
-    opcionDescarga = {
-        "download.default_directory": lugarDescargas,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-    }
