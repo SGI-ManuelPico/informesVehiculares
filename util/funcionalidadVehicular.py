@@ -131,8 +131,11 @@ def enviarCorreoConductor():
     ##########
 
     # Ajustes adicionales a la tabla de excesos 2.
-    tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa']).drop(['eliminar','Placa'],axis=1)
+    tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa', 'Duración de excesos de velocidad', 'correoCopia']).drop(['eliminar'],axis=1)
     listaConductores = tablaExcesos2['Conductor'].tolist()
+    tablaExcesos2 = tablaExcesos2.drop(columns='FECHA')
+    tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Tiempo de exceso de velocidad': 'sum', 'Conductor':'first', 'correo': 'first'})
+
 
     #### Loop para realizar el envío del correo.
     for conductorVehicular in listaConductores:
@@ -141,7 +144,11 @@ def enviarCorreoConductor():
 
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = tablaExcesos3.loc[conductorVehicular]['Correo']
+        correoReceptor = []
+        correoCopia = []
+        correoReceptor = correoReceptor.append(tablaExcesos3.loc[conductorVehicular]['Correo'])
+        correoCopia = correoCopia.append(tablaExcesos3.loc[conductorVehicular]['correoCopia'])
+        correoDestinatarios = [correoReceptor] + [correoCopia]
 
         # Texto del correo.
         correoTexto = f"""Buenos días. Espero que se encuentre bien.
@@ -151,40 +158,55 @@ def enviarCorreoConductor():
         
         Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
         Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
-        
-        Atentamente,
-        Departamento de Tecnología y desarrollo, SGI SAS"""
+        Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}"""
+
+        if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
+            correoTexto = correoTexto + f"""
+            Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su valor del exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos.
+            Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
+
+            Atentamente,
+            Departamento de Tecnología y desarrollo, SGI SAS
+            """
+        else:
+            correoTexto = correoTexto + f"""
+
+            Atentamente,
+            Departamento de Tecnología y desarrollo, SGI SAS
+            """
+
         
         correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
 
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-        mensajeCorreo['To'] = correoReceptor
+        mensajeCorreo['To'] = ", ".join(correoReceptor)
+        mensajeCorreo['Cc'] = ", ".join(correoCopia)
         mensajeCorreo['Subject'] = correoAsunto
         mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
+
 
         # Inicializar el correo y enviar.
         servidorCorreo = smtplib.SMTP('smtp.hostinger.com', 587)
         servidorCorreo.starttls()
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
-        servidorCorreo.sendmail(correoEmisor, correoReceptor, mensajeCorreo.as_string())
+        servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
 
 
 ####################################
-###### Definir ruta navegador ######
+###### Definir ruta navegador ###### NO ESTÁ SIENDO USADO EN ESTE MOMENTO.
 ####################################
 
-class Navegador():
-    def rutaNavegador(plataforma):
-        opcionesNavegador = webdriver.ChromeOptions()
-        carpetaOutput = r"\output" + plataforma
-        lugarDescargas = os.getcwd() + carpetaOutput
-        if not os.path.exists(lugarDescargas):
-            os.makedirs(lugarDescargas)
+def rutaNavegador(plataforma):
+    opcionesNavegador = webdriver.ChromeOptions()
+    carpetaOutput = r"\output" + "\\" + plataforma
+    lugarDescargas = os.getcwd() + carpetaOutput
+    if not os.path.exists(lugarDescargas):
+        os.makedirs(lugarDescargas)
 
-        opcionDescarga = {
-            "download.default_directory": lugarDescargas,
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-        }
+    opcionDescarga = {
+        "download.default_directory": lugarDescargas,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+    }
