@@ -12,9 +12,8 @@ from tkinter import messagebox
 
 from persistence.indicadores import Indicadores
 from persistence.extraerExcel import ExtraerExcel
-from db.conexionDB import conexionDB
 
-class Historico(conexionDB):
+class Historico():
 
     def __init__(self):
         super().__init__()
