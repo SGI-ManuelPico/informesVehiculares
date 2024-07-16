@@ -6,7 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.header import Header
 from email import encoders
-#from db.conexionDB import conexionDB
+from db.conexionDB import conexionDB
 import datetime
 import pandas as pd
 from selenium import webdriver
@@ -202,11 +202,7 @@ def enviarCorreoConductor():
         servidorCorreo.quit()
 
 
-####################################
-###### Definir ruta navegador ###### NO ESTÁ SIENDO USADO EN ESTE MOMENTO.
-####################################
 
-def rutaNavegador(plataforma):
     opcionesNavegador = webdriver.ChromeOptions()
     carpetaOutput = r"\output" + "\\" + plataforma
     lugarDescargas = os.getcwd() + carpetaOutput
