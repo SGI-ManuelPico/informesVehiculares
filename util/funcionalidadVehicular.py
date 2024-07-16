@@ -73,8 +73,7 @@ class Correo():
 
         correoTexto = textwrap.dedent(correoTexto)
         correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
-        plataformasFinalRuta = os.getcwd() + '\\plataformasFinal.xlsx'
-
+        
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificación SGI', 'utf-8')} <{correoEmisor}>"
         mensajeCorreo['To'] = ", ".join(correoReceptor)
