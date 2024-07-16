@@ -2,15 +2,15 @@ import os
 import shutil
 import smtplib
 from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.header import Header
 from email import encoders
-from pathlib import Path
-from db.conexionDB import conexionDB
+#from db.conexionDB import conexionDB
 import datetime
 import pandas as pd
 from selenium import webdriver
+import textwrap
 
 
 ####################################
@@ -43,7 +43,7 @@ def enviarCorreoPersonal():
 
     # Modificaciones iniciales a los datos de las consultas.
     tablaCorreos = pd.DataFrame(tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
-    tablaExcesos = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'velocidadExceso', 'Conductor'])
+    tablaExcesos = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
 
    
     correoReceptor = tablaCorreos['correo'].dropna().tolist()
@@ -52,34 +52,35 @@ def enviarCorreoPersonal():
     correoEmisor = 'notificaciones.sgi@appsgi.com.co'
     correoDestinatarios = correoReceptor + correoCopia
 
-
     # Texto del correo.
-    correoTexto = f"""Buenos días. Espero que se encuentre bien.
-    
-    Mediante el presente correo puede encontrar el informe vehicular actualizado hasta el día de hoy.
-    En este, podrá encontrar información como el número y duración de los excesos de velocidad, el kilometraje diario y total del vehículo, o el número de desplazamientos de cada vehículo.
-    Asimismo, mediante el presente correo puede encontrar una tabla con el número de excesos de velocidad por vehículo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.
-    
-    {tablaExcesos}
-    
-    Atentamente,
-    Departamento de Tecnología y desarrollo, SGI SAS"""
-    
+    correoTexto = f"""
+    <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
+
+    <p>Mediante el presente correo puede encontrar el informe vehicular actualizado hasta el d&iacute;a de hoy.<br>
+    En este, podr&aacute; encontrar informaci&oacute;n como el n&uacute;mero y duraci&oacute;n de los excesos de velocidad, el kilometraje diario y total del veh&iacute;culo, o el n&uacute;mero de desplazamientos de cada veh&iacute;culo.<br>
+    Asimismo, mediante el presente correo puede encontrar una tabla con el n&uacute;mero de excesos de velocidad por veh&iacute;culo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.</p>
+
+    {tablaExcesos.to_html()}
+
+    <p>Atentamente,<br>
+    Departamento de tecnología y desarrollo, SGI SAS</p>"""
+
+    correoTexto = textwrap.dedent(correoTexto)
     correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
-    plataformasFinalRuta = os.getcwd() + '\\seguimiento.xlsx'
+    plataformasFinalRuta = os.getcwd() + '\\plataformasFinal.xlsx'
 
     mensajeCorreo = MIMEMultipart()
-    mensajeCorreo['From'] = f"{Header('Notificacion SGI', 'utf-8')} <{correoEmisor}>"
+    mensajeCorreo['From'] = f"{Header('Notificación SGI', 'utf-8')} <{correoEmisor}>"
     mensajeCorreo['To'] = ", ".join(correoReceptor)
     mensajeCorreo['Cc'] = ", ".join(correoCopia)
     mensajeCorreo['Subject'] = correoAsunto
-    mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
-    with open(plataformasFinalRuta, "rb") as ruta:
-        r=MIMEApplication(ruta.read(), Name="plataformasFinal.xlsx")
-        r.set_payload(ruta.read())
-    encoders.encode_base64(r)
-    r.add_header('Content-Disposition','attachment; filename={}'.format(Path(plataformasFinalRuta).name))
-    mensajeCorreo.attach(r)
+    mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
+    
+    part = MIMEBase('application', "octet-stream")
+    part.set_payload(open("seguimiento.xlsx", "rb").read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename="seguimiento.xlsx"')
+    mensajeCorreo.attach(part)
 
     # Inicializar el correo y enviar.
     servidorCorreo = smtplib.SMTP('smtp.hostinger.com', 587)
@@ -134,7 +135,7 @@ def enviarCorreoConductor():
     tablaCorreos2 = pd.DataFrame(tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
     tablaExcesos2 = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'Conductor'])
-    tablaExcesos2['numeroExcesos'] = 1
+    tablaExcesos2['Número de excesos de velocidad'] = 1
     tablaExcesos2['correoCopia'] = tablaCorreos2.iloc[0]['correo']
     tablaExcesos2['correo'] = tablaCorreos2.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INGFRACTORES
     tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Duración de excesos de velocidad': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número de excesos de velocidad' : 'sum'})
@@ -149,44 +150,46 @@ def enviarCorreoConductor():
 
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = []
-        correoCopia = []
-        correoReceptor = correoReceptor.append(tablaExcesos3.loc[conductorVehicular]['Correo'])
-        correoCopia = correoCopia.append(tablaExcesos3.loc[conductorVehicular]['correoCopia'])
+        correoReceptor = tablaExcesos3.loc[conductorVehicular]['correo']
+        correoCopia = tablaExcesos3.loc[conductorVehicular]['correoCopia']
         correoDestinatarios = [correoReceptor] + [correoCopia]
+        correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
 
         # Texto del correo.
-        correoTexto = f"""Buenos días. Espero que se encuentre bien.
+        correoTexto = f"""
+        Buenos días. Espero que se encuentre bien.
         
-        Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día.
-        Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
+        Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día. Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
         
         Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
         Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
-        Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}"""
+        Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}
+        """
 
         if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
-            correoTexto = correoTexto + f"""
-            Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos.
-            Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
+            correoTexto2 = f"""
+            Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
 
             Atentamente,
             Departamento de Tecnología y desarrollo, SGI SAS
             """
         else:
-            correoTexto = correoTexto + f"""
-
+            correoTexto2 = f"""
+            
             Atentamente,
             Departamento de Tecnología y desarrollo, SGI SAS
             """
-
         
-        correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
+        # Para formatear el texto de manera correcta.
+        correoTexto2 = textwrap.dedent(correoTexto2)
+        correoTexto = textwrap.dedent(correoTexto)
+        correoTexto = correoTexto + correoTexto2
 
+        # Creación del correo.
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-        mensajeCorreo['To'] = ", ".join(correoReceptor)
-        mensajeCorreo['Cc'] = ", ".join(correoCopia)
+        mensajeCorreo['To'] = correoReceptor
+        mensajeCorreo['Cc'] = correoCopia
         mensajeCorreo['Subject'] = correoAsunto
         mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
 
