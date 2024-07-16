@@ -5,6 +5,7 @@ import xlrd
 import os
 from openpyxl import load_workbook
 from datetime import datetime 
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 from persistence.extraerExcel import ExtraerExcel
 
@@ -15,18 +16,17 @@ class ModificarExcel():
 
     # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-    def crear_excel(self, mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx'):
+    def crear_excel3(self, mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento3.xlsx'):
         # Ejecutar todas las extracciones
-        nuevos_datos = self.extraer.ejecutarTodasExtraccionesExcel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
-        
+        nuevos_datos = self.extraer.ejecutarTodasExtraccionesExcel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
         # Convertir la lista de nuevos datos a DataFrame
         df_nuevos = pd.DataFrame(nuevos_datos)
-        
-        # Esto es para la persistencia
+
         if not os.path.exists(output_file):
+            # Si el archivo no existe, crear el DataFrame inicial con el formato deseado
             placas = df_nuevos['placa'].unique()
             fechas = pd.date_range(start='2024-01-01', periods=365, freq='D')  # Ajustar el rango de fechas según sea necesario
-            
+
             rows = []
             for placa in placas:
                 rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
@@ -34,35 +34,46 @@ class ModificarExcel():
                 rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
                 rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
                 rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
-            
+
             df_formato = pd.DataFrame(rows)
-            
-            # Agrega columnas para cada día del año con nombres de meses (No pude hacer que quedara tal cual como en el formato ejemplo)
+
             for fecha in fechas:
                 mes_dia = fecha.strftime('%d/%m')
                 df_formato[mes_dia] = ''
-                
-        else:
-            print('Ya existe seguimiento.xlsx')
-            # Leer el DataFrame existente
-            df_formato = pd.read_excel(output_file)
-        
-        # Rellenar los datos en el DataFrame con el formato deseado
-        for _, row in df_nuevos.iterrows():
-            fecha = pd.to_datetime(row['fecha'], format='%d/%m/%Y')
-            dia = fecha.strftime('%d/%m')
-            placa = row['placa']
-            
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
-        
-        # Guardar el DataFrame en un archivo Excel
-        df_formato.to_excel(output_file, sheet_name="Seguimiento", index=False)
 
-        return df_formato
+            # Guardar el DataFrame en un archivo Excel
+            with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+                df_formato.to_excel(writer, sheet_name='Seguimiento', index=False)
+
+        else:
+            # Leer el archivo existente
+            book = load_workbook(output_file)
+            if 'Seguimiento' in book.sheetnames:
+                sheet = book['Seguimiento']
+                df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
+            else:
+                sheet = book.create_sheet('Seguimiento')
+                df_existente = pd.DataFrame()
+
+            # Rellenar los datos en el DataFrame con el formato deseado
+            for _, row in df_nuevos.iterrows():
+                fecha = pd.to_datetime(row['fecha'], format='%d/%m/%Y')
+                dia = fecha.strftime('%d/%m')
+                placa = row['placa']
+
+                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+
+            # Escribir los datos actualizados en la hoja 'seguimiento'
+            for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
+                for c_idx, value in enumerate(row, 1):
+                    sheet.cell(row=r_idx, column=c_idx, value=value)
+
+            # Guardar el archivo Excel
+            book.save(output_file)
 
     # Actualiza la hoja Infractores de la hoja de Excel. (Todavía falta testear esta función con otros archivos)
     def actualizarInfractores(self, file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, file_Wialon, file_Securitrac):
