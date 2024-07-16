@@ -23,17 +23,15 @@ def enviarCorreoPersonal():
     Realiza el proceso del envío del correo al personal de SGI interesado.
     """
 
-    ########### Conexión con la base de datos.
-
-    # Tabla del correo.
+    ######### Tabla del correo.
     conexionBaseCorreos = conexionDB().establecerConexion()
     if conexionBaseCorreos:
         cursor = conexionBaseCorreos.cursor()
     else:
         print("Error.")
-    
+
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
+    cursor.execute("SELECT placa, tiempo_exceso, velocidad_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.correoVehicular")
     tablaCorreos = cursor.fetchall()
@@ -44,8 +42,10 @@ def enviarCorreoPersonal():
     ##########
 
     # Modificaciones iniciales a los datos de las consultas.
-    tablaExcesos = pd.DataFrame(tablaExcesos, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad']).drop(['eliminar','Correo'],axis=1)
     tablaCorreos = pd.DataFrame(tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
+    tablaExcesos = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'velocidadExceso', 'Conductor'])
+
+   
     correoReceptor = tablaCorreos['correo'].dropna().tolist()
     correoCopia = tablaCorreos['correoCopia'].dropna().tolist()
     # Datos sobre el correo.
@@ -66,7 +66,7 @@ def enviarCorreoPersonal():
     Departamento de Tecnología y desarrollo, SGI SAS"""
     
     correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
-    plataformasFinalRuta = os.getcwd() + '\\plataformasFinal.xlsx'
+    plataformasFinalRuta = os.getcwd() + '\\seguimiento.xlsx'
 
     mensajeCorreo = MIMEMultipart()
     mensajeCorreo['From'] = f"{Header('Notificacion SGI', 'utf-8')} <{correoEmisor}>"
@@ -112,30 +112,35 @@ def enviarCorreoConductor():
     Realiza el proceso del envío del correo a los conductores que tuvieron excesos de velocidad.
     """
 
-    ########### Conexión con la base de datos.
-
-    # Tabla del correo.
+    ######### Tabla del correo.
     conexionBaseCorreos = conexionDB().establecerConexion()
     if conexionBaseCorreos:
         cursor = conexionBaseCorreos.cursor()
     else:
         print("Error.")
-    
+
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
-    tablaExcesos2 = cursor.fetchall() #Obtener todos los resultados
-    
+    cursor.execute("SELECT placa, tiempo_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
+    tablaExcesos = cursor.fetchall()
+    cursor.execute("select * from vehiculos.correoVehicular")
+    tablaCorreos2 = cursor.fetchall()
+
     #Desconectar BD
     conexionDB().cerrarConexion()
 
     ##########
 
-    # Ajustes adicionales a la tabla de excesos 2.
-    tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa', 'Duración de excesos de velocidad', 'correoCopia']).drop(['eliminar'],axis=1)
-    listaConductores = tablaExcesos2['Conductor'].tolist()
-    tablaExcesos2 = tablaExcesos2.drop(columns='FECHA')
-    tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Tiempo de exceso de velocidad': 'sum', 'Conductor':'first', 'correo': 'first'})
+    # Modificaciones iniciales a los datos de las consultas.
+    tablaCorreos2 = pd.DataFrame(tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
+    tablaExcesos2 = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'Conductor'])
+    tablaExcesos2['numeroExcesos'] = 1
+    tablaExcesos2['correoCopia'] = tablaCorreos2.iloc[0]['correo']
+    tablaExcesos2['correo'] = tablaCorreos2.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INGFRACTORES
+    tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Duración de excesos de velocidad': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número de excesos de velocidad' : 'sum'})
+
+
+    listaConductores = tablaExcesos2['Conductor'].tolist()
 
     #### Loop para realizar el envío del correo.
     for conductorVehicular in listaConductores:
@@ -162,7 +167,7 @@ def enviarCorreoConductor():
 
         if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
             correoTexto = correoTexto + f"""
-            Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su valor del exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos.
+            Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos.
             Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
 
             Atentamente,
