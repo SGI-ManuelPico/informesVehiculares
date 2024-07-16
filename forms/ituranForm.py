@@ -9,14 +9,12 @@ from util.funcionalidadVehicular import Correo
 
 class IturanDatos():
    
-    def __init__(self, opcionesNavegador, opcionDescarga):
+    def __init__(self):
         self.archivoIturan1 = os.getcwd() + "\\report.csv"
         self.archivoIturan2 = os.getcwd() + "\\report(1).csv"
         self.archivoIturan3 = os.getcwd() + "\\report(2).csv"
-        opcionesNavegador = opcionesNavegador
-        opcionDescarga = opcionDescarga
 
-    def rpaIturan(self):
+    def rpaIturan(self, opcionesNavegador, opcionDescarga):
         """
         Realiza el proceso del RPA para la plataforma Ituran.
         """
@@ -24,7 +22,6 @@ class IturanDatos():
         ####################################
         #### Entrada e inicio de sesión ####
         ####################################
-
 
         opcionesNavegador = webdriver.ChromeOptions()
         lugarDescargasIturan = os.getcwd() + "\\outputIturan"

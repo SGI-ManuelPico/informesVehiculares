@@ -1,11 +1,11 @@
 import sys
-#from forms.ituranForm import IturanDatos
-# from forms.MDVRForm import rpaMDVR
-# from forms.securitracForm import rpaSecuritrac
-# from forms.ubicarForm import rpaUbicar
-# from forms.ubicomForm import rpaUbicom
+from forms.ituranForm import IturanDatos
+#from forms.MDVRForm import rpaMDVR
+#from forms.securitracForm import rpaSecuritrac
+#from forms.ubicarForm import rpaUbicar
+#from forms.ubicomForm import rpaUbicom
 #from forms.wialonForm import WialonDatos
-#from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput
+from util.funcionalidadVehicular import Correo
 from persistence.updateSQL import ActualizarBD
 
 
@@ -13,6 +13,9 @@ def main():
     """
     Ejecuta todos los códigos de la RPA en orden.
     """
+    
+    correos = Correo()
+
     #PRUEBA GABRIEL
     actualizar = ActualizarBD()
 
@@ -52,12 +55,12 @@ def main():
 
 
     #Ituran
-    # try:
-    #     IturanDatos.rpaIturan()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    try:
+        IturanDatos.rpaIturan(ARGUMENTO1, ARGUMENTO2) #El argumento 1 y 2 toca mirar de donde sacarlos (Eso lo sabe pablo)
+    except:
+        correos.eliminarArchivosOutput()
+        print("Hubo un error en el acceso por el internet.")
+        sys.exit()
 
     # # MDVR
     # try:

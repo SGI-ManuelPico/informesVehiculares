@@ -4,17 +4,15 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-#from util.funcionalidadVehicular import Navegador
 from db.conexionDB import conexionDB
 import pandas as pd
 import os
 import glob
 
-# class wialonDatos(Navegador):
-#     def __init__(self):
-#         self.opcionesNavegador = Navegador.opcionesNavegador
-#         self.opcionDescarga = Navegador.opcionDescarga
-#         self.lugarDescargas = Navegador.lugarDescargas 
+class wialonDatos():
+
+    def __init__(self):
+        pass
 
 def rpaWialon():
     """
@@ -131,7 +129,7 @@ def rpaWialon():
 
 
     archivoWialon1=archivoWialon2=archivoWialon3 = str()
-    archivos = glob.glob(os.path.join(lugarDescargas, '*.xlsx'))
+    archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
 
     # Si  se encuentran 3 archivos xlsx, para cada uno mire si la placa coincide con una placa de la lista que sale de la base de datos.
     while len(archivos) == 3:
