@@ -1357,7 +1357,7 @@ ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
 ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
 
 
-agregar_datos_historicos(seguimiento, ubicar_file1, ubicar_file2, mdvr_file1, mdvr_file2, ubicom_file1, ubicom_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ituran_file1, ituran_file2)
+#agregar_datos_historicos(seguimiento, ubicar_file1, ubicar_file2, mdvr_file1, mdvr_file2, ubicom_file1, ubicom_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ituran_file1, ituran_file2)
 
 ## Esto llena la hoja de seguimiento en el Excel.
 
