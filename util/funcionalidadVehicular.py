@@ -27,17 +27,15 @@ class Correo():
         Realiza el proceso del envío del correo al personal de SGI interesado.
         """
 
-        ########### Conexión con la base de datos.
-
-        # Tabla del correo.
+        ######### Tabla del correo.
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
             cursor = conexionBaseCorreos.cursor()
         else:
             print("Error.")
-        
+
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
+        cursor.execute("SELECT placa, tiempo_exceso, velocidad_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
         tablaExcesos = cursor.fetchall()
         cursor.execute("select * from vehiculos.correoVehicular")
         tablaCorreos = cursor.fetchall()
@@ -48,42 +46,45 @@ class Correo():
         ##########
 
         # Modificaciones iniciales a los datos de las consultas.
-        tablaExcesos = pd.DataFrame(tablaExcesos, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad']).drop(['eliminar','Correo'],axis=1)
         tablaCorreos = pd.DataFrame(tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
+        tablaExcesos = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
+
+    
         correoReceptor = tablaCorreos['correo'].dropna().tolist()
         correoCopia = tablaCorreos['correoCopia'].dropna().tolist()
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
         correoDestinatarios = correoReceptor + correoCopia
 
-
         # Texto del correo.
-        correoTexto = f"""Buenos días. Espero que se encuentre bien.
-        
-        Mediante el presente correo puede encontrar el informe vehicular actualizado hasta el día de hoy.
-        En este, podrá encontrar información como el número y duración de los excesos de velocidad, el kilometraje diario y total del vehículo, o el número de desplazamientos de cada vehículo.
-        Asimismo, mediante el presente correo puede encontrar una tabla con el número de excesos de velocidad por vehículo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.
-        
-        {tablaExcesos}
-        
-        Atentamente,
-        Departamento de Tecnología y desarrollo, SGI SAS"""
-        
+        correoTexto = f"""
+        <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
+
+        <p>Mediante el presente correo puede encontrar el informe vehicular actualizado hasta el d&iacute;a de hoy.<br>
+        En este, podr&aacute; encontrar informaci&oacute;n como el n&uacute;mero y duraci&oacute;n de los excesos de velocidad, el kilometraje diario y total del veh&iacute;culo, o el n&uacute;mero de desplazamientos de cada veh&iacute;culo.<br>
+        Asimismo, mediante el presente correo puede encontrar una tabla con el n&uacute;mero de excesos de velocidad por veh&iacute;culo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.</p>
+
+        {tablaExcesos.to_html()}
+
+        <p>Atentamente,<br>
+        Departamento de tecnología y desarrollo, SGI SAS</p>"""
+
+        correoTexto = textwrap.dedent(correoTexto)
         correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
         plataformasFinalRuta = os.getcwd() + '\\plataformasFinal.xlsx'
 
         mensajeCorreo = MIMEMultipart()
-        mensajeCorreo['From'] = f"{Header('Notificacion SGI', 'utf-8')} <{correoEmisor}>"
+        mensajeCorreo['From'] = f"{Header('Notificación SGI', 'utf-8')} <{correoEmisor}>"
         mensajeCorreo['To'] = ", ".join(correoReceptor)
         mensajeCorreo['Cc'] = ", ".join(correoCopia)
         mensajeCorreo['Subject'] = correoAsunto
-        mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
-        with open(plataformasFinalRuta, "rb") as ruta:
-            r=MIMEApplication(ruta.read(), Name="plataformasFinal.xlsx")
-            r.set_payload(ruta.read())
-        encoders.encode_base64(r)
-        r.add_header('Content-Disposition','attachment; filename={}'.format(Path(plataformasFinalRuta).name))
-        mensajeCorreo.attach(r)
+        mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
+        
+        part = MIMEBase('application', "octet-stream")
+        part.set_payload(open("seguimiento.xlsx", "rb").read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="seguimiento.xlsx"')
+        mensajeCorreo.attach(part)
 
         # Inicializar el correo y enviar.
         servidorCorreo = smtplib.SMTP('smtp.hostinger.com', 587)
@@ -91,7 +92,6 @@ class Correo():
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
-
 
     ####################################
     ##### Eliminar archivos del día ####
@@ -116,30 +116,35 @@ class Correo():
         Realiza el proceso del envío del correo a los conductores que tuvieron excesos de velocidad.
         """
 
-        ########### Conexión con la base de datos.
-
-        # Tabla del correo.
+        ######### Tabla del correo.
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
             cursor = conexionBaseCorreos.cursor()
         else:
             print("Error.")
-        
+
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("select * from vehiculos.infractorVehicular where numeroExcesosVelocidad >0")
-        tablaExcesos2 = cursor.fetchall() #Obtener todos los resultados
-        
+        cursor.execute("SELECT placa, tiempo_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
+        tablaExcesos = cursor.fetchall()
+        cursor.execute("select * from vehiculos.correoVehicular")
+        tablaCorreos2 = cursor.fetchall()
+
         #Desconectar BD
         conexionDB().cerrarConexion()
 
         ##########
 
-        # Ajustes adicionales a la tabla de excesos 2.
-        tablaExcesos2 = pd.DataFrame(tablaExcesos2, columns=['eliminar','Conductor', 'Correo', 'Número de excesos de velocidad','Placa', 'Duración de excesos de velocidad', 'correoCopia']).drop(['eliminar'],axis=1)
-        listaConductores = tablaExcesos2['Conductor'].tolist()
-        tablaExcesos2 = tablaExcesos2.drop(columns='FECHA')
-        tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Tiempo de exceso de velocidad': 'sum', 'Conductor':'first', 'correo': 'first'})
+        # Modificaciones iniciales a los datos de las consultas.
+        tablaCorreos2 = pd.DataFrame(tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
+        tablaExcesos2 = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'Conductor'])
+        tablaExcesos2['Número de excesos de velocidad'] = 1
+        tablaExcesos2['correoCopia'] = tablaCorreos2.iloc[0]['correo']
+        tablaExcesos2['correo'] = tablaCorreos2.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INGFRACTORES
+        tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Duración de excesos de velocidad': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número de excesos de velocidad' : 'sum'})
+
+
+        listaConductores = tablaExcesos2['Conductor'].tolist()
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
@@ -148,44 +153,46 @@ class Correo():
 
             # Datos sobre el correo.
             correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-            correoReceptor = []
-            correoCopia = []
-            correoReceptor = correoReceptor.append(tablaExcesos3.loc[conductorVehicular]['Correo'])
-            correoCopia = correoCopia.append(tablaExcesos3.loc[conductorVehicular]['correoCopia'])
+            correoReceptor = tablaExcesos3.loc[conductorVehicular]['correo']
+            correoCopia = tablaExcesos3.loc[conductorVehicular]['correoCopia']
             correoDestinatarios = [correoReceptor] + [correoCopia]
+            correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
 
             # Texto del correo.
-            correoTexto = f"""Buenos días. Espero que se encuentre bien.
+            correoTexto = f"""
+            Buenos días. Espero que se encuentre bien.
             
-            Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día.
-            Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
+            Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día. Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
             
             Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
             Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
-            Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}"""
+            Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}
+            """
 
             if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
-                correoTexto = correoTexto + f"""
-                Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su valor del exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos.
-                Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
+                correoTexto2 = f"""
+                Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
 
                 Atentamente,
                 Departamento de Tecnología y desarrollo, SGI SAS
                 """
             else:
-                correoTexto = correoTexto + f"""
-
+                correoTexto2 = f"""
+                
                 Atentamente,
                 Departamento de Tecnología y desarrollo, SGI SAS
                 """
-
             
-            correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
+            # Para formatear el texto de manera correcta.
+            correoTexto2 = textwrap.dedent(correoTexto2)
+            correoTexto = textwrap.dedent(correoTexto)
+            correoTexto = correoTexto + correoTexto2
 
+            # Creación del correo.
             mensajeCorreo = MIMEMultipart()
             mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-            mensajeCorreo['To'] = ", ".join(correoReceptor)
-            mensajeCorreo['Cc'] = ", ".join(correoCopia)
+            mensajeCorreo['To'] = correoReceptor
+            mensajeCorreo['Cc'] = correoCopia
             mensajeCorreo['Subject'] = correoAsunto
             mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
 
@@ -198,11 +205,7 @@ class Correo():
             servidorCorreo.quit()
 
 
-    ####################################
-    ###### Definir ruta navegador ###### NO ESTÁ SIENDO USADO EN ESTE MOMENTO.
-    ####################################
 
-    def rutaNavegador(plataforma):
         opcionesNavegador = webdriver.ChromeOptions()
         carpetaOutput = r"\output" + "\\" + plataforma
         lugarDescargas = os.getcwd() + carpetaOutput
@@ -213,4 +216,4 @@ class Correo():
             "download.default_directory": lugarDescargas,
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
-    }
+        }
