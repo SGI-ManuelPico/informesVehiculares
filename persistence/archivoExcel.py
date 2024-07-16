@@ -16,7 +16,7 @@ class ModificarExcel():
 
     # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-    def crear_excel3(self, mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento3.xlsx'):
+    def crear_excel(self, mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento3.xlsx'):
         # Ejecutar todas las extracciones
         nuevos_datos = self.extraer.ejecutarTodasExtraccionesExcel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
         # Convertir la lista de nuevos datos a DataFrame
@@ -132,8 +132,6 @@ class ModificarExcel():
 # ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
 # ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
 # ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
-
-
 
 # crear_excel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx')
 
