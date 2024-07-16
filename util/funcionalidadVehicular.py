@@ -32,7 +32,7 @@ def enviarCorreoPersonal():
     #Consulta de los correos necesarios para el correo.
     cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, VELOCIDAD MÁXIMA, CONDUCTOR FROM vehiculos.infractor where date(FECHA) like curdate();")
     tablaExcesos = cursor.fetchall()
-    cursor.execute("select * from vehiculos.correoVehicular")
+    cursor.execute("select * from vehiculos.plataformasVehiculares")
     tablaCorreos = cursor.fetchall()
 
     #Desconectar BD
@@ -121,7 +121,7 @@ def enviarCorreoConductor():
     #Consulta de los correos necesarios para el correo.
     cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, CONDUCTOR FROM vehiculos.infractor where date(FECHA)) like curdate();")
     tablaExcesos = cursor.fetchall()
-    cursor.execute("select * from vehiculos.correoVehicular")
+    cursor.execute("select * from vehiculos.plataformasVehiculares")
     tablaCorreos2 = cursor.fetchall()
 
     #Desconectar BD
