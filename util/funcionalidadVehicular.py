@@ -9,7 +9,6 @@ from email import encoders
 from db.conexionDB import conexionDB
 import datetime
 import pandas as pd
-from selenium import webdriver
 import textwrap
 
 
@@ -31,7 +30,7 @@ def enviarCorreoPersonal():
         print("Error.")
 
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("SELECT placa, tiempo_exceso, velocidad_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
+    cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, VELOCIDAD MÁXIMA, CONDUCTOR FROM vehiculos.infractor where date(FECHA) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.correoVehicular")
     tablaCorreos = cursor.fetchall()
@@ -67,7 +66,6 @@ def enviarCorreoPersonal():
 
     correoTexto = textwrap.dedent(correoTexto)
     correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
-    plataformasFinalRuta = os.getcwd() + '\\plataformasFinal.xlsx'
 
     mensajeCorreo = MIMEMultipart()
     mensajeCorreo['From'] = f"{Header('Notificación SGI', 'utf-8')} <{correoEmisor}>"
@@ -121,7 +119,7 @@ def enviarCorreoConductor():
         print("Error.")
 
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("SELECT placa, tiempo_exceso, conductor FROM vehiculos.detallesexcvel where date(fecha_evento) like curdate();")
+    cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, CONDUCTOR FROM vehiculos.infractor where date(FECHA)) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.correoVehicular")
     tablaCorreos2 = cursor.fetchall()
