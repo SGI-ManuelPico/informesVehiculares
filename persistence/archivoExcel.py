@@ -5,6 +5,7 @@ import xlrd
 import os
 from openpyxl import load_workbook
 from datetime import datetime 
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 # Extraer información del informe de Ubicar.
 
@@ -70,7 +71,7 @@ def extraerIturan(file1, file2):
     
     # Agregar columnas 'dia_trabajado' y 'preoperacional'
     itu['dia_trabajado'] = itu['km_recorridos'].apply(lambda x: 1 if x > 0 else 0)
-    itu['preoperacional'] = itu['dia_trabajado'].apply(lambda x: 1 if x == 1 else '-')
+    itu['preoperacional'] = itu['dia_trabajado'].apply(lambda x: 1 if x == 1 else 0)
     
     # Calcular el número de excesos de velocidad y crear DataFrame para fusiones
     excesos = itu2[itu2['TOP_SPEED'] > 80].groupby('V_NICK_NAME').size().reset_index(name='num_excesos')
@@ -104,7 +105,7 @@ def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe
     fecha = sheet.cell_value(1, 1).split()[0]  # A2 es (1, 1)
     km_recorridos = float(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
     dia_trabajado = 1 if km_recorridos > 0 else 0
-    preoperacional = 1 if dia_trabajado == 1 else None
+    preoperacional = 1 if dia_trabajado == 1 else 0
     num_excesos = int(sheet.cell_value(8, 1))  # A9 es (8, 1)
 
     #Contar número de desplazamientos
@@ -159,7 +160,7 @@ def extraerSecuritrac(file):
 
     for placa, datos in datos_por_placa.items():
         datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
-        datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else None
+        datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else 0
 
     datos = []
     for x in datos_por_placa.keys():
@@ -188,7 +189,7 @@ def extraerUbicom(file1, file2):
 
     # Calcular día trabajado y preoperacional
     dia_trabajado = 1 if km_recorridos > 0 else 0
-    preoperacional = 1 if dia_trabajado == 1 else None
+    preoperacional = 1 if dia_trabajado == 1 else 0
 
     # Extraer el número de desplazamientos
    
@@ -241,7 +242,7 @@ def extraerWialon(file1, file2, file3):
             
             # Calcular día trabajado y preoperacional
             dia_trabajado = 1 if km_recorridos > 0 else 0
-            preoperacional = 1 if dia_trabajado == 1 else None
+            preoperacional = 1 if dia_trabajado == 1 else 0
             
             # Crear el diccionario con los datos extraídos
             datos = {
@@ -260,7 +261,7 @@ def extraerWialon(file1, file2, file3):
                 'fecha': fecha_formateada,
                 'km_recorridos': 0,
                 'dia_trabajado': 0,
-                'preoperacional': None,
+                'preoperacional': 0,
                 'num_excesos': 0,
                 'num_desplazamientos': 0
             }
@@ -287,57 +288,64 @@ def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan1, arch
 
 # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-def crear_excel(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx'):
+def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento3.xlsx'):
+    # Ejecutar todas las extracciones
+    nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
+    # Convertir la lista de nuevos datos a DataFrame
+    df_nuevos = pd.DataFrame(nuevos_datos)
 
-    try:
-        # Ejecutar todas las extracciones
-        nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
-        
-        # Convertir la lista de nuevos datos a DataFrame
-        df_nuevos = pd.DataFrame(nuevos_datos)
-        
-        # Esto es para la persistencia
-        if not os.path.exists(output_file):
-            placas = df_nuevos['placa'].unique()
-            fechas = pd.date_range(start='2024-01-01', periods=365, freq='D')  # Ajustar el rango de fechas según sea necesario
-            
-            rows = []
-            for placa in placas:
-                rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
-                rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Desplazamiento'})
-                rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
-                rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
-                rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
-            
-            df_formato = pd.DataFrame(rows)
-            
-            # Agrega columnas para cada día del año con nombres de meses (No pude hacer que quedara tal cual como en el formato ejemplo)
-            for fecha in fechas:
-                mes_dia = fecha.strftime('%d/%m')
-                df_formato[mes_dia] = ''
+    if not os.path.exists(output_file):
+        # Si el archivo no existe, crear el DataFrame inicial con el formato deseado
+        placas = df_nuevos['placa'].unique()
+        fechas = pd.date_range(start='2024-01-01', periods=365, freq='D')  # Ajustar el rango de fechas según sea necesario
+
+        rows = []
+        for placa in placas:
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Desplazamiento'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
+
+        df_formato = pd.DataFrame(rows)
+
+        for fecha in fechas:
+            mes_dia = fecha.strftime('%d/%m')
+            df_formato[mes_dia] = ''
+
+        # Guardar el DataFrame en un archivo Excel
+        with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+            df_formato.to_excel(writer, sheet_name='Seguimiento', index=False)
+
+    else:
+        # Leer el archivo existente
+        book = load_workbook(output_file)
+        if 'Seguimiento' in book.sheetnames:
+            sheet = book['Seguimiento']
+            df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
         else:
-            print('Ya existe seguimiento.xlsx')
-            # Leer el DataFrame existente
-            df_formato = pd.read_excel(output_file)
+            sheet = book.create_sheet('Seguimiento')
+            df_existente = pd.DataFrame()
 
-            return df_formato
-
-    finally:
-    
-    # Rellenar los datos en el DataFrame con el formato deseado
+        # Rellenar los datos en el DataFrame con el formato deseado
         for _, row in df_nuevos.iterrows():
             fecha = pd.to_datetime(row['fecha'], format='%d/%m/%Y')
             dia = fecha.strftime('%d/%m')
             placa = row['placa']
-            
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
-            df_formato.loc[(df_formato['PLACA'] == placa) & (df_formato['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
-        
-        # Guardar el DataFrame en un archivo Excel
-        df_formato.to_excel(output_file, index=False)
+
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+
+        # Escribir los datos actualizados en la hoja 'seguimiento'
+        for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
+            for c_idx, value in enumerate(row, 1):
+                sheet.cell(row=r_idx, column=c_idx, value=value)
+
+        # Guardar el archivo Excel
+        book.save(output_file)
 
 # Infractores diario Ubicar
 
@@ -624,13 +632,13 @@ def OdomIturan(file):
 
 def odomUbicar(file):
     # Leer el archivo de Excel
-    df = pd.read_excel(file)  # Ajustar skiprows si es necesario
+    df = pd.read_excel(file)  
 
     # Extraer la placa del vehículo de la celda B1, si agregan otro carro a esta plataforma toca cambiar como se extrae esto.
     placa = 'JYT620'
 
     # Extraer el odómetro de la celda correspondiente
-    odometro = df.iloc[11, 2]  # Ajustar el índice si es necesario
+    odometro = df.iloc[11, 2] 
 
     # Crear el diccionario con el formato requerido
     registro = {
@@ -670,9 +678,6 @@ ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_202
 ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
 ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
 
-
-
-crear_excel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx')
 
 ## ACTUALIZAR HOJAS DE INDICADORES 
 
