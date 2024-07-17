@@ -9,6 +9,10 @@ import os
 #class ubicomDatos:
 #   def __init__(self):
 
+archivoUbicom1 = os.getcwd() + "\\outputUbicom\\ReporteDiario.xls"
+archivoUbicom2 = os.getcwd() + "\\outputUbicom\\Estacionados.xls"
+
+
 def rpaUbicom():
     """
     Realiza el proceso del RPA para la plataforma Ubicom.
@@ -114,8 +118,6 @@ def rpaUbicom():
     driver.find_element(By.ID,"btnExportarEXCEL").click()
 
     # Cierre del webdriver.
-    archivoUbicom1 = os.getcwd() + "\\outputUbicom\\ReporteDiario.xls"
-    archivoUbicom2 = os.getcwd() + "\\outputUbicom\\Estacionados.xls"
     while os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
         time.sleep(2)
         driver.quit()

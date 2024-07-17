@@ -15,15 +15,14 @@ import os
 #     opcionesNavegador = opcionesNavegador
 #     opcionDescarga = opcionDescarga
 
+archivoIturan1 = os.getcwd() + "\\report.csv"
+archivoIturan2 = os.getcwd() + "\\report(1).csv"
+archivoIturan3 = os.getcwd() + "\\report(2).csv"
+
 def rpaIturan():
     """
     Realiza el proceso del RPA para la plataforma Ituran.
     """
-
-    archivoIturan1 = os.getcwd() + "\\report.csv"
-    archivoIturan2 = os.getcwd() + "\\report(1).csv"
-    archivoIturan3 = os.getcwd() + "\\report(2).csv"
-
 
     ####################################
     #### Entrada e inicio de sesión ####

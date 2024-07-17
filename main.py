@@ -1,16 +1,17 @@
-import sys
-from forms.ituranForm import rpaIturan
-from forms.MDVRForm import rpaMDVR
-from forms.securitracForm import rpaSecuritrac
+import sys, os
+from forms.ituranForm import rpaIturan, archivoIturan1, archivoIturan2, archivoIturan3
+from forms.MDVRForm import MDVRDatos
+from forms.securitracForm import rpaSecuritrac, archivoSecuritrac
 from forms.ubicarForm import rpaUbicar
-from forms.ubicomForm import rpaUbicom
+from forms.ubicomForm import rpaUbicom, archivoUbicom1, archivoUbicom2
 from forms.wialonForm import rpaWialon
 from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
-from persistence.archivoExcel import crear_excel, actualizarInfractores, odomUbicar, OdomIturan, actualizarOdom
+from persistence.archivoExcel import crear_excel, actualizarInfractores, actualizarOdom
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL 
 ##### FALTA ACTUALIZAR INFRACTORES SQL Y SEGUIMIENTO SQL
-##### FALTA CORREO CON RPA NO FUNCIONÓ.
+##### FALTA ACTUALIZAR INDICADORES Y TOTAL
 
+print(MDVRDatos.archivoMDVR1)
 def main():
     """
     Ejecuta todos los códigos de la RPA en orden.
@@ -31,7 +32,7 @@ def main():
 
     # MDVR
     try:
-        rpaMDVR()
+        MDVRDatos.rpaMDVR()
     except:
         print("Hubo un error en el acceso por el internet.")
         enviarCorreoPlataforma("MDVR")
@@ -70,16 +71,16 @@ def main():
     ####################################
 
 
+    archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
+
     # Actualización de seguimiento
-    crear_excel()
+    crear_excel(MDVRDatos.archivoMDVR1,MDVRDatos.archivoMDVR3, archivoIturan3, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
 
     # Actualización de infractores
-    actualizarInfractores
+    actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
     # Actualización del odómetro
-    odomUbicar()
-    OdomIturan()
-    actualizarOdom()
+    actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
 
     # Actualización de indicadores
     ################################################

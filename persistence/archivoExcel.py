@@ -321,7 +321,7 @@ def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan1, arch
 
 # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
-def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento3.xlsx'):
+def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file):
     # Ejecutar todas las extracciones
     nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
     # Convertir la lista de nuevos datos a DataFrame
@@ -640,9 +640,9 @@ def infracTodos(fileIturan, fileMDVR, fileUbicar, fileWialon, fileWialon2, fileW
 
 # Actualiza la hoja Infractores de la hoja de Excel. (Todavía falta testear esta función con otros archivos)
 
-def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, file_Wialon, file_Securitrac):
+def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac):
     # Obtener todas las infracciones combinadas
-    todos_registros = infracTodos(file_Ituran, file_MDVR, file_Ubicar, file_Wialon, file_Securitrac)
+    todos_registros = infracTodos(file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac)
     df_infractores = pd.DataFrame(todos_registros)
 
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto

@@ -12,6 +12,9 @@ import arrow
 #class securitracDatos:
 #   def __init__(self):
 
+archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
+
+
 def rpaSecuritrac():
     """
     Realiza el proceso del RPA para la plataforma Securitrac.
@@ -30,11 +33,6 @@ def rpaSecuritrac():
     opcionesNavegador.add_experimental_option("prefs", opcionDescarga)
     driver = webdriver.Chrome(options= opcionesNavegador)
     driver.set_window_size(1280, 720)
-
-
-    ###########
-    tiempoFuturo = arrow.now().shift(days=+1).date()
-    ###########
 
 
     ####################################
@@ -91,7 +89,6 @@ def rpaSecuritrac():
     driver.find_element(By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[3]/div/div/div[1]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div").click()
 
     # Cierre del webdriver.
-    archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
     while os.path.isfile(archivoSecuritrac):
         time.sleep(2)
         driver.quit()
