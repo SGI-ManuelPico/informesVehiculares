@@ -9,266 +9,299 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 
 # Extraer información del informe de Ubicar.
 
-def extraerUbicar(file1, file2): # file 1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
-    # Cargar el archivo de Excel
-    workbook = openpyxl.load_workbook(file1)
-    workbook2 = openpyxl.load_workbook(file2)
+def extraerUbicar(file1, file2): 
+    try:
+        # Cargar el archivo de Excel
+        workbook = openpyxl.load_workbook(file1)
+        workbook2 = openpyxl.load_workbook(file2)
 
-    sheet = workbook.active
+        sheet = workbook.active
+        sheet2 = workbook2.active
 
-    sheet2 = workbook2.active
+        # Extraer la información necesaria del reporte
+        placa_completa = sheet.cell(row=1, column=2).value
+        # Extraer la parte relevante de la placa
+        placa = placa_completa.split()[1] + placa_completa.split()[2]
+        fecha = sheet.cell(row=2, column=2).value.split()[0].replace('-', '/')
+        km_recorridos = float(sheet.cell(row=4, column=2).value.replace(' Km', ''))
+        dia_trabajado = 1 if km_recorridos > 0 else 0
+        preoperacional = 1 if dia_trabajado == 1 else None
+        numExcesos = sheet.cell(row=9, column=2).value
 
-    # Extraer la información necesaria del reporte
-    placa_completa = sheet.cell(row=1, column=2).value
-    # Extraer la parte relevante de la placa
-    placa = placa_completa.split()[1] + placa_completa.split()[2]
-    fecha = sheet.cell(row=2, column=2).value.split()[0].replace('-','/')
-    km_recorridos = float(sheet.cell(row=4, column=2).value.replace(' Km', ''))
-    dia_trabajado = 1 if km_recorridos > 0 else 0
-    preoperacional = 1 if dia_trabajado == 1 else None
-    numExcesos = sheet.cell(row=9, column=2).value
+        # Contar número de desplazamientos
+        num_desplazamientos = 0
+        for i in range(5, sheet2.max_row + 1):
+            if sheet2.cell(row=i, column=1).value == 'Movimiento':
+                num_desplazamientos += 1
 
-    #Contar número de desplazamientos
-    num_desplazamientos = 0
-    for i in range(5, sheet2.max_row + 1):
-        if sheet2.cell(row=i, column=1).value == 'Movimiento':
-            num_desplazamientos += 1
+        # Crear el diccionario con los datos extraídos
+        datos_extraidos = {
+            'placa': placa,
+            'fecha': fecha,
+            'km_recorridos': km_recorridos,
+            'dia_trabajado': dia_trabajado,
+            'preoperacional': preoperacional,
+            'num_excesos': numExcesos,
+            'num_desplazamientos': num_desplazamientos,
+        }
 
-
-
-
-    # Crear el diccionario con los datos extraídos
-    datos_extraidos = {
-        'placa': placa,
-        'fecha': fecha,
-        'km_recorridos': km_recorridos,
-        'dia_trabajado': dia_trabajado,
-        'preoperacional': preoperacional,
-        'num_excesos': numExcesos,
-        'num_desplazamientos': num_desplazamientos,
-    }
-
-    return [datos_extraidos]
+        return [datos_extraidos]
+    except Exception as e:
+        print('Archivos incorrectos o faltantes')
+        return []
 
 # Extraer los datos de los informes de Ituran.
 
 def extraerIturan(file1, file2):
-    # Cargar el archivo csv
-    itu = pd.read_csv(file1)[['NICK_NAME', 'TOTAL_TRIP_DISTANCE', 'TOTAL_NUMBER_OF_TRIPS']]
-    itu2 = pd.read_csv(file2)
+
+    try:
+        # Cargar el archivo csv
+        itu = pd.read_csv(file1)[['NICK_NAME', 'TOTAL_TRIP_DISTANCE', 'TOTAL_NUMBER_OF_TRIPS']]
+        itu2 = pd.read_csv(file2)
+        
+        fecha = datetime.now().strftime('%d/%m/%Y')
+        
+        # Cambiar el nombre de las columnas
+        itu = itu.rename(columns={
+            'NICK_NAME': 'placa',
+            'TOTAL_TRIP_DISTANCE': 'km_recorridos',
+            'TOTAL_NUMBER_OF_TRIPS': 'num_desplazamientos'
+        })
+        
+        # Agregar columna 'fecha'
+        itu['fecha'] = fecha
+        
+        # Agregar columnas 'dia_trabajado' y 'preoperacional'
+        itu['dia_trabajado'] = itu['km_recorridos'].apply(lambda x: 1 if x > 0 else 0)
+        itu['preoperacional'] = itu['dia_trabajado'].apply(lambda x: 1 if x == 1 else 0)
+        
+        # Calcular el número de excesos de velocidad y crear DataFrame para fusiones
+        excesos = itu2[itu2['TOP_SPEED'] > 80].groupby('V_NICK_NAME').size().reset_index(name='num_excesos')
+        excesos = excesos.rename(columns={'V_NICK_NAME': 'placa'})
+        
+        # Unir el DataFrame de excesos con el DataFrame itu
+        itu = itu.merge(excesos, on='placa', how='left')
+        
+        # Reemplazar los valores NaN en la columna num_excesos por 0
+        itu['num_excesos'] = itu['num_excesos'].fillna(0).astype(int)
+        
+        # Convertir el DataFrame filtrado a un diccionario sin incluir el índice
+        datos_extraidos = itu.to_dict(orient='records')
+        
+        return datos_extraidos
     
-    fecha = datetime.now().strftime('%d/%m/%Y')
-    
-    # Cambiar el nombre de las columnas
-    itu = itu.rename(columns={
-        'NICK_NAME': 'placa',
-        'TOTAL_TRIP_DISTANCE': 'km_recorridos',
-        'TOTAL_NUMBER_OF_TRIPS': 'num_desplazamientos'
-    })
-    
-    # Agregar columna 'fecha'
-    itu['fecha'] = fecha
-    
-    # Agregar columnas 'dia_trabajado' y 'preoperacional'
-    itu['dia_trabajado'] = itu['km_recorridos'].apply(lambda x: 1 if x > 0 else 0)
-    itu['preoperacional'] = itu['dia_trabajado'].apply(lambda x: 1 if x == 1 else 0)
-    
-    # Calcular el número de excesos de velocidad y crear DataFrame para fusiones
-    excesos = itu2[itu2['TOP_SPEED'] > 80].groupby('V_NICK_NAME').size().reset_index(name='num_excesos')
-    excesos = excesos.rename(columns={'V_NICK_NAME': 'placa'})
-    
-    # Unir el DataFrame de excesos con el DataFrame itu
-    itu = itu.merge(excesos, on='placa', how='left')
-    
-    # Reemplazar los valores NaN en la columna num_excesos por 0
-    itu['num_excesos'] = itu['num_excesos'].fillna(0).astype(int)
-    
-    # Convertir el DataFrame filtrado a un diccionario sin incluir el índice
-    datos_extraidos = itu.to_dict(orient='records')
-    
-    return datos_extraidos
+    # Si no se pueden sacar los archivos de la plataforma por alguna razón:
+
+    except Exception as e: 
+        print('Archivos incorrectos o faltantes')
+        return []
 
 # Extraer los datos de los informes de MDVR.
 
 def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
-# Cargar el archivo de Excel usando xlrd
-    workbook = xlrd.open_workbook(file1)
-    sheet = workbook.sheet_by_index(0)
-    workbook2 = openpyxl.load_workbook(file2)
-    sheet2 = workbook2.active
+    try:
+    # Cargar el archivo de Excel usando xlrd
+        workbook = xlrd.open_workbook(file1)
+        sheet = workbook.sheet_by_index(0)
+        workbook2 = openpyxl.load_workbook(file2)
+        sheet2 = workbook2.active
 
 
-    # Extraer la información necesaria del reporte
-    placa_completa = sheet.cell_value(0, 1)  # A1 es (0, 1)
-    placa = placa_completa.replace('-', '')  # Quitar el guion de la placa
-    fecha = sheet.cell_value(1, 1).split()[0]  # A2 es (1, 1)
-    km_recorridos = float(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
-    dia_trabajado = 1 if km_recorridos > 0 else 0
-    preoperacional = 1 if dia_trabajado == 1 else 0
-    num_excesos = int(sheet.cell_value(8, 1))  # A9 es (8, 1)
+        # Extraer la información necesaria del reporte
+        placa_completa = sheet.cell_value(0, 1)  # A1 es (0, 1)
+        placa = placa_completa.replace('-', '')  # Quitar el guion de la placa
+        fecha = sheet.cell_value(1, 1).split()[0]  # A2 es (1, 1)
+        km_recorridos = float(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
+        dia_trabajado = 1 if km_recorridos > 0 else 0
+        preoperacional = 1 if dia_trabajado == 1 else 0
+        num_excesos = int(sheet.cell_value(8, 1))  # A9 es (8, 1)
 
-    #Contar número de desplazamientos
-    num_desplazamientos = 0
-    for i in range(1, sheet2.max_row + 1):
-        if sheet2.cell(row=i, column=2).value == 'Movimiento':
-            num_desplazamientos += 1
+        #Contar número de desplazamientos
+        num_desplazamientos = 0
+        for i in range(1, sheet2.max_row + 1):
+            if sheet2.cell(row=i, column=2).value == 'Movimiento':
+                num_desplazamientos += 1
 
-    # Crear el diccionario con los datos extraídos
-    datos_extraidos = {
-        'placa': placa,
-        'fecha': fecha,
-        'km_recorridos': km_recorridos,
-        'dia_trabajado': dia_trabajado,
-        'preoperacional': preoperacional,
-        'num_excesos': num_excesos,
-        'num_desplazamientos': num_desplazamientos,
-    }
+        # Crear el diccionario con los datos extraídos
+        datos_extraidos = {
+            'placa': placa,
+            'fecha': fecha,
+            'km_recorridos': km_recorridos,
+            'dia_trabajado': dia_trabajado,
+            'preoperacional': preoperacional,
+            'num_excesos': num_excesos,
+            'num_desplazamientos': num_desplazamientos,
+        }
 
-    return [datos_extraidos]
+        return [datos_extraidos]
+    
+    except Exception as e: 
+        print('Archivos incorrectos o faltantes')
+        return []  
 
 # Extraer los datos de los informes de Securitrac.
 
-def extraerSecuritrac(file):
-   # Cargar el archivo de Excel usando pandas
-    df = pd.read_excel(file)
+def extraerSecuritrac(file_path):
 
-    # Diccionario para almacenar los datos por placa
-    datos_por_placa = {}
+    try:
+    # Cargar el archivo de Excel usando pandas
+        df = pd.read_excel(file_path)
+
+        # Diccionario para almacenar los datos por placa
+        datos_por_placa = {}
+
+        # Iterar sobre las filas del DataFrame
+        for index, row in df.iterrows():
+            placa = row['NROMOVIL']
+            evento = row['EVENTO']
+            kilometros = float(row['KILOMETROS'])
+            fecha = row['FECHAGPS']
+
+            # Formatear la fecha en dd/mm/aaaa
+            fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
+
+            if placa not in datos_por_placa:
+                datos_por_placa[placa] = {
+                    'placa': placa,
+                    'fecha': fecha_formateada,  # Usar la fecha formateada
+                    'km_recorridos': 0,
+                    'num_excesos': 0,
+                    'num_desplazamientos': 0
+                }
+            datos_por_placa[placa]['km_recorridos'] += kilometros
+            if evento == 'Exc. Velocidad':
+                datos_por_placa[placa]['num_excesos'] += 1
+            datos_por_placa[placa]['num_desplazamientos'] += 1
+
+        for placa, datos in datos_por_placa.items():
+            datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
+            datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else 0
+
+        datos = []
+        for x in datos_por_placa.keys():
+            datos.append(datos_por_placa[x])
+
+        return datos
     
-    for index, row in df.iterrows():
-        placa = row['NROMOVIL']
-        evento = row['EVENTO']
-        kilometros = float(row['KILOMETROS'])
-        fecha = row['FECHAGPS']
-
-    
-        fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
-
-        if placa not in datos_por_placa:
-            datos_por_placa[placa] = {
-                'placa': placa,
-                'fecha': fecha_formateada, 
-                'km_recorridos': 0,
-                'num_excesos': 0,
-                'num_desplazamientos': 0
-            }
-        datos_por_placa[placa]['km_recorridos'] += kilometros
-        if evento == 'Exc. Velocidad':
-            datos_por_placa[placa]['num_excesos'] += 1
-        datos_por_placa[placa]['num_desplazamientos'] += 1
-
-    for placa, datos in datos_por_placa.items():
-        datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
-        datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else 0
-
-    datos = []
-    for x in datos_por_placa.keys():
-        datos.append(datos_por_placa[x])
-
-    return datos
+    except Exception as e:
+        print('Archivos incorrectos o faltantes')
+        return []
 
 # Extraer los datos de los informes de Ubicom.
 
 def extraerUbicom(file1, file2):
-    # Cargar el archivo de Excel usando xlrd
-    workbook = xlrd.open_workbook(file1)
-    sheet = workbook.sheet_by_index(0)
-    workbook2 = xlrd.open_workbook(file2)
-    sheet2 = workbook2.sheet_by_index(0)
 
-    # Extraer la información necesaria del reporte
-    fecha = sheet.cell_value(11, 28).split()[0]  # Celda AC12
+    try: 
+        # Cargar el archivo de Excel usando xlrd
+        workbook = xlrd.open_workbook(file1)
+        sheet = workbook.sheet_by_index(0)
+        workbook2 = xlrd.open_workbook(file2)
+        sheet2 = workbook2.sheet_by_index(0)
+
+        # Extraer la información necesaria del reporte
+        fecha = sheet.cell_value(11, 28).split()[0]  # Celda AC12
+        
+        km_recorridos = float(sheet.cell_value(20, 12))  # Celda M20
     
-    km_recorridos = float(sheet.cell_value(20, 12))  # Celda M20
-  
-    num_excesos = int(sheet.cell_value(20, 21))  # Celda V20
-  
-    placa = sheet.cell_value(13, 24).split(' - ')[1].replace('(', '').replace(')', '') # Celda Y14, quitando el texto adicional
+        num_excesos = int(sheet.cell_value(20, 21))  # Celda V20
     
+        placa = sheet.cell_value(13, 24).split(' - ')[1].replace('(', '').replace(')', '') # Celda Y14, quitando el texto adicional
+        
 
-    # Calcular día trabajado y preoperacional
-    dia_trabajado = 1 if km_recorridos > 0 else 0
-    preoperacional = 1 if dia_trabajado == 1 else 0
+        # Calcular día trabajado y preoperacional
+        dia_trabajado = 1 if km_recorridos > 0 else 0
+        preoperacional = 1 if dia_trabajado == 1 else None
 
-    # Extraer el número de desplazamientos
-   
-    num_desplazamientos = 0
-    for i in range(17, sheet2.nrows - 1):  # Empezamos en la fila 18 y ajustamos para no contar la última fila
-        if sheet2.cell_value(i, 10) != '':  # Columna K es el indice 10
-            num_desplazamientos += 1
+        # Extraer el número de desplazamientos
 
-    # Crear el diccionario con los datos extraídos.
-    datos_extraidos = {
-        'placa': placa,
-        'fecha': fecha,
-        'km_recorridos': km_recorridos,
-        'dia_trabajado': dia_trabajado,
-        'preoperacional': preoperacional,
-        'num_excesos': num_excesos,
-        'num_desplazamientos': num_desplazamientos,
-    }
+    
+        num_desplazamientos = 0
+        for i in range(17, sheet2.nrows - 1):  # Empezamos en la fila 18 y ajustamos para no contar la última fila
+            if sheet2.cell_value(i, 10) != '':  # Columna K es el indice 10
+                num_desplazamientos += 1
 
-    return [datos_extraidos]
+        # Crear el diccionario con los datos extraídos
+        datos_extraidos = {
+            'placa': placa,
+            'fecha': fecha,
+            'km_recorridos': km_recorridos,
+            'dia_trabajado': dia_trabajado,
+            'preoperacional': preoperacional,
+            'num_excesos': num_excesos,
+            'num_desplazamientos': num_desplazamientos,
+        }
+
+        return [datos_extraidos]
+    except Exception as e:
+        print('Archivos incorrectos o faltantes')
+        return []
 
 # Extraer los datos de los informes de Wialon.
 
-def extraerWialon(file1, file2, file3):
-    datos_extraidos = []
+def extraerWialon(file_path1, file_path2, file_path3):
+
+    try:
+
+        datos_extraidos = []
+        
+        for file_path in [file_path1, file_path2, file_path3]:
+            xl = pd.ExcelFile(file_path)
+            
+            # Extraer placa y fecha siempre
+            if 'Statistics' in xl.sheet_names:
+                statistics_df = xl.parse('Statistics', header=None)
+                placa = statistics_df.iloc[0, 1]  # Celda B1
+                fecha = statistics_df.iloc[1, 1].split()[0].replace('.', '/')  # Celda B2
+                fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
+            
+            
+            # Verificar si el archivo tiene datos
+            if 'Statistics' in xl.sheet_names and 'Excesos de velocidad' in xl.sheet_names and 'Cronología' in xl.sheet_names:
+                km_recorridos = int(statistics_df.iloc[7, 1])  # Celda B8, quitando 'km'
+                excesos_df = xl.parse('Excesos de velocidad', header=None)
+                num_excesos = len(excesos_df) - 1  # Descontar la fila de encabezado
+                crono = xl.parse('Cronología')
+                
+                # Extraer número de desplazamientos
+                desplazamientos = 0
+                for x in crono['Tipo'].to_list():
+                    if x == 'Trip':
+                        desplazamientos += 1
+                
+                # Calcular día trabajado y preoperacional
+                dia_trabajado = 1 if km_recorridos > 0 else 0
+                preoperacional = 1 if dia_trabajado == 1 else 0
+                
+                # Crear el diccionario con los datos extraídos
+                datos = {
+                    'placa': placa,
+                    'fecha': fecha_formateada,
+                    'km_recorridos': km_recorridos,
+                    'dia_trabajado': dia_trabajado,
+                    'preoperacional': preoperacional,
+                    'num_excesos': num_excesos,
+                    'num_desplazamientos': desplazamientos
+                }
+            else:
+                # Si el archivo no tiene datos, llenar con ceros pero usar placa y fecha
+                datos = {
+                    'placa': placa,
+                    'fecha': fecha_formateada,
+                    'km_recorridos': 0,
+                    'dia_trabajado': 0,
+                    'preoperacional': 0,
+                    'num_excesos': 0,
+                    'num_desplazamientos': 0
+                }
+            
+            datos_extraidos.append(datos)
+        
+        return datos_extraidos
     
-    for file in [file1, file2, file3]:
-        xl = pd.ExcelFile(file)
-        
-        # Extraer placa y fecha siempre
-        if 'Statistics' in xl.sheet_names:
-            statistics_df = xl.parse('Statistics', header=None)
-            placa = statistics_df.iloc[0, 1]  # Celda B1
-            fecha = statistics_df.iloc[1, 1].split()[0].replace('.', '/')  # Celda B2
-            fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
-        
-        
-        # Verificar si el archivo tiene datos
-        if 'Statistics' in xl.sheet_names and 'Excesos de velocidad' in xl.sheet_names and 'Cronología' in xl.sheet_names:
-            km_recorridos = int(statistics_df.iloc[7, 1])  # Celda B8, quitando 'km'
-            excesos_df = xl.parse('Excesos de velocidad', header=None)
-            num_excesos = len(excesos_df) - 1  # Descontar la fila de encabezado
-            crono = xl.parse('Cronología')
-            
-            # Extraer número de desplazamientos
-            desplazamientos = 0
-            for x in crono['Tipo'].to_list():
-                if x == 'Trip':
-                    desplazamientos += 1
-            
-            # Calcular día trabajado y preoperacional
-            dia_trabajado = 1 if km_recorridos > 0 else 0
-            preoperacional = 1 if dia_trabajado == 1 else 0
-            
-            # Crear el diccionario con los datos extraídos
-            datos = {
-                'placa': placa,
-                'fecha': fecha_formateada,
-                'km_recorridos': km_recorridos,
-                'dia_trabajado': dia_trabajado,
-                'preoperacional': preoperacional,
-                'num_excesos': num_excesos,
-                'num_desplazamientos': desplazamientos
-            }
-        else:
-            # Si el archivo no tiene datos, llenar con ceros pero usar placa y fecha
-            datos = {
-                'placa': placa,
-                'fecha': fecha_formateada,
-                'km_recorridos': 0,
-                'dia_trabajado': 0,
-                'preoperacional': 0,
-                'num_excesos': 0,
-                'num_desplazamientos': 0
-            }
-        
-        datos_extraidos.append(datos)
-    
-    return datos_extraidos
+    except Exception as e: 
+        print('Archivos incorrectos o faltantes')
+        return []
 
 # Ejecuta todas las extracciones y las une en una única lista.
 
@@ -351,213 +384,239 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
 
 
 def infracUbicar(file1):
-    # Leer el archivo de Excel y obtener las hojas
-    df = pd.read_excel(file1, skiprows=2).iloc[:-1]  # Ignorar las primeras 4 filas y la última fila
 
-    # Extraer la placa del vehículo de la celda B1
-    placa = "JYT620"  # Reemplazar con la extracción correcta si se requiere
+    try:
+        # Leer el archivo de Excel y obtener las hojas
+        df = pd.read_excel(file1, skiprows=2).iloc[:-1]  # Ignorar las primeras 4 filas y la última fila
 
-    # Convertir la columna 'Comienzo' a datetime y extraer solo la fecha y hora
-    df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst= True)
-    df['Fecha'] = df['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
-    
-    # Convertir la columna 'Duración' a segundos
-    def convertir_duracion_a_seg(duration):
-        parts = duration.split(' ')
-        total_seconds = 0
-        for part in parts:
-            if 'h' in part:
-                total_seconds += int(part.replace('h', '')) * 3600
-            elif 'min' in part:
-                total_seconds += int(part.replace('min', '')) * 60
-            elif 's' in part:
-                total_seconds += int(part.replace('s', ''))
-        return total_seconds
+        # Extraer la placa del vehículo de la celda B1
+        placa = "JYT620"  # Reemplazar con la extracción correcta si se requiere
 
-    df['Tiempo de Exceso'] = df['Duración'].apply(convertir_duracion_a_seg)
-    
-    # Crear el diccionario con el formato requerido
-    registros = []
-    for index, row in df.iterrows():
-        registros.append({
-            'PLACA': placa,
-            'TIEMPO DE EXCESO': row['Tiempo de Exceso'],
-            'DURACIÓN EN KM DE EXCESO': None,
-            'VELOCIDAD MÁXIMA': float(row['Velocidad máxima'].replace(' kph', '')),
-            'PROYECTO': None,
-            'CONDUCTOR': None,
-            'RUTA DE EXCESO': row['Posición'], # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
-            'FECHA': row['Fecha']
-        })
+        # Convertir la columna 'Comienzo' a datetime y extraer solo la fecha y hora
+        df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst= True)
+        df['Fecha'] = df['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
+        
+        # Convertir la columna 'Duración' a segundos
+        def convertir_duracion_a_seg(duration):
+            parts = duration.split(' ')
+            total_seconds = 0
+            for part in parts:
+                if 'h' in part:
+                    total_seconds += int(part.replace('h', '')) * 3600
+                elif 'min' in part:
+                    total_seconds += int(part.replace('min', '')) * 60
+                elif 's' in part:
+                    total_seconds += int(part.replace('s', ''))
+            return total_seconds
 
-    # Imprimir el número de registros
-    print(f'Número de registros: {len(registros)}')
-    
-    # Retornar el diccionario de registros
-    return registros
+        df['Tiempo de Exceso'] = df['Duración'].apply(convertir_duracion_a_seg)
+        
+        # Crear el diccionario con el formato requerido
+        registros = []
+        for index, row in df.iterrows():
+            registros.append({
+                'PLACA': placa,
+                'TIEMPO DE EXCESO': row['Tiempo de Exceso'],
+                'DURACIÓN EN KM DE EXCESO': None,
+                'VELOCIDAD MÁXIMA': float(row['Velocidad máxima'].replace(' kph', '')),
+                'PROYECTO': None,
+                'CONDUCTOR': None,
+                'RUTA DE EXCESO': row['Posición'], # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
+                'FECHA': row['Fecha']
+            })
+
+        # Imprimir el número de registros
+        print(f'Número de registros: {len(registros)}')
+        
+        # Retornar el diccionario de registros
+        return registros
+    except Exception as e:
+
+        return []
 
 # Infractores diario MDVR
 
 def infracMDVR(file):
-    # Abrir el archivo Excel ignorando posibles corrupciones
-    workbook = xlrd.open_workbook(file, ignore_workbook_corruption=True)
+
+    try:
+        # Abrir el archivo Excel ignorando posibles corrupciones
+        workbook = xlrd.open_workbook(file, ignore_workbook_corruption=True)
+        
+        # Leer el archivo Excel ignorando las primeras dos filas y la última fila
+        df = pd.read_excel(workbook, skiprows=2).iloc[:-1]
+
+        # Extraer la placa del vehículo de la celda B1
+        placa = pd.read_excel(workbook).columns[1].replace(' ', '')
+
+        # Convertir la columna 'Comienzo' a datetime y extraer la fecha y hora
+        df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst=True)
+        df['Fecha'] = df['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
+
+        # Dividir la columna 'Posición' en 'Latitud' y 'Longitud'
+        df[['Latitud', 'Longitud']] = df['Posición'].str.split(',', expand=True)
+        df['Latitud'] = df['Latitud'].astype(float)
+        df['Longitud'] = df['Longitud'].astype(float)
+
+        # Convertir el tiempo de exceso a segundos
+        def convert_to_seconds(duration_str):
+            parts = duration_str.split(' ')
+            minutes = 0
+            seconds = 0
+            for part in parts:
+                if 'min' in part:
+                    minutes += int(part.replace('min', ''))
+                if 's' in part:
+                    seconds += int(part.replace('s', ''))
+            return minutes * 60 + seconds
+
+        df['Duración exceso de velocidad'] = df['Duración exceso de velocidad'].apply(convert_to_seconds)
+
+        # Crear el diccionario en el formato requerido
+        registros = []
+        for index, row in df.iterrows():
+            registro = {
+                'PLACA': placa,
+                'TIEMPO DE EXCESO': row['Duración exceso de velocidad'],
+                'DURACIÓN EN KM DE EXCESO': None,
+                'VELOCIDAD MÁXIMA': float(row['Velocidad máxima'].replace('kph', '')),
+                'PROYECTO': '',
+                'RUTA DE EXCESO': f"{row['Latitud']}, {row['Longitud']}",  # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
+                'CONDUCTOR': '',
+                'FECHA': row['Fecha']
+            }
+            registros.append(registro)
+
+        print(f"Número total de registros: {len(registros)}")
+        return registros
     
-    # Leer el archivo Excel ignorando las primeras dos filas y la última fila
-    df = pd.read_excel(workbook, skiprows=2).iloc[:-1]
-
-    # Extraer la placa del vehículo de la celda B1
-    placa = pd.read_excel(workbook).columns[1].replace(' ', '')
-
-    # Convertir la columna 'Comienzo' a datetime y extraer la fecha y hora
-    df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst=True)
-    df['Fecha'] = df['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
-
-    # Dividir la columna 'Posición' en 'Latitud' y 'Longitud'
-    df[['Latitud', 'Longitud']] = df['Posición'].str.split(',', expand=True)
-    df['Latitud'] = df['Latitud'].astype(float)
-    df['Longitud'] = df['Longitud'].astype(float)
-
-    # Convertir el tiempo de exceso a segundos
-    def convertirASegs(duration_str):
-        parts = duration_str.split(' ')
-        minutes = 0
-        seconds = 0
-        for part in parts:
-            if 'min' in part:
-                minutes += int(part.replace('min', ''))
-            if 's' in part:
-                seconds += int(part.replace('s', ''))
-        return minutes * 60 + seconds
-
-    df['Duración exceso de velocidad'] = df['Duración exceso de velocidad'].apply(convertirASegs)
-
-    # Crear el diccionario en el formato requerido
-    registros = []
-    for index, row in df.iterrows():
-        registro = {
-            'PLACA': placa,
-            'TIEMPO DE EXCESO': row['Duración exceso de velocidad'],
-            'DURACIÓN EN KM DE EXCESO': None,
-            'VELOCIDAD MÁXIMA': float(row['Velocidad máxima'].replace('kph', '')),
-            'PROYECTO': '',
-            'RUTA DE EXCESO': f"{row['Latitud']}, {row['Longitud']}",  # Por ahora guardamos las coordenadas porque pasarlas a dirección requiere de otras cosas.
-            'CONDUCTOR': '',
-            'FECHA': row['Fecha']
-        }
-        registros.append(registro)
-
-    print(f"Número total de registros: {len(registros)}")
-    return registros
+    except Exception as e:
+        return []
 
 
 # Infractores diario Securitrac
 
 def infracSecuritrac(file):
-    # Leer el archivo de Excel
-    df = pd.read_excel(file)
+    try:
 
-    # Filtrar solo las filas con "Exc. Velocidad"
-    df = df[df['EVENTO'] == 'Exc. Velocidad']
+        # Leer el archivo de Excel
+        df = pd.read_excel(file)
 
-    # Crear el diccionario con el formato requerido
-    registros = []
-    for index, row in df.iterrows():
-        fecha_formateada = pd.to_datetime(row['FECHAGPS']).strftime('%d/%m/%Y %H:%M:%S')
-        registro = {
-            'PLACA': row['NROMOVIL'],
-            'TIEMPO DE EXCESO': None,
-            'DURACIÓN EN KM DE EXCESO': None,
-            'VELOCIDAD MÁXIMA': row['VELOCIDAD'],
-            'RUTA DE EXCESO': row['POSICION'], 
-            'PROYECTO': None,
-            'CONDUCTOR': None,
-            'FECHA': fecha_formateada,
-        }
-        registros.append(registro)
+        # Filtrar solo las filas con "Exc. Velocidad"
+        df = df[df['EVENTO'] == 'Exc. Velocidad']
 
-    print(f"Total de registros generados: {len(registros)}")
-    print(registros[:5]) # Muestra los primeros 5 registros para verificar
+        # Crear el diccionario con el formato requerido
+        registros = []
+        for index, row in df.iterrows():
+            fecha_formateada = pd.to_datetime(row['FECHAGPS']).strftime('%d/%m/%Y %H:%M:%S')
+            registro = {
+                'PLACA': row['NROMOVIL'],
+                'TIEMPO DE EXCESO': None,
+                'DURACIÓN EN KM DE EXCESO': None,
+                'VELOCIDAD MÁXIMA': row['VELOCIDAD'],
+                'RUTA DE EXCESO': row['POSICION'], 
+                'PROYECTO': None,
+                'CONDUCTOR': None,
+                'FECHA': fecha_formateada,
+            }
+            registros.append(registro)
 
-    return registros
+        print(f"Total de registros generados: {len(registros)}")
+        print(registros[:5]) # Muestra los primeros 5 registros para verificar
+
+        return registros
+
+    except Exception as e:
+        return []
+
 
 # Infractores diario Ituran
 
 def infracIturan(file1):
-    # Leer el archivo de Excel y obtener las hojas
-    df = pd.read_csv(file1)
+
+    try: 
+        # Leer el archivo de Excel y obtener las hojas
+        df = pd.read_csv(file1)
+        
+        # Filtrar la hoja que contiene la información relevante
+        df_infracciones = df[['V_NICK_NAME', 'EVENT_DURATION_SEC', 'EVENT_DISTANCE', 'TOP_SPEED', 'VEHICLE_GROUP', 'ADDRESS', 'DRIVER_NAME', 'EVENT_START_DAY_TIME']]
+
+        # Renombrar las columnas según lo solicitado
+        df_infracciones.columns = ['PLACA', 'TIEMPO DE EXCESO', 'DURACIÓN EN KM DE EXCESO', 'VELOCIDAD MÁXIMA', 'PROYECTO', 'RUTA DE EXCESO', 'CONDUCTOR', 'FECHA']
+
+        # Mantener la hora en la columna FECHA y convertirla al formato dd/mm/yyyy HH:MM:SS
+        df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA']).dt.strftime('%d/%m/%Y %H:%M:%S')
+
+        # Filtrar los registros relevantes
+        df_infracciones = df_infracciones[df_infracciones['DURACIÓN EN KM DE EXCESO'] > 0]
+
+        num_registros = len(df_infracciones)
+        print(f"Número de registros: {num_registros}")
+
+        # Convertir el DataFrame en un diccionario
+        datos_infracciones = df_infracciones.to_dict(orient='records')
+
+        return datos_infracciones
     
-    # Filtrar la hoja que contiene la información relevante
-    df_infracciones = df[['V_NICK_NAME', 'EVENT_DURATION_SEC', 'EVENT_DISTANCE', 'TOP_SPEED', 'VEHICLE_GROUP', 'ADDRESS', 'DRIVER_NAME', 'EVENT_START_DAY_TIME']]
-
-    # Renombrar las columnas según lo solicitado
-    df_infracciones.columns = ['PLACA', 'TIEMPO DE EXCESO', 'DURACIÓN EN KM DE EXCESO', 'VELOCIDAD MÁXIMA', 'PROYECTO', 'RUTA DE EXCESO', 'CONDUCTOR', 'FECHA']
-
-    # Mantener la hora en la columna FECHA y convertirla al formato dd/mm/yyyy HH:MM:SS
-    df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA']).dt.strftime('%d/%m/%Y %H:%M:%S')
-
-    # Filtrar los registros relevantes
-    df_infracciones = df_infracciones[df_infracciones['DURACIÓN EN KM DE EXCESO'] > 0]
-
-    num_registros = len(df_infracciones)
-    print(f"Número de registros: {num_registros}")
-
-    # Convertir el DataFrame en un diccionario
-    datos_infracciones = df_infracciones.to_dict(orient='records')
-
-    return datos_infracciones
+    except Exception as e:
+        return []
 
 # Infractores diario Wialon
 
 def infracWialon(file1):
-    xls = pd.ExcelFile(file1)
 
-    # Verificar si la hoja 'Excesos de velocidad' existe
-    if 'Excesos de velocidad' not in xls.sheet_names:
-        print("La hoja 'Excesos de velocidad' no está presente en el archivo.")
-        return []
+    try:
+        xls = pd.ExcelFile(file1)
 
-    # Leer la hoja 'Statistics' para obtener la placa
-    df_stats = pd.read_excel(xls, 'Statistics')
-    placa = df_stats.columns[1]  # Celda B1 en la hoja "Statistics"
+        # Verificar si la hoja 'Excesos de velocidad' existe
+        if 'Excesos de velocidad' not in xls.sheet_names:
+            print("La hoja 'Excesos de velocidad' no está presente en el archivo.")
+            return []
 
+        # Leer la hoja 'Statistics' para obtener la placa
+        df_stats = pd.read_excel(xls, 'Statistics')
+        placa = df_stats.columns[1]  # Celda B1 en la hoja "Statistics"
+
+        
+
+        # Leer la hoja 'Excesos de velocidad' para obtener la información necesaria
+        df_excesos = pd.read_excel(xls, 'Excesos de velocidad')
+
+        # Convertir la columna 'Comienzo' a datetime y extraer solo la fecha y hora
+        df_excesos['Comienzo'] = pd.to_datetime(df_excesos['Comienzo'])
+        df_excesos['Fecha'] = df_excesos['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
+
+        # Convertir la columna 'Duración' a segundos
+        def convertirDuracionASegundos(duration_str):
+            parts = duration_str.split(':')
+            if len(parts) == 3:
+                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+            elif len(parts) == 2:
+                return int(parts[0]) * 60 + int(parts[1])
+            else:
+                return int(parts[0])
+
+        df_excesos['Duración en segundos'] = df_excesos['Duración'].apply(convertirDuracionASegundos)
+
+        # Crear el diccionario con el formato requerido
+        registros = []
+        for index, row in df_excesos.iterrows():
+            registro = {
+                'PLACA': placa,
+                'TIEMPO DE EXCESO': row['Duración en segundos'],
+                'DURACIÓN EN KM DE EXCESO': '',  # No disponible en este documento
+                'VELOCIDAD MÁXIMA': row['Velocidad máxima'],
+                'PROYECTO': '',  # No disponible en este documento
+                'CONDUCTOR': '',  # No disponible en este documento
+                'RUTA DE EXCESO': row['Localización'],
+                'FECHA': row['Fecha']
+            }
+            registros.append(registro)
+
+        print(f"Total de registros extraídos: {len(registros)}")
+        return registros# Extraer información infractores Wialon
     
-
-    # Leer la hoja 'Excesos de velocidad' para obtener la información necesaria
-    df_excesos = pd.read_excel(xls, 'Excesos de velocidad')
-
-    # Convertir la columna 'Comienzo' a datetime y extraer solo la fecha y hora
-    df_excesos['Comienzo'] = pd.to_datetime(df_excesos['Comienzo'])
-    df_excesos['Fecha'] = df_excesos['Comienzo'].dt.strftime('%d/%m/%Y %H:%M:%S')
-
-    # Convertir la columna 'Duración' a segundos
-    def convertirDuracionASegundos(duration_str):
-        parts = duration_str.split(':')
-        if len(parts) == 3:
-            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-        elif len(parts) == 2:
-            return int(parts[0]) * 60 + int(parts[1])
-        else:
-            return int(parts[0])
-
-    df_excesos['Duración en segundos'] = df_excesos['Duración'].apply(convertirDuracionASegundos)
-
-    # Crear el diccionario con el formato requerido
-    registros = []
-    for index, row in df_excesos.iterrows():
-        registro = {
-            'PLACA': placa,
-            'TIEMPO DE EXCESO': row['Duración en segundos'],
-            'DURACIÓN EN KM DE EXCESO': '',  # No disponible en este documento
-            'VELOCIDAD MÁXIMA': row['Velocidad máxima'],
-            'PROYECTO': '',  # No disponible en este documento
-            'CONDUCTOR': '',  # No disponible en este documento
-            'RUTA DE EXCESO': row['Localización'],
-            'FECHA': row['Fecha']
-        }
-        registros.append(registro)
-
-    print(f"Total de registros extraídos: {len(registros)}")
-    return registros# Extraer información infractores Wialon
+    except Exception as e:
+        return []
 
 # Ejecuta todas las extracciones y las une en una única lista.
 
