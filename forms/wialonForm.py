@@ -131,7 +131,7 @@ def rpaWialon():
 
 
     archivoWialon1=archivoWialon2=archivoWialon3 = str()
-    archivos = glob.glob(os.path.join(lugarDescargas, '*.xlsx'))
+    archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
 
     # Si  se encuentran 3 archivos xlsx, para cada uno mire si la placa coincide con una placa de la lista que sale de la base de datos.
     while len(archivos) == 3:
