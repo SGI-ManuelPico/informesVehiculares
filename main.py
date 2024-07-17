@@ -1,12 +1,15 @@
 import sys
-from forms.ituranForm import IturanDatos
-# from forms.MDVRForm import rpaMDVR
-# from forms.securitracForm import rpaSecuritrac
-# from forms.ubicarForm import rpaUbicar
-# from forms.ubicomForm import rpaUbicom
-from forms.wialonForm import WialonDatos
-from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput
-
+from forms.ituranForm import rpaIturan
+from forms.MDVRForm import rpaMDVR
+from forms.securitracForm import rpaSecuritrac
+from forms.ubicarForm import rpaUbicar
+from forms.ubicomForm import rpaUbicom
+from forms.wialonForm import rpaWialon
+from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
+from persistence.archivoExcel import crear_excel, actualizarInfractores, odomUbicar, OdomIturan, actualizarOdom
+from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL 
+##### FALTA ACTUALIZAR INFRACTORES SQL Y SEGUIMIENTO SQL
+##### FALTA CORREO CON RPA NO FUNCIONÓ.
 
 def main():
     """
@@ -21,66 +24,88 @@ def main():
 
     # Ituran
     try:
-        IturanDatos.rpaIturan()
+        rpaIturan()
     except:
-        eliminarArchivosOutput()
         print("Hubo un error en el acceso por el internet.")
-        sys.exit()
+        enviarCorreoPlataforma("Ituran")
 
-    # # MDVR
-    # try:
-    #     MDVRDatos.rpaMDVR()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    # MDVR
+    try:
+        rpaMDVR()
+    except:
+        print("Hubo un error en el acceso por el internet.")
+        enviarCorreoPlataforma("MDVR")
     
-    # # Securitrac
-    # try:
-    #     securitracDatos.rpaSecuritrac()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    # Securitrac
+    try:
+        rpaSecuritrac()
+    except:
+        print("Hubo un error en el acceso por el internet.")
+        enviarCorreoPlataforma("Securitrac")
 
-    # # Ubicar
-    # try:
-    #     ubicarDatos.rpaUbicar()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    # Ubicar
+    try:
+        rpaUbicar()
+    except:
+        print("Hubo un error en el acceso por el internet.")
+        enviarCorreoPlataforma("Ubicar")
 
-    # # Ubicom
-    # try:
-    #     ubicomDatos.rpaUbicom()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    # Ubicom
+    try:
+        rpaUbicom()
+    except:
+        print("Hubo un error en el acceso por el internet.")
+        enviarCorreoPlataforma("Ubicom")
 
-    # # Wialon
-    # try:
-    #     wialonDatos.rpaWialon()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    # Wialon
+    try:
+        rpaWialon()
+    except:
+        print("Hubo un error en el acceso por el internet.")
+        enviarCorreoPlataforma("Wialon")
 
 
     ####################################
-    ######## Realizar informes #########
+    ####### Creación de informes #######
     ####################################
 
 
-    # crear excel
-    # actualizar infractores
-    # actualizar odometro
+    # Actualización de seguimiento
+    crear_excel()
+
+    # Actualización de infractores
+    actualizarInfractores
+
+    # Actualización del odómetro
+    odomUbicar()
+    OdomIturan()
+    actualizarOdom()
+
+    # Actualización de indicadores
+    ################################################
+
+    # Conexión con la base de datos
+    actualizarKilometraje()
+    actualizarSeguimientoSQL()
 
 
-    # # Enviar correo.
-    #enviarCorreoPersonal()
+    ####################################
+    ######### Envío de correos #########
+    ####################################
+
+
+    # Enviar correo al personal de SGI.
+    enviarCorreoPersonal()
+
+    # Enviar correo específico a los conductores con excesos de velocidad.
+    enviarCorreoConductor()
     
+
+    ####################################
+    ######### Borrado y salida #########
+    ####################################
+
+
     # Eliminar las carpetas del output ya que se tiene toda la información.
     #eliminarArchivosOutput()
 

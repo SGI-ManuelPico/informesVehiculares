@@ -10,6 +10,7 @@ from db.conexionDB import conexionDB
 import datetime
 import pandas as pd
 import textwrap
+from pretty_html_table import build_table
 
 
 ####################################
@@ -30,7 +31,7 @@ def enviarCorreoPersonal():
         print("Error.")
 
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, VELOCIDAD MÁXIMA, CONDUCTOR FROM vehiculos.infractor where date(FECHA) like curdate();")
+    cursor.execute("SELECT placa, tiempoExceso, VelocidadMáxima, conductor FROM vehiculos.infractor where date(fecha) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.plataformasVehiculares")
     tablaCorreos = cursor.fetchall()
@@ -43,7 +44,6 @@ def enviarCorreoPersonal():
     # Modificaciones iniciales a los datos de las consultas.
     tablaCorreos = pd.DataFrame(tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
     tablaExcesos = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
-
    
     correoReceptor = tablaCorreos['correo'].dropna().tolist()
     correoCopia = tablaCorreos['correoCopia'].dropna().tolist()
@@ -59,7 +59,7 @@ def enviarCorreoPersonal():
     En este, podr&aacute; encontrar informaci&oacute;n como el n&uacute;mero y duraci&oacute;n de los excesos de velocidad, el kilometraje diario y total del veh&iacute;culo, o el n&uacute;mero de desplazamientos de cada veh&iacute;culo.<br>
     Asimismo, mediante el presente correo puede encontrar una tabla con el n&uacute;mero de excesos de velocidad por veh&iacute;culo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.</p>
 
-    {tablaExcesos.to_html()}
+    {build_table(tablaExcesos, 'green_light')}
 
     <p>Atentamente,<br>
     Departamento de tecnología y desarrollo, SGI SAS</p>"""
@@ -68,7 +68,7 @@ def enviarCorreoPersonal():
     correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
 
     mensajeCorreo = MIMEMultipart()
-    mensajeCorreo['From'] = f"{Header('Notificación SGI', 'utf-8')} <{correoEmisor}>"
+    mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
     mensajeCorreo['To'] = ", ".join(correoReceptor)
     mensajeCorreo['Cc'] = ", ".join(correoCopia)
     mensajeCorreo['Subject'] = correoAsunto
@@ -119,7 +119,7 @@ def enviarCorreoConductor():
         print("Error.")
 
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("SELECT PLACA, TIEMPO DE EXCESO, CONDUCTOR FROM vehiculos.infractor where date(FECHA)) like curdate();")
+    cursor.execute("SELECT placa, tiempoExceso, conductor FROM vehiculos.infractor where date(fecha) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.plataformasVehiculares")
     tablaCorreos2 = cursor.fetchall()
@@ -198,3 +198,71 @@ def enviarCorreoConductor():
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
+
+
+####################################
+## Correo plataforma disfuncional ##
+####################################
+
+
+def enviarCorreoPlataforma(plataforma):
+    """
+    Realiza el proceso del envío del correo a los interesados en caso de que una plataforma no haya funcionado.
+    """
+
+    ######### Tabla del correo.
+    conexionBaseCorreos = conexionDB().establecerConexion()
+    if conexionBaseCorreos:
+        cursor = conexionBaseCorreos.cursor()
+    else:
+        print("Error.")
+
+    #Consulta de los correos necesarios para el correo.
+    cursor.execute("select * from vehiculos.plataformasVehiculares")
+    tablaCorreos2 = cursor.fetchall()
+
+    #Desconectar BD
+    conexionDB().cerrarConexion()
+
+    ########## Envío del correo
+
+    # Modificaciones iniciales a los datos de las consultas.
+    tablaCorreos2 = pd.DataFrame(tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
+
+    # Datos sobre el correo.
+    correoEmisor = 'notificaciones.sgi@appsgi.com.co'
+    correoReceptor = tablaCorreos2['correo'].dropna().tolist()
+    correoCopia = tablaCorreos2['correoCopia'].dropna().tolist()
+    correoDestinatarios = correoReceptor + correoCopia
+    correoAsunto = f'Notificación de errores para la plataforma {plataforma} durante el día {datetime.date.today()}'
+
+    # Texto del correo.
+    correoTexto = f"""
+    Buenos días. Espero que se encuentre bien.
+    
+    Mediante el presente correo se le informa que la plataforma {plataforma} tuvo errores durante su ejecución. Le invito a investigar más al respecto y, en cualquiera de los casos, el departamento de tecnología y desarrollo estará atento a sus inquietudes.
+
+    Es importante aclarar que el informe dejará los valores asociados a los vehículos de {plataforma} como "0" y esto deberá ser corregido manualmente.
+
+    Atentamente,
+    Departamento de Tecnología y desarrollo, SGI SAS
+    """
+    
+    # Para formatear el texto de manera correcta.
+    correoTexto = textwrap.dedent(correoTexto)
+
+    # Creación del correo.
+    mensajeCorreo = MIMEMultipart()
+    mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
+    mensajeCorreo['To'] = ", ".join(correoReceptor)
+    mensajeCorreo['Cc'] = ", ".join(correoCopia)
+    mensajeCorreo['Subject'] = correoAsunto
+    mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
+
+
+    # Inicializar el correo y enviar.
+    servidorCorreo = smtplib.SMTP('smtp.hostinger.com', 587)
+    servidorCorreo.starttls()
+    servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
+    servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
+    servidorCorreo.quit()
