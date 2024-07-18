@@ -31,7 +31,7 @@ def enviarCorreoPersonal():
         print("Error.")
 
     #Consulta de los correos necesarios para el correo.
-    cursor.execute("SELECT placa, tiempoExceso, VelocidadMáxima, conductor FROM vehiculos.infractor where date(fecha) like curdate();")
+    cursor.execute("SELECT placa, tiempoExceso, VelocidadMaxima, conductor FROM vehiculos.infractor where date(fecha) like curdate();")
     tablaExcesos = cursor.fetchall()
     cursor.execute("select * from vehiculos.plataformasVehiculares")
     tablaCorreos = cursor.fetchall()
