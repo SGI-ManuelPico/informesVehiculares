@@ -738,6 +738,7 @@ def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
         df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
 
 
+
 ## ACTUALIZAR HOJAS DE INDICADORES 
 
 ## ACTUALIZAR HOJAS DE INDICADORES 
@@ -958,6 +959,8 @@ def calcular_IDP(df_diario):
 # Actualizar la hoja de 'Indicadores'
 
 def actualizarIndicadores(df_diario, df_exist, file_seguimiento):
+
+
     # Crear df_diario y df_hist
   
 
@@ -1001,3 +1004,4 @@ def actualizarIndicadores(df_diario, df_exist, file_seguimiento):
 
     # Guardar el archivo
     book.save(file_seguimiento)
+
