@@ -1,6 +1,6 @@
 import sys, os
 from forms.ituranForm import rpaIturan, archivoIturan1, archivoIturan2, archivoIturan3
-from forms.MDVRForm import rpaMDVR,archivoMDVR1,archivoMDVR2,archivoMDVR3
+from forms.MDVRForm import rpaMDVR,archivoMDVR1,archivoMDVR2, archivoMDVR3
 from forms.securitracForm import rpaSecuritrac, archivoSecuritrac
 from forms.ubicarForm import rpaUbicar,archivoUbicar1,archivoUbicar2,archivoUbicar3
 from forms.ubicomForm import rpaUbicom, archivoUbicom1, archivoUbicom2

@@ -48,7 +48,7 @@ def extraerUbicar(file1, file2):
 
         return [datos_extraidos]
     except Exception as e:
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes UBICAR')
         return []
 
 # Extraer los datos de los informes de Ituran.
@@ -94,7 +94,7 @@ def extraerIturan(file1, file2):
     # Si no se pueden sacar los archivos de la plataforma por alguna razón:
 
     except Exception as e: 
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes ituran')
         return []
 
 # Extraer los datos de los informes de MDVR.
@@ -138,7 +138,7 @@ def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe
         return [datos_extraidos]
     
     except Exception as e: 
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes MDVR')
         return []  
 
 # Extraer los datos de los informes de Securitrac.
@@ -186,7 +186,7 @@ def extraerSecuritrac(file_path):
         return datos
     
     except Exception as e:
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes SECURITRAC')
         return []
 
 # Extraer los datos de los informes de Ubicom.
@@ -235,7 +235,7 @@ def extraerUbicom(file1, file2):
 
         return [datos_extraidos]
     except Exception as e:
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes UBICOM')
         return []
 
 # Extraer los datos de los informes de Wialon.
@@ -301,7 +301,7 @@ def extraerWialon(file_path1, file_path2, file_path3):
         return datos_extraidos
     
     except Exception as e: 
-        print('Archivos incorrectos o faltantes')
+        print('Archivos incorrectos o faltantes WIALON')
         return []
 
 # Ejecuta todas las extracciones y las une en una única lista.
@@ -380,6 +380,7 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
 
         # Guardar el archivo Excel
         book.save(output_file)
+        print("ACTUALIZÓ EXCEL")
         return df_exist
 
 # Infractores diario Ubicar
@@ -648,7 +649,7 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
     df_infractores = pd.DataFrame(todos_registros)
 
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
-    df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
+    df_infractores['FECHA'] = pd.to_datetime(df_infractores[['FECHA']], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
     try:
         # Cargar el archivo existente y añadir una nueva hoja

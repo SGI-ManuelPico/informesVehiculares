@@ -21,31 +21,6 @@ archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
 archivoWialon1=archivoWialon2=archivoWialon3 = str()
 
 
-def conexionWialon():
-    """
-    Conexión con la base de datos para obtener las placas de Wialon.
-    """
-
-    # Tabla del correo.
-    conexionBaseCorreos = conexionDB().establecerConexion()
-    if conexionBaseCorreos:
-        cursor = conexionBaseCorreos.cursor()
-    else:
-        print("Error.")
-    
-    #Consulta de las placas que componen a Wialon.
-    cursor.execute("select * from vehiculos.placasVehiculos where plataforma = 'Wialon'")
-    placasPWialon = cursor.fetchall() #Obtener todos los resultados
-    
-    #Desconectar BD
-    conexionDB().cerrarConexion()
-
-    ##########
-    placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma','proyecto','marca','propietario'])
-    global placasWialon
-    placasWialon = placasPWialon['Placa'].tolist()
-
-
 def rpaWialon():
     """
     Realiza el proceso del RPA para la plataforma Wialon.
@@ -59,14 +34,14 @@ def rpaWialon():
         print("Error.")
     
     #Consulta de las placas que componen a Wialon.
-    cursor.execute("select * from vehiculos.placasVehiculos where plataforma = 'Wialon'")
+    cursor.execute("select placa, plataforma from vehiculos.placasVehiculos where plataforma = 'Wialon'")
     placasPWialon = cursor.fetchall() #Obtener todos los resultados
     
     #Desconectar BD
     conexionDB().cerrarConexion()
 
     ##########
-    placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma','proyecto','marca','propietario'])
+    placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma'])
     global placasWialon
     placasWialon = placasPWialon['Placa'].tolist()
 

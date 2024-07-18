@@ -119,7 +119,7 @@ def rpaUbicom():
 
     # Cierre del webdriver.
     while os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
-        time.sleep(2)
+        time.sleep(5)
         driver.quit()
     else:
         time.sleep(2)
