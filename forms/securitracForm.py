@@ -6,8 +6,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import os
-import arrow
-
 
 #class securitracDatos:
 #   def __init__(self):

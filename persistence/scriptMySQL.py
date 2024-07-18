@@ -3,7 +3,7 @@ import openpyxl
 import re
 import xlrd
 from datetime import datetime
-from archivoExcel import OdomIturan, odomUbicar
+from persistence.archivoExcel import OdomIturan, odomUbicar
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
 
@@ -55,7 +55,7 @@ def sqlIturan(file1, file2):
 
     # MDVR
 
-def sqlMDVR(file1, file2): #file2 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
+def sqlMDVR(file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
 # Cargar el archivo de Excel usando xlrd
     workbook = xlrd.open_workbook(file1)
