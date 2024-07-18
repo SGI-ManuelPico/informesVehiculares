@@ -667,7 +667,8 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
             df_final.to_excel(writer, sheet_name='Infractores', index=False)
 
         print(f"Agregado como hoja 'Infractores' en {file_seguimiento}")
-
+        return df_final
+    
     except Exception as e:
         print(f"Error al actualizar el archivo Excel: {e}")
 

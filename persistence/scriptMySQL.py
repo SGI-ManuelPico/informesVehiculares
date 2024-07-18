@@ -376,8 +376,8 @@ def actualizarSeguimientoSQL(file_ituran, file_ituran2, file_MDVR1, file_MDVR2, 
 
 # Actualizar infractores (Esto ya está en otra parte, me toca moverlo acá)
 
-# Actualizar Kilometraje. 
 
+# Actualizar Kilometraje. 
 def actualizarKilometraje(file_ituran, file_ubicar):
     todos_registros = OdomIturan(file_ituran) + odomUbicar(file_ubicar)
     df_odometro = pd.DataFrame(todos_registros)
