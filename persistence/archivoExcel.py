@@ -7,8 +7,19 @@ from openpyxl import load_workbook
 from datetime import datetime 
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
+import locale
+
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
 # Extraer información del informe de Ubicar.
+
+def xlsx(input_file):
+   
+    base_name = os.path.splitext(input_file)[0]
+    output_file = base_name + '.xlsx'
+    df = pd.read_excel(input_file, engine='xlrd')
+    df.to_excel(output_file, index=False)
+    return output_file
 
 def extraerUbicar(file1, file2): 
     try:
@@ -101,11 +112,13 @@ def extraerIturan(file1, file2):
 
 def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
+    file2x = xlsx(file2)
+
     try:
     # Cargar el archivo de Excel usando xlrd
         workbook = xlrd.open_workbook(file1)
         sheet = workbook.sheet_by_index(0)
-        workbook2 = openpyxl.load_workbook(file2)
+        workbook2 = openpyxl.load_workbook(file2x)
         sheet2 = workbook2.active
 
 
@@ -136,10 +149,8 @@ def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe
         }
 
         return [datos_extraidos]
-    
     except Exception as e: 
-        print('Archivos incorrectos o faltantes MDVR')
-        return []  
+        return [] 
 
 # Extraer los datos de los informes de Securitrac.
 
@@ -356,10 +367,10 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
         book = load_workbook(output_file)
         if 'Seguimiento' in book.sheetnames:
             sheet = book['Seguimiento']
-            df_exist = pd.read_excel(output_file, sheet_name='Seguimiento')
+            df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
         else:
             sheet = book.create_sheet('Seguimiento')
-            df_exist = pd.DataFrame()
+            df_existente = pd.DataFrame()
 
         # Rellenar los datos en el DataFrame con el formato deseado
         for _, row in df_nuevos.iterrows():
@@ -367,21 +378,20 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
             dia = fecha.strftime('%d/%m')
             placa = row['placa']
 
-            df_exist.loc[(df_exist['PLACA'] == placa) & (df_exist['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
-            df_exist.loc[(df_exist['PLACA'] == placa) & (df_exist['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
-            df_exist.loc[(df_exist['PLACA'] == placa) & (df_exist['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
-            df_exist.loc[(df_exist['PLACA'] == placa) & (df_exist['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
-            df_exist.loc[(df_exist['PLACA'] == placa) & (df_exist['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
 
         # Escribir los datos actualizados en la hoja 'seguimiento'
-        for r_idx, row in enumerate(dataframe_to_rows(df_exist, index=False, header=True), 1):
+        for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
             for c_idx, value in enumerate(row, 1):
                 sheet.cell(row=r_idx, column=c_idx, value=value)
 
         # Guardar el archivo Excel
         book.save(output_file)
-        print("ACTUALIZÓ EXCEL")
-        return df_exist
+        return df_existente
 
 # Infractores diario Ubicar
 
@@ -657,9 +667,9 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
             # Verificar si la hoja 'Infractores' ya existe
             if 'Infractores' in writer.book.sheetnames:
                 # Leer la hoja existente en un DataFrame
-                df_exist = pd.read_excel(file_seguimiento, sheet_name='Infractores')
+                df_existente = pd.read_excel(file_seguimiento, sheet_name='Infractores')
                 # Concatenar los datos existentes con los nuevos datos
-                df_final = pd.concat([df_exist, df_infractores], ignore_index=True)
+                df_final = pd.concat([df_existente, df_infractores], ignore_index=True)
             else:
                 # Si la hoja no existe, simplemente usar los nuevos datos
                 df_final = df_infractores
@@ -668,8 +678,7 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
             df_final.to_excel(writer, sheet_name='Infractores', index=False)
 
         print(f"Agregado como hoja 'Infractores' en {file_seguimiento}")
-        return df_final
-    
+
     except Exception as e:
         print(f"Error al actualizar el archivo Excel: {e}")
 
@@ -729,18 +738,18 @@ def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
         # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
         df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
 
-# mdvr_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804327.xls"
-# mdvr_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804333.xlsx"
-# archivoIturan1 = r"C:\Users\SGI SAS\Downloads\report.csv"
-# archivoIturan2 = r"C:\Users\SGI SAS\Downloads\report(1).csv"
-# securitrac_file = r"C:\Users\SGI SAS\Downloads\exported-excel.xls"
-# wialon_file1 = r"C:\Users\SGI SAS\Downloads\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-46.xlsx"
-# wialon_file2 = r"C:\Users\SGI SAS\Downloads\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-57.xlsx"
-# wialon_file3 = r"C:\Users\SGI SAS\Downloads\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-28.xlsx"
-# ubicar_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803683.xlsx"
-# ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
-# ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
-# ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
+mdvr_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804327.xls"
+mdvr_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804333.xlsx"
+archivoIturan1 = r"C:\Users\SGI SAS\Downloads\report.csv"
+archivoIturan2 = r"C:\Users\SGI SAS\Downloads\report(1).csv"
+securitrac_file = r"C:\Users\SGI SAS\Downloads\exported-excel.xls"
+wialon_file1 = r"C:\Users\SGI SAS\Downloads\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-46.xlsx"
+wialon_file2 = r"C:\Users\SGI SAS\Downloads\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-57.xlsx"
+wialon_file3 = r"C:\Users\SGI SAS\Downloads\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-28.xlsx"
+ubicar_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803683.xlsx"
+ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
+ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
+ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
 
 
 ## ACTUALIZAR HOJAS DE INDICADORES 
@@ -775,7 +784,6 @@ def dfDiario(df_exist):
     df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'])
 
     return df_diario
-
 
 # El df que retorna la función dfDiario también toca guardarlo como una variable, pues este es el que se usa para calcular todos los indicadores. 
 
