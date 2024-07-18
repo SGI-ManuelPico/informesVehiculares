@@ -62,6 +62,7 @@ def extraerUbicar(file1, file2):
         print('Archivos incorrectos o faltantes UBICAR')
         return []
 
+
 # Extraer los datos de los informes de Ituran.
 
 def extraerIturan(file1, file2):
@@ -394,6 +395,17 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
         return df_existente
 
 # Infractores diario Ubicar
+from forms.ituranForm import rpaIturan, archivoIturan1, archivoIturan2, archivoIturan3
+from forms.MDVRForm import rpaMDVR,archivoMDVR1,archivoMDVR2, archivoMDVR3
+from forms.securitracForm import rpaSecuritrac, archivoSecuritrac
+from forms.ubicarForm import rpaUbicar,archivoUbicar1,archivoUbicar2,archivoUbicar3
+from forms.ubicomForm import rpaUbicom, archivoUbicom1, archivoUbicom2
+from forms.wialonForm import rpaWialon, archivoWialon1,archivoWialon2,archivoWialon3
+archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
+
+print(extraerIturan(archivoIturan1,archivoIturan2))
+
+# crear_excel(mdvr_file1= archivoMDVR1,mdvr_file2=archivoMDVR3, ituran_file=archivoIturan1, ituran_file2=archivoIturan2, securitrac_file=archivoSecuritrac, wialon_file1=archivoWialon1, wialon_file2=archivoWialon2, wialon_file3=archivoWialon3, ubicar_file1=archivoUbicar1, ubicar_file2=archivoUbicar2, ubicom_file1=archivoUbicom1, ubicom_file2=archivoUbicom2, output_file=archivoSeguimiento)
 
 
 def infracUbicar(file1):
@@ -737,19 +749,6 @@ def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
             writer.book.remove(std)
         # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
         df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
-
-mdvr_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804327.xls"
-mdvr_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804333.xlsx"
-archivoIturan1 = r"C:\Users\SGI SAS\Downloads\report.csv"
-archivoIturan2 = r"C:\Users\SGI SAS\Downloads\report(1).csv"
-securitrac_file = r"C:\Users\SGI SAS\Downloads\exported-excel.xls"
-wialon_file1 = r"C:\Users\SGI SAS\Downloads\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-46.xlsx"
-wialon_file2 = r"C:\Users\SGI SAS\Downloads\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-57.xlsx"
-wialon_file3 = r"C:\Users\SGI SAS\Downloads\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-28.xlsx"
-ubicar_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803683.xlsx"
-ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
-ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
-ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
 
 
 ## ACTUALIZAR HOJAS DE INDICADORES 
