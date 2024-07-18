@@ -117,19 +117,8 @@ def rpaUbicar():
     time.sleep(1)
 
     # Cierre del webdriver.
-    archivos = glob.glob(os.path.join(lugarDescargasUbicar, '*.xlsx'))
-    archivoUbicar1 = str()
-    archivoUbicar2 = str()
-    archivoUbicar3 = str()
-    while len(archivos) == 3:
-        for archivo in archivos:
-            if "general" in archivo:
-                archivoUbicar1 += archivo
-            elif "drivers" in archivo:
-                archivoUbicar2 += archivo
-            else:
-                archivoUbicar3 += archivo
-
+    if len(archivos) == 3:
+        time.sleep(5)
         driver.quit()
     else:
         time.sleep(2)
@@ -137,11 +126,12 @@ def rpaUbicar():
 archivoUbicar1 = str()
 archivoUbicar2 = str()
 archivoUbicar3 = str()
-while len(archivos) == 3:
+
+if len(archivos) == 3:
     for archivo in archivos:
         if "general" in archivo:
             archivoUbicar1 += archivo
-        elif "drivers" in archivo:
+        elif "stops" in archivo:
             archivoUbicar2 += archivo
         else:
             archivoUbicar3 += archivo

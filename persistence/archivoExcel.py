@@ -62,7 +62,6 @@ def extraerUbicar(file1, file2):
         print('Archivos incorrectos o faltantes UBICAR')
         return []
 
-
 # Extraer los datos de los informes de Ituran.
 
 def extraerIturan(file1, file2):
@@ -395,18 +394,6 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
         return df_existente
 
 # Infractores diario Ubicar
-from forms.ituranForm import rpaIturan, archivoIturan1, archivoIturan2, archivoIturan3
-from forms.MDVRForm import rpaMDVR,archivoMDVR1,archivoMDVR2, archivoMDVR3
-from forms.securitracForm import rpaSecuritrac, archivoSecuritrac
-from forms.ubicarForm import rpaUbicar,archivoUbicar1,archivoUbicar2,archivoUbicar3
-from forms.ubicomForm import rpaUbicom, archivoUbicom1, archivoUbicom2
-from forms.wialonForm import rpaWialon, archivoWialon1,archivoWialon2,archivoWialon3
-archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
-
-print(extraerIturan(archivoIturan1,archivoIturan2))
-
-# crear_excel(mdvr_file1= archivoMDVR1,mdvr_file2=archivoMDVR3, ituran_file=archivoIturan1, ituran_file2=archivoIturan2, securitrac_file=archivoSecuritrac, wialon_file1=archivoWialon1, wialon_file2=archivoWialon2, wialon_file3=archivoWialon3, ubicar_file1=archivoUbicar1, ubicar_file2=archivoUbicar2, ubicom_file1=archivoUbicom1, ubicom_file2=archivoUbicom2, output_file=archivoSeguimiento)
-
 
 def infracUbicar(file1):
 
