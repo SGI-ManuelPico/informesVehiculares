@@ -4,8 +4,10 @@ import re
 import xlrd
 from datetime import datetime
 from persistence.archivoExcel import OdomIturan, odomUbicar
+import sqlalchemy
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
+from archivoExcel import infracTodos
 
 # ACTUALIZAR SEGUIMIENTO EN LA BASE DE DATOS 'vehiculos'
 
@@ -376,8 +378,50 @@ def actualizarSeguimientoSQL(file_ituran, file_ituran2, file_MDVR1, file_MDVR2, 
 
 # Actualizar infractores (Esto ya está en otra parte, me toca moverlo acá)
 
+def actualizarInfractoresSQL(fileIturan, fileMDVR, fileUbicar, fileWialon, fileWialon2, fileWialon3, fileSecuritrac):
+    # Obtener todas las infracciones combinadas
+    todos_registros = infracTodos(fileIturan, fileMDVR, fileUbicar, fileWialon, fileWialon2, fileWialon3, fileSecuritrac)
+    df_infractores = pd.DataFrame(todos_registros)
+
+    # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
+    df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%Y-%m-%d')
+
+    # Renombrar las columnas a camelCase
+    df_infractores.columns = [
+        'placa', 
+        'tiempoDeExceso', 
+        'duracionEnKmDeExceso', 
+        'velocidadMaxima', 
+        'proyecto', 
+        'rutaDeExceso', 
+        'conductor', 
+        'fecha'
+    ]
+
+    # Conexión a la base de datos MySQL
+    engine = sqlalchemy.create_engine('mysql+mysqlconnector://usuario:contraseña@host:puerto/nombre_base_de_datos')
+
+    try:
+        # Leer los datos existentes en la tabla 'infractores'
+        df_existente = pd.read_sql_table('infractores', con=engine)
+
+        # Concatenar los datos existentes con los nuevos datos
+        df_final = pd.concat([df_existente, df_infractores], ignore_index=True)
+
+        # Eliminar duplicados opcionalmente
+        df_final = df_final.drop_duplicates(subset=['placa', 'fecha', 'tiempoDeExceso', 'duracionEnKmDeExceso', 'velocidadMaxima', 'proyecto', 'rutaDeExceso', 'conductor'])
+
+    except ValueError:  # Si la tabla no existe aún, usa los nuevos datos directamente
+        df_final = df_infractores
+
+    # Exportar el DataFrame combinado a la tabla 'infractores'
+    df_final.to_sql(name='infractores', con=engine, if_exists='replace', index=False)
+
+    print("Datos actualizados en la tabla 'infractores'")
+    return df_final
 
 # Actualizar Kilometraje. 
+
 def actualizarKilometraje(file_ituran, file_ubicar):
     todos_registros = OdomIturan(file_ituran) + odomUbicar(file_ubicar)
     df_odometro = pd.DataFrame(todos_registros)
