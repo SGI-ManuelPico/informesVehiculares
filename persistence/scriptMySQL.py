@@ -7,7 +7,7 @@ from persistence.archivoExcel import OdomIturan, odomUbicar
 import sqlalchemy
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
-from archivoExcel import infracTodos
+from persistence.archivoExcel import infracTodos
 
 # ACTUALIZAR SEGUIMIENTO EN LA BASE DE DATOS 'vehiculos'
 

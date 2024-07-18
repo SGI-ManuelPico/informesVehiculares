@@ -1,13 +1,13 @@
 import sys, os
 from forms.ituranForm import rpaIturan, archivoIturan1, archivoIturan2, archivoIturan3
-from forms.MDVRForm import MDVRDatos
+from forms.MDVRForm import rpaMDVR,archivoMDVR1,archivoMDVR2,archivoMDVR3
 from forms.securitracForm import rpaSecuritrac, archivoSecuritrac
-from forms.ubicarForm import ubicarDatos
+from forms.ubicarForm import rpaUbicar,archivoUbicar1,archivoUbicar2,archivoUbicar3
 from forms.ubicomForm import rpaUbicom, archivoUbicom1, archivoUbicom2
-from forms.wialonForm import wialonDatos
+from forms.wialonForm import rpaWialon, archivoWialon1,archivoWialon2,archivoWialon3
 from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
 from persistence.archivoExcel import crear_excel, actualizarInfractores, actualizarOdom, actualizarIndicadoresTotales, actualizarIndicadores, dfDiario
-from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL 
+from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 ##### FALTA ACTUALIZAR INFRACTORES SQL Y SEGUIMIENTO SQL
 ##### FALTA ACTUALIZAR INDICADORES Y TOTAL
 
@@ -27,40 +27,40 @@ def main():
     try:
         rpaIturan()
     except:
-        print("Hubo un error en el acceso por el internet.")
+        print("Hubo un error en el acceso por el internet para ingresar a Ituran.")
         enviarCorreoPlataforma("Ituran")
 
     # MDVR
     try:
-        MDVRDatos.rpaMDVR()
+        rpaMDVR()
     except:
-        print("Hubo un error en el acceso por el internet.")
+        print("Hubo un error en el acceso por el internet para ingresar a MDVR.")
         enviarCorreoPlataforma("MDVR")
     
     # Securitrac
     try:
         rpaSecuritrac()
     except:
-        print("Hubo un error en el acceso por el internet.")
+        print("Hubo un error en el acceso por el internetpara ingresar a Securitrac.")
         enviarCorreoPlataforma("Securitrac")
 
     # Ubicar
     try:
-        ubicarDatos.rpaUbicar()
+        rpaUbicar()
     except:
-        print("Hubo un error en el acceso por el internet.")
+        print("Hubo un error en el acceso por el internet para ingresar a Ubicar.")
         enviarCorreoPlataforma("Ubicar")
 
     # Ubicom
     try:
         rpaUbicom()
     except:
-        print("Hubo un error en el acceso por el internet.")
+        print("Hubo un error en el acceso por el internet para ingresar a Ubicom.")
         enviarCorreoPlataforma("Ubicom")
 
     # Wialon
     try:
-        wialonDatos.rpaWialon()
+        rpaWialon()
     except:
         print("Hubo un error en el acceso por el internet.")
         enviarCorreoPlataforma("Wialon")
@@ -74,21 +74,23 @@ def main():
     archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
 
     # Actualización de seguimiento
-    df_exist = crear_excel(MDVRDatos.archivoMDVR1,MDVRDatos.archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, wialonDatos.archivoWialon1, wialonDatos.archivoWialon2, wialonDatos.archivoWialon3, ubicarDatos.archivoUbicar1, ubicarDatos.archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
-    df_diario = dfDiario(df_exist)
+    crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
 
     # Actualización de infractores
-    actualizarInfractores(archivoSeguimiento, archivoIturan2, MDVRDatos.archivoMDVR3, ubicarDatos.archivoUbicar3, wialonDatos.archivoWialon1, wialonDatos.archivoWialon2, wialonDatos.archivoWialon3, archivoSecuritrac)
+    actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
     # Actualización del odómetro
-    actualizarOdom(archivoSeguimiento, archivoIturan3, ubicarDatos.archivoUbicar1)
+    actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
 
     # Actualización de indicadores
+    df_exist = crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
+    df_diario = dfDiario(df_exist)
     actualizarIndicadoresTotales(df_diario, archivoSeguimiento)
     actualizarIndicadores(df_diario, df_exist, archivoSeguimiento)
 
     # Conexión con la base de datos
-    actualizarSeguimientoSQL(archivoIturan1, archivoIturan2, MDVRDatos.archivoMDVR1, MDVRDatos.archivoMDVR2, ubicarDatos.archivoUbicar1, ubicarDatos.archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSecuritrac, wialonDatos.archivoWialon1, wialonDatos.archivoWialon2, wialonDatos.archivoWialon3)
+    actualizarSeguimientoSQL(archivoIturan1, archivoIturan2, archivoMDVR1, archivoMDVR2, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3)
+    actualizarInfractoresSQL(archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
 
     ####################################
@@ -98,6 +100,7 @@ def main():
 
     # Enviar correo al personal de SGI.
     enviarCorreoPersonal()
+
 
     # Enviar correo específico a los conductores con excesos de velocidad.
     enviarCorreoConductor()
