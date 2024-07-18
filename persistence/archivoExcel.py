@@ -6,6 +6,7 @@ import os
 from openpyxl import load_workbook
 from datetime import datetime 
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font, PatternFill
 
 # Extraer información del informe de Ubicar.
 
@@ -200,7 +201,7 @@ def extraerUbicom(file1, file2):
         sheet2 = workbook2.sheet_by_index(0)
 
         # Extraer la información necesaria del reporte
-        fecha = sheet.cell_value(11, 28).split()[0]  # Celda AC12
+        fecha = sheet.cell_value(11, 11).split()[0]  # Celda L12
         
         km_recorridos = float(sheet.cell_value(20, 12))  # Celda M20
     
@@ -379,6 +380,7 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
 
         # Guardar el archivo Excel
         book.save(output_file)
+        return df_existente
 
 # Infractores diario Ubicar
 
@@ -648,11 +650,9 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
     df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
-    # Cargar el archivo existente y añadir una nueva hoja
-    with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a') as writer:
-        try:
-            # Cargar el libro de trabajo existente
-            writer.book = load_workbook(file_seguimiento)
+    try:
+        # Cargar el archivo existente y añadir una nueva hoja
+        with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
             # Verificar si la hoja 'Infractores' ya existe
             if 'Infractores' in writer.book.sheetnames:
                 # Leer la hoja existente en un DataFrame
@@ -665,8 +665,11 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
 
             # Escribir el DataFrame en la hoja 'Infractores'
             df_final.to_excel(writer, sheet_name='Infractores', index=False)
-        except Exception as e:
-            print(f"Error al actualizar el archivo Excel: {e}")
+
+        print(f"Agregado como hoja 'Infractores' en {file_seguimiento}")
+
+    except Exception as e:
+        print(f"Error al actualizar el archivo Excel: {e}")
 
 # Odómetro Ituran
 
@@ -740,3 +743,264 @@ ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
 
 ## ACTUALIZAR HOJAS DE INDICADORES 
 
+## ACTUALIZAR HOJAS DE INDICADORES 
+
+# Este es el DF que se usa para actualiza la hoja de Indicadores. Necesita que se haya guardado ya df_exist, que se genera al correr crear_excel. Por esta razón, toca guardar en una variable df_exist, lo que retorna crear_excel. 
+
+def dfDiario(df_exist):
+    sumas_diario = {
+        'FECHA': [], 
+        'KILOMETROS RECORRIDOS': [], 
+        'EXCESOS VELOCIDAD': [], 
+        'DESPLAZAMIENTOS': [], 
+        'DÍA TRABAJADO': [], 
+        'PREOPERACIONAL': []
+    }
+
+    date_columns = df_exist.columns[2:]
+
+    
+    for date in date_columns:
+        sumas_diario['FECHA'].append(date)
+        sumas_diario['KILOMETROS RECORRIDOS'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Km recorridos'][date].sum())
+        sumas_diario['EXCESOS VELOCIDAD'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Nº Excesos'][date].sum())
+        sumas_diario['DESPLAZAMIENTOS'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Nº Desplazamiento'][date].sum())
+        sumas_diario['DÍA TRABAJADO'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Día Trabajado'][date].sum())
+        sumas_diario['PREOPERACIONAL'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Preoperacional'][date].sum())
+
+    df_diario = pd.DataFrame(sumas_diario)
+    df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'] + '/2024', format='%d/%m/%Y').dt.strftime('%Y-%m-%d')  # Toca ajustar el año según lo necesitemos.
+    df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'])
+
+    return df_diario
+
+# El df que retorna la función dfDiario también toca guardarlo como una variable, pues este es el que se usa para calcular todos los indicadores. 
+
+def actualizarIndicadoresTotales(df_diario, file_seguimiento):
+    # Convertir la columna 'FECHA' a datetime y luego formatear para quitar la hora
+    df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'], format='%Y-%m-%d')
+
+    # Escribir el DataFrame en la hoja 'Indicadores Totales', reemplazando si existe
+    with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+        df_diario.to_excel(writer, sheet_name='Indicadores Totales', index=False)
+
+    print(f"Agregado como hoja 'Indicadores Totales' en {file_seguimiento}")
+
+#EJL 
+
+def calcular_EJL(df_diario):
+
+    # Crear una columna para el mes y año
+    df_diario['MES'] = df_diario['FECHA'].dt.to_period('M')
+    
+    # Calcular los acumulados mensuales
+    df_acumulados = df_diario.groupby('MES').sum(numeric_only=True).reset_index()
+    
+    # Crear un DataFrame con todos los meses del año
+    all_months = pd.date_range(start='2024-01-01', end='2024-12-31', freq='M').to_period('M')
+    df_all_months = pd.DataFrame(all_months, columns=['MES'])
+    
+    # Unir con el DataFrame de acumulados mensuales para asegurarse de que todos los meses estén presentes
+    df_acumulados = pd.merge(df_all_months, df_acumulados, on='MES', how='left')
+    
+    # Rellenar los NaN con ceros y asegurarse de que el tipo de datos sea correcto
+    df_acumulados.fillna(0, inplace=True)
+    
+    # Cambiar el formato del periodo a nombre de mes en español
+    df_acumulados['MES'] = df_acumulados['MES'].dt.strftime('%B').str.capitalize()
+    
+    # Calcular EJL
+    df_EJL = pd.DataFrame({
+        'MES': df_acumulados['MES'],
+        'EDD': df_acumulados['EXCESOS VELOCIDAD'],
+        'SDT': df_acumulados['DÍA TRABAJADO'],
+        'EJL': (df_acumulados['EXCESOS VELOCIDAD'] / df_acumulados['DÍA TRABAJADO']) * 100
+    })
+    
+    # Redondear a 2 decimales
+    df_EJL = df_EJL.round(2)
+    
+    # Transponer el DataFrame
+    df_EJL = df_EJL.set_index('MES').transpose()
+    
+    return df_EJL
+
+
+## ESTA FUNCIÓN TODAVÍA NO CALCULA BIEN EL VALOR VIP, ME TOCA CAMBIARLO, PERO POR AHORA LA DEJÓ ASI. ##
+
+def calcular_GVE(df_diario, df_exist):
+
+
+    # Crear una columna para el mes y año
+    df_diario['MES'] = df_diario['FECHA'].dt.to_period('M')
+
+    # Calcular los acumulados mensuales
+    df_acumulados = df_diario.groupby('MES').sum(numeric_only=True).reset_index()
+
+    # Calcular el valor máximo de "DÍA TRABAJADO" por mes
+    df_max_dia_trabajado = df_diario.groupby('MES')['DÍA TRABAJADO'].max().reset_index()
+
+    # Crear un DataFrame con todos los meses del año
+    all_months = pd.date_range(start='2024-01-01', end='2024-12-31', freq='M').to_period('M')
+    df_all_months = pd.DataFrame(all_months, columns=['MES'])
+
+    # Unir los DataFrames de acumulados mensuales y máximos de día trabajado para asegurarse de que todos los meses estén presentes
+    df_acumulados = pd.merge(df_all_months, df_acumulados, on='MES', how='left')
+    df_max_dia_trabajado = pd.merge(df_all_months, df_max_dia_trabajado, on='MES', how='left')
+
+    # Rellenar los NaN con ceros y asegurarse de que el tipo de datos sea correcto
+    df_acumulados.fillna(0, inplace=True)
+    df_max_dia_trabajado.fillna(0, inplace=True)
+
+    # Cambiar el formato del periodo a nombre de mes en español
+    df_acumulados['MES'] = df_acumulados['MES'].dt.strftime('%B').str.capitalize()
+    df_max_dia_trabajado['MES'] = df_max_dia_trabajado['MES'].dt.strftime('%B').str.capitalize()
+
+    # Calcular VIP y VLD
+    vip_value = len(df_exist['PLACA'].unique())  # VIP es constante para todos los meses
+    vld_values = df_max_dia_trabajado['DÍA TRABAJADO'].tolist()  # VLD es el valor máximo de DÍA TRABAJADO para cada mes
+
+    # Calcular GVE
+    gve_values = [(vip_value / vld) * 100 if vld != 0 else 0 for vld in vld_values]  # Calcular GVE
+
+    # Crear el DataFrame de GVE
+    df_GVE = pd.DataFrame({
+        'MES': df_acumulados['MES'],
+        'VIP': [vip_value] * len(df_acumulados),
+        'VLD': vld_values,
+        'GVE': gve_values
+    })
+
+    # Redondear a 2 decimales
+    df_GVE = df_GVE.round(2)
+
+    # Transponer el DataFrame
+    df_GVE = df_GVE.set_index('MES').transpose()
+
+    return df_GVE
+
+# ELVL
+
+def calcular_ELVL(df_diario):
+
+    # Crear una columna para el mes y año
+    df_diario['MES'] = df_diario['FECHA'].dt.to_period('M')
+
+    # Calcular los acumulados mensuales
+    df_acumulados = df_diario.groupby('MES').sum(numeric_only=True).reset_index()
+
+    # Crear un DataFrame con todos los meses del año
+    all_months = pd.date_range(start='2024-01-01', end='2024-12-31', freq='M').to_period('M')
+    df_all_months = pd.DataFrame(all_months, columns=['MES'])
+
+    # Unir con el DataFrame de acumulados mensuales para asegurarse de que todos los meses estén presentes
+    df_acumulados = pd.merge(df_all_months, df_acumulados, on='MES', how='left')
+
+    # Rellenar los NaN con ceros y asegurarse de que el tipo de datos sea correcto
+    df_acumulados.fillna(0, inplace=True)
+
+    # Cambiar el formato del periodo a nombre de mes en español
+    df_acumulados['MES'] = df_acumulados['MES'].dt.strftime('%B').str.capitalize()
+
+    # Calcular ELVL
+    df_ELVL = pd.DataFrame({
+        'MES': df_acumulados['MES'],
+        'DLEV': df_acumulados['EXCESOS VELOCIDAD'],
+        'TDL': df_acumulados['DESPLAZAMIENTOS'],
+        'ELVL': (df_acumulados['EXCESOS VELOCIDAD'] / df_acumulados['DESPLAZAMIENTOS']) * 100
+    })
+
+    # Redondear a 2 decimales
+    df_ELVL = df_ELVL.round(2)
+
+    # Transponer el DataFrame
+    df_ELVL = df_ELVL.set_index('MES').transpose()
+
+    return df_ELVL
+
+# IDP
+
+def calcular_IDP(df_diario):
+
+
+    # Crear una columna para el mes y año
+    df_diario['MES'] = df_diario['FECHA'].dt.to_period('M')
+
+    # Calcular los acumulados mensuales
+    df_acumulados = df_diario.groupby('MES').sum(numeric_only=True).reset_index()
+
+    # Crear un DataFrame con todos los meses del año
+    all_months = pd.date_range(start='2024-01-01', end='2024-12-31', freq='M').to_period('M')
+    df_all_months = pd.DataFrame(all_months, columns=['MES'])
+
+    # Unir con el DataFrame de acumulados mensuales para asegurarse de que todos los meses estén presentes
+    df_acumulados = pd.merge(df_all_months, df_acumulados, on='MES', how='left')
+
+    # Rellenar los NaN con ceros
+    df_acumulados.fillna(0, inplace=True)
+
+    # Cambiar el formato de los meses.
+    df_acumulados['MES'] = df_acumulados['MES'].dt.strftime('%B').str.capitalize()
+
+    # Calcular IDP
+    df_IDP = pd.DataFrame({
+        'MES': df_acumulados['MES'],
+        'DPV': df_acumulados['PREOPERACIONAL'],
+        'DTR': df_acumulados['DÍA TRABAJADO'],
+        'IDP': (df_acumulados['PREOPERACIONAL'] / df_acumulados['DÍA TRABAJADO']) * 100
+    })
+
+    # Redondear a 2 decimales
+    df_IDP = df_IDP.round(2)
+
+    # Transponer el DataFrame
+    df_IDP = df_IDP.set_index('MES').transpose()
+
+    return df_IDP
+
+# Actualizar la hoja de 'Indicadores'
+
+def actualizarIndicadores(df_diario, df_exist, file_seguimiento):
+    # Crear df_diario y df_hist
+  
+
+    # Calcular los cuatro indicadores
+    df_EJL = calcular_EJL(df_diario)
+    df_GVE = calcular_GVE(df_diario, df_exist)
+    df_ELVL = calcular_ELVL(df_diario)
+    df_IDP = calcular_IDP(df_diario)
+
+    # Crear una lista de DataFrames
+    dfs = [df_EJL, df_GVE, df_ELVL, df_IDP]
+
+    # Crear el archivo si no existe
+    if not os.path.exists(file_seguimiento):
+        with pd.ExcelWriter(file_seguimiento, engine='xlsxwriter') as writer:
+            # Crea un archivo de Excel vacío
+            pd.DataFrame().to_excel(writer)
+
+    # Cargar el archivo existente
+    book = load_workbook(file_seguimiento)
+
+    # Crear o seleccionar la hoja de trabajo 'Indicadores'
+    if 'Indicadores' in book.sheetnames:
+        del book['Indicadores']
+    sheet = book.create_sheet('Indicadores')
+
+    # Escribir cada DataFrame en la ubicación especificada con un espacio de 1 fila entre ellos
+    start_row = 1
+    for df in dfs:
+        df = df.reset_index()
+        df.rename(columns={'index': 'Indicador'}, inplace=True)
+        
+        for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=start_row):
+            for c_idx, value in enumerate(row):
+                cell = sheet.cell(row=r_idx, column=c_idx + 1, value=value)
+                if r_idx == start_row or c_idx == 0:  # Formato a los encabezados de los meses y la columna 'Indicador'
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        
+        start_row += len(df) + 2  # Incrementar la fila inicial para el siguiente DataFrame (1 fila de espacio + 1 fila de encabezado)
+
+    # Guardar el archivo
+    book.save(file_seguimiento)
