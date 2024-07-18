@@ -201,7 +201,7 @@ def extraerUbicom(file1, file2):
         sheet2 = workbook2.sheet_by_index(0)
 
         # Extraer la información necesaria del reporte
-        fecha = sheet.cell_value(11, 28).split()[0]  # Celda AC12
+        fecha = sheet.cell_value(11, 11).split()[0]  # Celda L12
         
         km_recorridos = float(sheet.cell_value(20, 12))  # Celda M20
     
@@ -650,11 +650,9 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
     df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
-    # Cargar el archivo existente y añadir una nueva hoja
-    with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a') as writer:
-        try:
-            # Cargar el libro de trabajo existente
-            writer.book = load_workbook(file_seguimiento)
+    try:
+        # Cargar el archivo existente y añadir una nueva hoja
+        with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
             # Verificar si la hoja 'Infractores' ya existe
             if 'Infractores' in writer.book.sheetnames:
                 # Leer la hoja existente en un DataFrame
@@ -667,8 +665,11 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
 
             # Escribir el DataFrame en la hoja 'Infractores'
             df_final.to_excel(writer, sheet_name='Infractores', index=False)
-        except Exception as e:
-            print(f"Error al actualizar el archivo Excel: {e}")
+
+        print(f"Agregado como hoja 'Infractores' en {file_seguimiento}")
+
+    except Exception as e:
+        print(f"Error al actualizar el archivo Excel: {e}")
 
 # Odómetro Ituran
 
