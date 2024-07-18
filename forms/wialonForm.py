@@ -5,10 +5,40 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 #from util.funcionalidadVehicular import Navegador
-from db.conexionDB import conexionDB
+#from db.conexionDB import conexionDB
 import pandas as pd
 import os
 import glob
+
+
+import mysql.connector
+from tkinter import messagebox
+
+class conexionDB:
+    def __init__(self):
+        self.host = '127.0.0.1'
+        self.user = 'root'
+        self.password = 'Gatitos24'
+        self.database = ''
+        self.conexion = None
+        
+    def establecerConexion(self):
+        try:
+            self.conexion = mysql.connector.connect(
+                host = self.host,
+                user = self.user,
+                password = self.password,
+                database = self.database
+            )
+            return self.conexion
+        
+        except mysql.connector.Error as e:
+            messagebox.showerror(message=f'Error de conexión: {e}', title='Mensaje')
+            return None
+        
+    def cerrarConexion(self):
+        if self.conexion:
+            self.conexion.close()
 
 # class wialonDatos(Navegador):
 #     def __init__(self):
@@ -121,7 +151,7 @@ def rpaWialon():
 
         # Descargar en Excel para el día seleccionado. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
         WebDriverWait(driver,50).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
-        time.sleep(1)
+        time.sleep(2)
         driver.find_element(By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)").click()
 
 
