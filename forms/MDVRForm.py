@@ -121,7 +121,7 @@ def rpaMDVR():
     time.sleep(1)
 
     # Cierre del webdriver.
-    while len(archivos) == 3:
+    if len(archivos) == 3:
         driver.quit()
     else:
         time.sleep(2)
@@ -129,10 +129,11 @@ def rpaMDVR():
 archivoMDVR1 = str()
 archivoMDVR2 = str()
 archivoMDVR3 = str()
-for archivo in archivos:
-    if "general" in archivo:
-        archivoMDVR1 += archivo
-    elif "drivers" in archivo:
-        archivoMDVR2 += archivo
-    else:
-        archivoMDVR3 += archivo
+if len(archivos) == 3:
+    for archivo in archivos:
+        if "general" in archivo:
+            archivoMDVR1 += archivo
+        elif "drivers" in archivo:
+            archivoMDVR2 += archivo
+        else:
+            archivoMDVR3 += archivo

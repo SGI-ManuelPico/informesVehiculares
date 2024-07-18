@@ -15,9 +15,9 @@ import os
 #     opcionesNavegador = opcionesNavegador
 #     opcionDescarga = opcionDescarga
 
-archivoIturan1 = os.getcwd() + "\\report.csv"
-archivoIturan2 = os.getcwd() + "\\report(1).csv"
-archivoIturan3 = os.getcwd() + "\\report(2).csv"
+archivoIturan1 = os.getcwd() + "\\outputIturan\\report.csv"
+archivoIturan2 = os.getcwd() + "\\outputIturan\\report (1).csv"
+archivoIturan3 = os.getcwd() + "\\outputIturan\\report (2).csv"
 
 def rpaIturan():
     """

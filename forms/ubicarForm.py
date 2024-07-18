@@ -126,7 +126,6 @@ def rpaUbicar():
 archivoUbicar1 = str()
 archivoUbicar2 = str()
 archivoUbicar3 = str()
-
 if len(archivos) == 3:
     for archivo in archivos:
         if "general" in archivo:

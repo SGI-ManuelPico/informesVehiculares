@@ -23,47 +23,47 @@ def main():
     ####################################
 
 
-    # Ituran
-    try:
-        rpaIturan()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ituran.")
-        enviarCorreoPlataforma("Ituran")
+    # # Ituran
+    # try:
+    #     rpaIturan()
+    # except:
+    #     print("Hubo un error en el acceso por el internet para ingresar a Ituran.")
+    #     enviarCorreoPlataforma("Ituran")
 
-    # MDVR
-    try:
-        rpaMDVR()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a MDVR.")
-        enviarCorreoPlataforma("MDVR")
+    # # MDVR
+    # try:
+    #     rpaMDVR()
+    # except:
+    #     print("Hubo un error en el acceso por el internet para ingresar a MDVR.")
+    #     enviarCorreoPlataforma("MDVR")
     
-    # Securitrac
-    try:
-        rpaSecuritrac()
-    except:
-        print("Hubo un error en el acceso por el internetpara ingresar a Securitrac.")
-        enviarCorreoPlataforma("Securitrac")
+    # # Securitrac
+    # try:
+    #     rpaSecuritrac()
+    # except:
+    #     print("Hubo un error en el acceso por el internetpara ingresar a Securitrac.")
+    #     enviarCorreoPlataforma("Securitrac")
 
-    # Ubicar
-    try:
-        rpaUbicar()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ubicar.")
-        enviarCorreoPlataforma("Ubicar")
+    # # Ubicar
+    # try:
+    #     rpaUbicar()
+    # except:
+    #     print("Hubo un error en el acceso por el internet para ingresar a Ubicar.")
+    #     enviarCorreoPlataforma("Ubicar")
 
-    # Ubicom
-    try:
-        rpaUbicom()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ubicom.")
-        enviarCorreoPlataforma("Ubicom")
+    # # Ubicom
+    # try:
+    #     rpaUbicom()
+    # except:
+    #     print("Hubo un error en el acceso por el internet para ingresar a Ubicom.")
+    #     enviarCorreoPlataforma("Ubicom")
 
-    # Wialon
-    try:
-        rpaWialon()
-    except:
-        print("Hubo un error en el acceso por el internet.")
-        enviarCorreoPlataforma("Wialon")
+    # # Wialon
+    # try:
+    #     rpaWialon()
+    # except:
+    #     print("Hubo un error en el acceso por el internet.")
+    #     enviarCorreoPlataforma("Wialon")
 
 
     ####################################

@@ -87,7 +87,7 @@ def rpaSecuritrac():
     driver.find_element(By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[3]/div/div/div[1]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div").click()
 
     # Cierre del webdriver.
-    while os.path.isfile(archivoSecuritrac):
+    if os.path.isfile(archivoSecuritrac):
         time.sleep(2)
         driver.quit()
     else:

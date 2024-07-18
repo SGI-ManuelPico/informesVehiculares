@@ -8,6 +8,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
 from persistence.archivoExcel import infracTodos
+from persistence.archivoExcel import xlsx
 
 # ACTUALIZAR SEGUIMIENTO EN LA BASE DE DATOS 'vehiculos'
 
@@ -62,7 +63,8 @@ def sqlMDVR(file1, file2): #file1 es el informe general, file2 es el informe de 
 # Cargar el archivo de Excel usando xlrd
     workbook = xlrd.open_workbook(file1)
     sheet = workbook.sheet_by_index(0)
-    workbook2 = openpyxl.load_workbook(file2)
+    file2x = xlsx(file2)
+    workbook2 = openpyxl.load_workbook(file2x)
     sheet2 = workbook2.active
 
 
@@ -363,8 +365,8 @@ def actualizarSeguimientoSQL(file_ituran, file_ituran2, file_MDVR1, file_MDVR2, 
     )
 
     user = 'root'
-    password = '123456678'  
-    host = 'localhost'
+    password = 'Gatitos24'  
+    host = '127.0.0.1'
     port = '3306'
     schema = 'vehiculos'
 
@@ -399,7 +401,7 @@ def actualizarInfractoresSQL(fileIturan, fileMDVR, fileUbicar, fileWialon, fileW
     ]
 
     # Conexión a la base de datos MySQL
-    engine = sqlalchemy.create_engine('mysql+mysqlconnector://usuario:contraseña@host:puerto/nombre_base_de_datos')
+    engine = sqlalchemy.create_engine('mysql+mysqlconnector://root:Gatitos24@127.0.0.1:3306/vehiculos')
 
     try:
         # Leer los datos existentes en la tabla 'infractores'
@@ -428,8 +430,8 @@ def actualizarKilometraje(file_ituran, file_ubicar):
 
 
     user = 'root'
-    password = '12345678'
-    host = 'localhost'
+    password = 'Gatitos24'
+    host = '127.0.0.1'
     port = '3306'
     schema = 'vehiculos'
     tabla = 'carro'

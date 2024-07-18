@@ -8,18 +8,26 @@ from datetime import datetime
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
 import locale
+import win32com.client as win32
 
 locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
 # Extraer información del informe de Ubicar.
 
 def xlsx(input_file):
-   
-    base_name = os.path.splitext(input_file)[0]
-    output_file = base_name + '.xlsx'
-    df = pd.read_excel(input_file, engine='xlrd')
-    df.to_excel(output_file, index=False)
-    return output_file
+    # Start an instance of Excel
+    excel = win32.gencache.EnsureDispatch('Excel.Application')
+    excel.Visible = False
+    
+    # Open the XLS file
+    wb = excel.Workbooks.Open(r"{}".format(input_file))
+    
+    # Save the file as XLSX
+    temp_file = os.path.splitext(input_file)[0] + '.xlsx'
+    wb.SaveAs(os.path.abspath(temp_file), FileFormat=51)  # FileFormat=51 is for .xlsx
+    wb.Close()
+    excel.Quit()
+    return temp_file
 
 def extraerUbicar(file1, file2): 
     try:
@@ -658,7 +666,7 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
     df_infractores = pd.DataFrame(todos_registros)
 
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
-    df_infractores['FECHA'] = pd.to_datetime(df_infractores[['FECHA']], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
+    df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
     try:
         # Cargar el archivo existente y añadir una nueva hoja
@@ -685,7 +693,7 @@ def actualizarInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar,
 
 def OdomIturan(file):
     # Leer el archivo de Excel
-    od = pd.read_excel(file)
+    od = pd.read_csv(file)
 
     # Extraer la placa y el odómetro
 
@@ -732,7 +740,7 @@ def actualizarOdom(file_seguimiento, file_ituran, file_ubicar):
         # Verificar si la hoja ya existe
         if 'Odómetro' in writer.book.sheetnames:
             # Eliminar la hoja existente
-            std = writer.book['Odometro']
+            std = writer.book['Odómetro']
             writer.book.remove(std)
         # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
         df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)

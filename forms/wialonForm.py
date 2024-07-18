@@ -42,9 +42,7 @@ def rpaWialon():
 
     ##########
     placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma'])
-    global placasWialon
     placasWialon = placasPWialon['Placa'].tolist()
-
 
 
     # Opciones iniciales del navegador.
@@ -144,13 +142,41 @@ def rpaWialon():
         time.sleep(2)
 
 
+
+
+# Tabla del correo.
+conexionBaseCorreos = conexionDB().establecerConexion()
+if conexionBaseCorreos:
+    cursor = conexionBaseCorreos.cursor()
+else:
+    print("Error.")
+
+#Consulta de las placas que componen a Wialon.
+cursor.execute("select placa, plataforma from vehiculos.placasVehiculos where plataforma = 'Wialon'")
+placasPWialon = cursor.fetchall() #Obtener todos los resultados
+
+#Desconectar BD
+conexionDB().cerrarConexion()
+
+##########
+placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma'])
+placasWialon = placasPWialon['Placa'].tolist()
+
 for archivo in archivos:
     for placa in placasWialon:
-        # Colocar el nombre del archivo. Esta parte será importante para el archivo de Excel.
-        # Creo que se puede hacer más eficiente, sin tantos if, pero no estoy seguro.
-        if placa == placasWialon[0]:
+        if placa in archivo and placa == placasWialon[0]:
             archivoWialon1 += archivo
-        elif placa == placasWialon[1]:
+        else:
+            archivoWialon1
+        if placa in archivo and placa == placasWialon[1]:
             archivoWialon2 += archivo
         else:
+            archivoWialon2
+        if placa in archivo and placa == placasWialon[2]:
             archivoWialon3 += archivo
+        else:
+            archivoWialon3
+
+
+
+

@@ -118,7 +118,7 @@ def rpaUbicom():
     driver.find_element(By.ID,"btnExportarEXCEL").click()
 
     # Cierre del webdriver.
-    while os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
+    if os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
         time.sleep(5)
         driver.quit()
     else:
