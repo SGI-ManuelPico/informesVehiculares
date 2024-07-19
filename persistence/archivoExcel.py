@@ -836,54 +836,75 @@ def calcular_EJL(df_diario):
 
 def calcular_GVE(df_diario, df_exist):
 
-
     # Crear una columna para el mes y año
     df_diario['MES'] = df_diario['FECHA'].dt.to_period('M')
-
+    
     # Calcular los acumulados mensuales
     df_acumulados = df_diario.groupby('MES').sum(numeric_only=True).reset_index()
-
+    
     # Calcular el valor máximo de "DÍA TRABAJADO" por mes
     df_max_dia_trabajado = df_diario.groupby('MES')['DÍA TRABAJADO'].max().reset_index()
-
+    
     # Crear un DataFrame con todos los meses del año
     all_months = pd.date_range(start='2024-01-01', end='2024-12-31', freq='M').to_period('M')
-    df_all_months = pd.DataFrame(all_months, columns=['MES'])
-
+    
     # Unir los DataFrames de acumulados mensuales y máximos de día trabajado para asegurarse de que todos los meses estén presentes
-    df_acumulados = pd.merge(df_all_months, df_acumulados, on='MES', how='left')
-    df_max_dia_trabajado = pd.merge(df_all_months, df_max_dia_trabajado, on='MES', how='left')
-
-    # Rellenar los NaN con ceros y asegurarse de que el tipo de datos sea correcto
+    df_acumulados = pd.merge(all_months.to_frame(name='MES'), df_acumulados, on='MES', how='left')
+    df_max_dia_trabajado = pd.merge(all_months.to_frame(name='MES'), df_max_dia_trabajado, on='MES', how='left')
+    
+    # Rellenar los NaN con ceros
     df_acumulados.fillna(0, inplace=True)
     df_max_dia_trabajado.fillna(0, inplace=True)
 
-    # Cambiar el formato del periodo a nombre de mes en español
+    # Cambiar el formato de la fecha para que muestre el nombre del mes.
     df_acumulados['MES'] = df_acumulados['MES'].dt.strftime('%B').str.capitalize()
     df_max_dia_trabajado['MES'] = df_max_dia_trabajado['MES'].dt.strftime('%B').str.capitalize()
-
-    # Calcular VIP y VLD
-    vip_value = len(df_exist['PLACA'].unique())  # VIP es constante para todos los meses
-    vld_values = df_max_dia_trabajado['DÍA TRABAJADO'].tolist()  # VLD es el valor máximo de DÍA TRABAJADO para cada mes
-
+    
+    # Crear un diccionario para mapear columnas a meses
+    month_dict = {}
+    for idx, col in enumerate(df_exist.columns):
+        if '/' in col:
+            month = col.split('/')[1]
+            if month not in month_dict:
+                month_dict[month] = []
+            month_dict[month].append(col)
+    
+    # Sumar valores para cada mes
+    month_sums = pd.DataFrame()
+    for month, cols in month_dict.items():
+        month_sums[month] = df_exist[cols].sum(axis=1)
+    
+    # Combinar las columnas de identificación originales con las sumas mensuales
+    result = pd.concat([df_exist.iloc[:, :2], month_sums], axis=1)
+    
+    # Calcular VIP para cada mes (cantidad de placas con al menos un 'Nº Desplazamiento' > 0)
+    vip_values = []
+    for month in all_months.strftime('%m'):
+        vip_count = sum((result['SEGUIMIENTO'] == 'Nº Desplazamiento') & (result[month] > 0))
+        vip_values.append(vip_count)
+    
+    # Calcular VLD (el valor máximo de DÍA TRABAJADO para cada mes)
+    vld_values = df_max_dia_trabajado['DÍA TRABAJADO'].tolist()
+    
     # Calcular GVE
-    gve_values = [(vip_value / vld) * 100 if vld != 0 else 0 for vld in vld_values]  # Calcular GVE
-
+    gve_values = [(vip / vld) * 100 if vld != 0 else 0 for vip, vld in zip(vip_values, vld_values)]
+    
     # Crear el DataFrame de GVE
     df_GVE = pd.DataFrame({
         'MES': df_acumulados['MES'],
-        'VIP': [vip_value] * len(df_acumulados),
+        'VIP': vip_values,
         'VLD': vld_values,
         'GVE': gve_values
     })
-
+    
     # Redondear a 2 decimales
     df_GVE = df_GVE.round(2)
-
+    
     # Transponer el DataFrame
     df_GVE = df_GVE.set_index('MES').transpose()
-
+    
     return df_GVE
+
 
 # ELVL
 
