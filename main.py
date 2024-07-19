@@ -8,7 +8,6 @@ from forms.wialonForm import rpaWialon, archivoWialon1,archivoWialon2,archivoWia
 from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
 from persistence.archivoExcel import crear_excel, actualizarInfractores, actualizarOdom, actualizarIndicadoresTotales, actualizarIndicadores, dfDiario
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
-##### FALTA ACTUALIZAR INFRACTORES SQL Y SEGUIMIENTO SQL
 
 
 def main():
