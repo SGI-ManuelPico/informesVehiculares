@@ -56,7 +56,7 @@ def main():
 
     #Ituran
     try:
-        IturanDatos.rpaIturan(ARGUMENTO1, ARGUMENTO2) #El argumento 1 y 2 toca mirar de donde sacarlos (Eso lo sabe pablo)
+        IturanDatos.rpaIturan() #El argumento 1 y 2 toca mirar de donde sacarlos (Eso lo sabe pablo)
     except:
         correos.eliminarArchivosOutput()
         print("Hubo un error en el acceso por el internet.")

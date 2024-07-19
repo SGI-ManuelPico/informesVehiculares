@@ -14,7 +14,7 @@ class IturanDatos():
         self.archivoIturan2 = os.getcwd() + "\\report(1).csv"
         self.archivoIturan3 = os.getcwd() + "\\report(2).csv"
 
-    def rpaIturan(self, opcionesNavegador, opcionDescarga):
+    def rpaIturan(self):
         """
         Realiza el proceso del RPA para la plataforma Ituran.
         """
