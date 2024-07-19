@@ -16,7 +16,7 @@ locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
 def xlsx(input_file):
     # Start an instance of Excel
-    excel = win32.gencache.EnsureDispatch('Excel.Application')
+    excel = win32.Dispatch('Excel.Application')
     excel.Visible = False
     
     # Open the XLS file
