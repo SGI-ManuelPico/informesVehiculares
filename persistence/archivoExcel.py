@@ -832,7 +832,7 @@ def calcular_EJL(df_diario):
     return df_EJL
 
 
-## ESTA FUNCIÓN TODAVÍA NO CALCULA BIEN EL VALOR VIP, ME TOCA CAMBIARLO, PERO POR AHORA LA DEJÓ ASI. ##
+## GVE
 
 def calcular_GVE(df_diario, df_exist):
 
