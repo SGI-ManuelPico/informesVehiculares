@@ -17,6 +17,9 @@ def rpaUbicom():
     """
     Realiza el proceso del RPA para la plataforma Ubicom.
     """
+
+    tiempoInicio = time.time()
+
     opcionesNavegador = webdriver.ChromeOptions()
     lugarDescargasUbicom = os.getcwd() + r"\outputUbicom"
     if not os.path.exists(lugarDescargasUbicom):
@@ -40,7 +43,7 @@ def rpaUbicom():
 
     # Entrada a página web de Ubicom
     driver.get("https://gps.ubicom.co/")
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.XPATH,'//*[@id="Login"]')))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,'//*[@id="Login"]')))
 
 
     # Usuario
@@ -59,15 +62,15 @@ def rpaUbicom():
 
 
     # Seleccionar botón informes.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]")))
     driver.find_element(By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]").click()
 
     # Buscar el Detalle del Vehículo. Dado que es uno solo, es preferible esto al informe general.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.LINK_TEXT,"Detalle Vehículo")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.LINK_TEXT,"Detalle Vehículo")))
     driver.find_element(By.LINK_TEXT,"Detalle Vehículo").click()
 
     # Buscar el Vehículo de esta plataforma. Por razones de pruebas, se usará FNM236, pero será necesario conectarlo a una base de datos después.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"ddlVehiculo")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"ddlVehiculo")))
     driver.find_element(By.ID,"ddlVehiculo").click()
     driver.find_element(By.XPATH,"/html/body/main/div[1]/div[1]/form/div[1]/select/option[12]").click()
 
@@ -78,11 +81,11 @@ def rpaUbicom():
 
 
     # Consultar el detalle del vehículo en el día actual. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID, "btnConsultar")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID, "btnConsultar")))
     driver.find_element(By.ID, "btnConsultar").click()
 
     # Descargar el detalle del vehículo en el día actual. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"btnExportarEXCEL")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"btnExportarEXCEL")))
     driver.find_element(By.ID,"btnExportarEXCEL").click()
 
 
@@ -92,15 +95,15 @@ def rpaUbicom():
 
 
     # Seleccionar botón informes.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]")))
     driver.find_element(By.XPATH,"/html/body/ul[2]/li[2]/ul/li[2]").click()
 
     # Buscar la información de "Estacionados".
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.LINK_TEXT,"Estacionados")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.LINK_TEXT,"Estacionados")))
     driver.find_element(By.LINK_TEXT,"Estacionados").click()
 
     # Buscar el Vehículo de esta plataforma. Por razones de pruebas, se usará FNM236, pero será necesario conectarlo a una base de datos después.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"ddlVehiculo")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"ddlVehiculo")))
     driver.find_element(By.ID,"ddlVehiculo").click()
     driver.find_element(By.XPATH,"/html/body/main/div[1]/div[1]/form/div[1]/select/option[12]").click()
 
@@ -114,12 +117,15 @@ def rpaUbicom():
     driver.find_element(By.ID, "btnConsultar").click()
 
     # Descargar el detalle del vehículo en el día actual. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"btnExportarEXCEL")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"btnExportarEXCEL")))
     driver.find_element(By.ID,"btnExportarEXCEL").click()
 
     # Cierre del webdriver.
-    if os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
-        time.sleep(5)
-        driver.quit()
+    while time.time() - tiempoInicio <181:
+        if os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
     else:
-        time.sleep(2)
+        pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.

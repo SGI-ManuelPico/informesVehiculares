@@ -23,6 +23,9 @@ def rpaIturan():
     Realiza el proceso del RPA para la plataforma Ituran.
     """
 
+    tiempoInicio = time.time()
+
+
     ####################################
     #### Entrada e inicio de sesión ####
     ####################################
@@ -95,10 +98,13 @@ def rpaIturan():
     time.sleep(2)
 
     # Verificar si puede salirse de la descarga.
-    while os.path.isfile(archivoIturan1) == True:
-        break
+    while time.time() - tiempoInicio <91:
+        if os.path.isfile(archivoIturan1) == True:
+            break
+        else:
+            time.sleep(2)
     else:
-        time.sleep(1)
+        pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
     ####################################
     #### Descargar Informe Detallado ###
@@ -126,10 +132,13 @@ def rpaIturan():
     time.sleep(2)
 
     # Verificar si puede salirse de la descarga.
-    while os.path.isfile(archivoIturan2) == True:
-        break
+    while time.time() - tiempoInicio <136:
+        if os.path.isfile(archivoIturan2) == True:
+            break
+        else:
+            time.sleep(2)
     else:
-        time.sleep(1)
+        pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
     ####################################
     #### Descargar Distancia Diaria ####
@@ -162,10 +171,12 @@ def rpaIturan():
     ####################################
 
 
-    while os.path.isfile(archivoIturan3) == True:
-        time.sleep(2)
-        driver.quit()
-        break
+    while time.time() - tiempoInicio <181:
+        if os.path.isfile(archivoIturan3) == True:
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
     else:
-        time.sleep(2)
+        pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 

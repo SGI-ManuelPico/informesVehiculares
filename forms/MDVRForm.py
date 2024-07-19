@@ -21,6 +21,9 @@ def rpaMDVR():
     """
     Realiza el proceso del RPA para la plataforma MDVR.
     """
+
+    tiempoInicio = time.time()
+
     opcionesNavegador = webdriver.ChromeOptions()
     if not os.path.exists(lugarDescargasMDVR):
         os.makedirs(lugarDescargasMDVR)
@@ -43,7 +46,7 @@ def rpaMDVR():
 
     # Entrada a página web de MDVR
     driver.get("https://mdvrgps.ddns.net/authentication/create")
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"sign-in-form-email")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"sign-in-form-email")))
 
 
     # Usuario
@@ -62,18 +65,18 @@ def rpaMDVR():
 
 
     # Seleccionar Herramientas
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.ID,"dropTools")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.ID,"dropTools")))
     time.sleep(2)
     driver.find_element(By.ID,"dropTools").click()
 
     # Seleccionar Reportes
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a")))
     driver.find_element(By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a").click()
 
     # Seleccionar Formato correcto (XLSX)
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".generate")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".generate")))
     driver.find_element(By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(2)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(2)")))
     driver.find_element(By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(2)").click()
 
     # Introducir límite de velocidad
@@ -81,7 +84,7 @@ def rpaMDVR():
 
     # Seleccionar carro
     driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[2]/div[2]/div[1]/div/div/button/span[2]").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)")))
     driver.find_element(By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)").click()
 
     # Descargar
@@ -96,7 +99,7 @@ def rpaMDVR():
 
     # Seleccionar Tipo y "Recorridos y paradas"
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)")))
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)").click()
 
     # Descargar
@@ -111,7 +114,7 @@ def rpaMDVR():
 
     # Seleccionar Tipo y "Excesos de velocidad"
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(17)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(17)")))
     driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[16]/a").send_keys(Keys.PAGE_DOWN)
     time.sleep(1)
     driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[17]/a").click()
@@ -121,10 +124,14 @@ def rpaMDVR():
     time.sleep(1)
 
     # Cierre del webdriver.
-    if len(archivos) == 3:
-        driver.quit()
+    while time.time() - tiempoInicio <181:
+        if len(archivos) == 3:
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
     else:
-        time.sleep(2)
+        driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
 archivoMDVR1 = str()
 archivoMDVR2 = str()

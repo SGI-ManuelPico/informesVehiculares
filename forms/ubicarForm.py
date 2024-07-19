@@ -19,6 +19,9 @@ def rpaUbicar():
     """
     Realiza el proceso del RPA para la plataforma Ubicar.
     """
+
+    tiempoInicio = time.time()
+
     opcionesNavegador = webdriver.ChromeOptions()
     if not os.path.exists(lugarDescargasUbicar):
         os.makedirs(lugarDescargasUbicar)
@@ -41,7 +44,7 @@ def rpaUbicar():
 
     # Entrada a página web de Ubicar
     driver.get("https://plataforma.sistemagps.online/authentication/create")
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"sign-in-form-email")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"sign-in-form-email")))
 
 
     # Usuario
@@ -60,17 +63,17 @@ def rpaUbicar():
 
 
     # Seleccionar Herramientas
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.ID,"dropTools")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.ID,"dropTools")))
     driver.find_element(By.ID,"dropTools").click()
 
     # Seleccionar Reportes
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a")))
     driver.find_element(By.XPATH,"/html/body/div[2]/nav/div/div[2]/ul/li[1]/ul/li[4]/a").click()
 
     # Seleccionar Formato correcto (XLSX)
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".generate")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".generate")))
     driver.find_element(By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(4)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(4)")))
     driver.find_element(By.CSS_SELECTOR,"div.col-sm-6:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(4)").click()
 
     # Introducir límite de velocidad
@@ -78,7 +81,7 @@ def rpaUbicar():
 
     # Seleccionar carro
     driver.find_element(By.CSS_SELECTOR,"div.row:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)")))
     driver.find_element(By.CSS_SELECTOR,"div.open:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > button:nth-child(1)").click()
 
     # Descargar
@@ -93,7 +96,7 @@ def rpaUbicar():
 
     # Seleccionar Tipo y "Recorridos y paradas"
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)")))
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(9) > a:nth-child(1)").click()
 
     # Descargar
@@ -108,7 +111,7 @@ def rpaUbicar():
 
     # Seleccionar Tipo y "Excesos de velocidad"
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
-    WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div > div > div > ul > li:nth-child(20) > a")))
+    WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div > div > div > ul > li:nth-child(20) > a")))
     driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div > div > div > ul > li:nth-child(20) > a").click()
     time.sleep(1)
 
@@ -117,11 +120,14 @@ def rpaUbicar():
     time.sleep(1)
 
     # Cierre del webdriver.
-    if len(archivos) == 3:
-        time.sleep(5)
-        driver.quit()
+    while time.time() - tiempoInicio <181:
+        if len(archivos) == 3:
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
     else:
-        time.sleep(2)
+        driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
 archivoUbicar1 = str()
 archivoUbicar2 = str()

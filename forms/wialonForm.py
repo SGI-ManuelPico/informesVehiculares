@@ -26,6 +26,8 @@ def rpaWialon():
     Realiza el proceso del RPA para la plataforma Wialon.
     """
 
+    tiempoInicio = time.time()
+
     # Tabla del correo.
     conexionBaseCorreos = conexionDB().establecerConexion()
     if conexionBaseCorreos:
@@ -68,7 +70,7 @@ def rpaWialon():
 
     # Entrada a página web de Wialon
     driver.get("https://hosting.wialon.com/?lang=en")
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
 
 
     # Usuario
@@ -86,9 +88,8 @@ def rpaWialon():
     ####################################
 
 
-
     # Seleccionar template "INFORME DETALLADO POR UNIDAD".
-    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
     time.sleep(2)
     driver.find_element(By.ID,"report_templates_filter_reports").click()
     time.sleep(1)
@@ -111,17 +112,17 @@ def rpaWialon():
 
 
         # Oprimir el botón execute.
-        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
+        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
         driver.find_element(By.ID,"report_templates_filter_params_execute").click()
 
 
         # Oprimir botón Export.
-        WebDriverWait(driver,50).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
+        WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
         time.sleep(2)
         driver.find_element(By.XPATH,"/html/body/div[14]/div[6]/div/div/div[1]/div[7]/div/span/div").click()
 
         # Descargar en Excel para el día seleccionado. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-        WebDriverWait(driver,50).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
+        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
         time.sleep(2)
         driver.find_element(By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)").click()
 
@@ -132,14 +133,14 @@ def rpaWialon():
 
 
     archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
-
-    # Si  se encuentran 3 archivos xlsx, para cada uno mire si la placa coincide con una placa de la lista que sale de la base de datos.
-    while len(archivos) == 3:
-        # Si se encuentran 3 archivos xlsx, puede cerrarse el driver.
-        time.sleep(2)
-        driver.quit()
+    while time.time() - tiempoInicio <181: # Si se encuentran los 3 archivos en menos de 4 minutos de estar ejecutando, se acaba.
+        if len(archivos) == 3:
+            time.sleep(2)
+            driver.quit()
+        else:
+            time.sleep(2)
     else:
-        time.sleep(2)
+        driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
 
 

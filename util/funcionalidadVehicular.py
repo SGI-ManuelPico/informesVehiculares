@@ -89,19 +89,6 @@ def enviarCorreoPersonal():
 
 
 ####################################
-##### Eliminar archivos del día ####
-####################################
-
-def eliminarArchivosOutput():
-    """
-    Elimina los archivos que aparecen en las carpetas de Output de cada RPA de cada plataforma.
-    """
-    for folder in os.listdir():
-        if "output" in folder:
-            shutil.rmtree(folder)
-
-
-####################################
 #### Enviar correo al conductor ####
 ####################################
 
@@ -240,9 +227,11 @@ def enviarCorreoPlataforma(plataforma):
     correoTexto = f"""
     Buenos días. Espero que se encuentre bien.
     
-    Mediante el presente correo se le informa que la plataforma {plataforma} tuvo errores durante su ejecución. Le invito a investigar más al respecto y, en cualquiera de los casos, el departamento de tecnología y desarrollo estará atento a sus inquietudes.
+    Mediante el presente correo se le informa que la plataforma {plataforma} tuvo errores durante su ejecución. Esta ejecución se intentó varias veces sin éxito y, por ende, uno o varios archivos que esta plataforma descarga no se encuentran.
+    
+    Por ende, se le invita a revisar en caso de que la plataforma genuinamente presente un problema. Asimismo, el departamento de tecnología y desarrollo fue copiado en este correo y estará atento a las inquietudes o solicitudes que usted pueda tener.
 
-    Es importante aclarar que el informe dejará los valores asociados a los vehículos de {plataforma} como "0" y esto deberá ser corregido manualmente.
+    Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlo a través del programa de actualización de archivos del aplicativo.
 
     Atentamente,
     Departamento de Tecnología y desarrollo, SGI SAS
@@ -266,3 +255,31 @@ def enviarCorreoPlataforma(plataforma):
     servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
     servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
     servidorCorreo.quit()
+
+
+####################################
+##### Eliminar archivos del día ####
+####################################
+
+
+def eliminarArchivosOutput():
+    """
+    Elimina los archivos que aparecen en las carpetas de Output de cada RPA de cada plataforma.
+    """
+    for folder in os.listdir():
+        if "output" in folder:
+            shutil.rmtree(folder)
+
+
+####################################
+##### Eliminar archivos carpeta ####
+####################################
+
+
+def eliminarArchivosPlataforma(plataforma):
+    """
+    Elimina los archivos que aparecen en la carpeta de Output de una plataforma.
+    """
+    carpetaOutput = os.getcwd() + "\\output" + plataforma
+    shutil.rmtree(carpetaOutput)
+
