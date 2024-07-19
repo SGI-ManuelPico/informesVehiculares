@@ -1,6 +1,6 @@
 import sys
 from forms.ituranForm import IturanDatos
-#from forms.MDVRForm import rpaMDVR
+from forms.MDVRForm import MDVRDatos
 #from forms.securitracForm import rpaSecuritrac
 #from forms.ubicarForm import rpaUbicar
 #from forms.ubicomForm import rpaUbicom
@@ -9,7 +9,7 @@ from util.funcionalidadVehicular import Correo
 from persistence.updateSQL import ActualizarBD
 
 
-def main():
+def main(self):
     """
     Ejecuta todos los códigos de la RPA en orden.
     """
@@ -63,12 +63,12 @@ def main():
         sys.exit()
 
     # # MDVR
-    # try:
-    #     MDVRDatos.rpaMDVR()
-    # except:
-    #     eliminarArchivosOutput()
-    #     print("Hubo un error en el acceso por el internet.")
-    #     sys.exit()
+    try:
+        archivoMDVR1, archivoMDVR2, archivoMDVR3 = MDVRDatos.rpaMDVR()
+    except:
+        correos.eliminarArchivosOutput()
+        print("Hubo un error en el acceso por el internet.")
+        sys.exit()
     
     # # Securitrac
     # try:

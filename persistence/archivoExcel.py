@@ -120,18 +120,3 @@ class ModificarExcel():
             # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
             df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
 
-# mdvr_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804327.xls"
-# mdvr_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720804333.xlsx"
-# archivoIturan1 = r"C:\Users\SGI SAS\Downloads\report.csv"
-# archivoIturan2 = r"C:\Users\SGI SAS\Downloads\report(1).csv"
-# securitrac_file = r"C:\Users\SGI SAS\Downloads\exported-excel.xls"
-# wialon_file1 = r"C:\Users\SGI SAS\Downloads\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-46.xlsx"
-# wialon_file2 = r"C:\Users\SGI SAS\Downloads\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-57.xlsx"
-# wialon_file3 = r"C:\Users\SGI SAS\Downloads\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-12_16-30-28.xlsx"
-# ubicar_file1 = r"C:\Users\SGI SAS\Downloads\general_information_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803683.xlsx"
-# ubicar_file2 = r"C:\Users\SGI SAS\Downloads\stops_report_2024_07_11_00_00_00_2024_07_12_00_00_00_1720803694.xlsx"
-# ubicom_file1 = r"C:\Users\SGI SAS\Downloads\ReporteDiario.xls"
-# ubicom_file2 = r"C:\Users\SGI SAS\Downloads\Estacionados.xls"
-
-# crear_excel(mdvr_file1, mdvr_file2, archivoIturan1, archivoIturan2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file='seguimiento.xlsx')
-

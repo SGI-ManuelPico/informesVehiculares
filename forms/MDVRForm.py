@@ -13,7 +13,7 @@ class MDVRDatos:
     def __init__(self):
         pass
 
-    def rpaMDVR():
+    def rpaMDVR(self):
         """
         Realiza el proceso del RPA para la plataforma MDVR.
         """
@@ -117,12 +117,14 @@ class MDVRDatos:
         driver.find_element(By.CSS_SELECTOR,".generate").click()
         time.sleep(1)
 
+        self.a = 2
+
         # Cierre del webdriver.
         archivos = glob.glob(os.path.join(lugarDescargasMDVR, '*.xls'))
         archivoMDVR1 = str()
         archivoMDVR2 = str()
         archivoMDVR3 = str()
-        while len(archivos) == 3:
+        if len(archivos) == 3:
             for archivo in archivos:
                 if "general" in archivo:
                     archivoMDVR1 += archivo
@@ -132,5 +134,6 @@ class MDVRDatos:
                     archivoMDVR3 += archivo
             
             driver.quit()
+            return archivoMDVR1, archivoMDVR2, archivoMDVR3
         else:
             time.sleep(2)
