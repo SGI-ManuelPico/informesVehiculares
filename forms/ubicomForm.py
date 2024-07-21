@@ -125,7 +125,10 @@ def rpaUbicom():
         if os.path.isfile(archivoUbicom1) and os.path.isfile(archivoUbicom2):
             time.sleep(2)
             driver.quit()
+            break
         else:
             time.sleep(2)
     else:
         pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+
+    return archivoUbicom1, archivoUbicom2

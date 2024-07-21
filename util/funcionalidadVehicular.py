@@ -122,7 +122,7 @@ def enviarCorreoConductor():
     tablaExcesos2 = pd.DataFrame(tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'Conductor'])
     tablaExcesos2['Número de excesos de velocidad'] = 1
     tablaExcesos2['correoCopia'] = tablaCorreos2.iloc[0]['correo']
-    tablaExcesos2['correo'] = tablaCorreos2.iloc[2]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
+    tablaExcesos2['correo'] = tablaCorreos2.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
     tablaExcesos2 = tablaExcesos2.groupby('Placa', as_index=False).agg({'Duración de excesos de velocidad': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número de excesos de velocidad' : 'sum'})
 
 
@@ -231,7 +231,7 @@ def enviarCorreoPlataforma(plataforma):
     
     Por ende, se le invita a revisar en caso de que la plataforma genuinamente presente un problema. Asimismo, el departamento de tecnología y desarrollo fue copiado en este correo y estará atento a las inquietudes o solicitudes que usted pueda tener.
 
-    Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlo a través del programa de actualización de archivos del aplicativo.
+    Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlos manualmente.
 
     Atentamente,
     Departamento de Tecnología y desarrollo, SGI SAS

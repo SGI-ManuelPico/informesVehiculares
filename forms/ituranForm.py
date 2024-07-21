@@ -175,8 +175,10 @@ def rpaIturan():
         if os.path.isfile(archivoIturan3) == True:
             time.sleep(2)
             driver.quit()
+            break
         else:
             time.sleep(2)
     else:
         pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
+    return archivoIturan1, archivoIturan2, archivoIturan3

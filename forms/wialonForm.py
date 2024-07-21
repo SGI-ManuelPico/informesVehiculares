@@ -17,9 +17,6 @@ import glob
 
 
 lugarDescargasWialon = os.getcwd() + "\\outputWialon"
-archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
-archivoWialon1=archivoWialon2=archivoWialon3 = str()
-
 
 def rpaWialon():
     """
@@ -109,12 +106,12 @@ def rpaWialon():
         driver.find_element(By.ID,"report_templates_filter_units").send_keys(placa)
         time.sleep(1)
         driver.find_element(By.XPATH,"/html/body/div[13]/div/div/div[3]/div/div[1]/div[2]/div[2]/div[1]/div/div/div[1]/div/div[2]/div/ul/li").click()
-
+        time.sleep(1)
 
         # Oprimir el botón execute.
         WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
         driver.find_element(By.ID,"report_templates_filter_params_execute").click()
-
+        time.sleep(1)
 
         # Oprimir botón Export.
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
@@ -132,52 +129,35 @@ def rpaWialon():
     ####################################
 
 
+    time.sleep(1)
     archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
-    while time.time() - tiempoInicio <181: # Si se encuentran los 3 archivos en menos de 4 minutos de estar ejecutando, se acaba.
+    archivoWialon1=archivoWialon2=archivoWialon3 = str()
+
+    while time.time() - tiempoInicio <181: # Si se encuentran los 3 archivos en menos de 3 minutos de estar ejecutando, se acaba.
         if len(archivos) == 3:
-            time.sleep(2)
             driver.quit()
+            print(archivos)
+            for archivo in archivos:
+                for placa in placasWialon:
+                    if placa in archivo and placa == placasWialon[0]:
+                        archivoWialon1 += archivo
+                    else:
+                        archivoWialon1
+                    if placa in archivo and placa == placasWialon[1]:
+                        archivoWialon2 += archivo
+                    else:
+                        archivoWialon2
+                    if placa in archivo and placa == placasWialon[2]:
+                        archivoWialon3 += archivo
+                    else:
+                        archivoWialon3
+            break
         else:
             time.sleep(2)
+            archivos = glob.glob(os.path.join(lugarDescargasWialon, '*.xlsx'))
+
+            
     else:
         driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
-
-
-
-
-# Tabla del correo.
-conexionBaseCorreos = conexionDB().establecerConexion()
-if conexionBaseCorreos:
-    cursor = conexionBaseCorreos.cursor()
-else:
-    print("Error.")
-
-#Consulta de las placas que componen a Wialon.
-cursor.execute("select placa, plataforma from vehiculos.placasVehiculos where plataforma = 'Wialon'")
-placasPWialon = cursor.fetchall() #Obtener todos los resultados
-
-#Desconectar BD
-conexionDB().cerrarConexion()
-
-##########
-placasPWialon = pd.DataFrame(placasPWialon, columns=['Placa', 'plataforma'])
-placasWialon = placasPWialon['Placa'].tolist()
-
-for archivo in archivos:
-    for placa in placasWialon:
-        if placa in archivo and placa == placasWialon[0]:
-            archivoWialon1 += archivo
-        else:
-            archivoWialon1
-        if placa in archivo and placa == placasWialon[1]:
-            archivoWialon2 += archivo
-        else:
-            archivoWialon2
-        if placa in archivo and placa == placasWialon[2]:
-            archivoWialon3 += archivo
-        else:
-            archivoWialon3
-
-
-
-
+    
+    return archivoWialon1, archivoWialon2, archivoWialon3

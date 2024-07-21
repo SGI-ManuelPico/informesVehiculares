@@ -13,7 +13,6 @@ import glob
 #         archivos = glob.glob(os.path.join(lugarDescargasUbicar, '*.xlsx'))
 
 lugarDescargasUbicar = os.getcwd() + r"\outputUbicar"
-archivos = glob.glob(os.path.join(lugarDescargasUbicar, '*.xlsx'))
 
 def rpaUbicar():
     """
@@ -120,23 +119,26 @@ def rpaUbicar():
     time.sleep(1)
 
     # Cierre del webdriver.
+    archivos = glob.glob(os.path.join(lugarDescargasUbicar, '*.xlsx'))
+    archivoUbicar1 = archivoUbicar2 = archivoUbicar3 = str()
+
     while time.time() - tiempoInicio <181:
         if len(archivos) == 3:
             time.sleep(2)
             driver.quit()
+            for archivo in archivos:
+                if "general" in archivo:
+                    archivoUbicar1 += archivo
+                elif "stops" in archivo:
+                    archivoUbicar2 += archivo
+                else:
+                    archivoUbicar3 += archivo
+            break
         else:
             time.sleep(2)
+            archivos = glob.glob(os.path.join(lugarDescargasUbicar, '*.xlsx'))
+
     else:
         driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
-archivoUbicar1 = str()
-archivoUbicar2 = str()
-archivoUbicar3 = str()
-if len(archivos) == 3:
-    for archivo in archivos:
-        if "general" in archivo:
-            archivoUbicar1 += archivo
-        elif "stops" in archivo:
-            archivoUbicar2 += archivo
-        else:
-            archivoUbicar3 += archivo
+    return archivoUbicar1, archivoUbicar2, archivoUbicar3

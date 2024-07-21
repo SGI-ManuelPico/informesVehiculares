@@ -10,7 +10,6 @@ import os
 #class securitracDatos:
 #   def __init__(self):
 
-archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
 
 
 def rpaSecuritrac():
@@ -18,6 +17,7 @@ def rpaSecuritrac():
     Realiza el proceso del RPA para la plataforma Securitrac.
     """
 
+    archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
     tiempoInicio = time.time()
 
     opcionesNavegador = webdriver.ChromeOptions()
@@ -70,11 +70,12 @@ def rpaSecuritrac():
 
     # Seleccionar botón Informes Eventos.
     driver.find_element(By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[1]/div/div/div[2]/div/span[2]").click()
-    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CSS_SELECTOR,".v-menubar-submenu > span:nth-child(3)")))
+    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,".v-menubar-submenu > span:nth-child(3)")))
     driver.find_element(By.CSS_SELECTOR,".v-menubar-submenu > span:nth-child(3)").click()
 
     # Seleccionar Eventos
     WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"span.v-checkbox:nth-child(2) > label:nth-child(2)")))
+    time.sleep(2)
     driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(2)").click()
     driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(4)").click()
     driver.find_element(By.CSS_SELECTOR,"div.v-gridlayout-slot:nth-child(5) > div:nth-child(1)").click()
@@ -86,7 +87,7 @@ def rpaSecuritrac():
 
 
     # Dado que son todos los vehículos de esta plataforma, se dejará así por motivos de pruebas, pero tocará cambiar esto.
-    WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.v-slot:nth-child(5) > div:nth-child(1)"))) # Verifica si el botón único de "Exportar a KML está presente."
+    WebDriverWait(driver,50).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.v-slot:nth-child(5) > div:nth-child(1)"))) # Verifica si el botón único de "Exportar a KML está presente."
     driver.find_element(By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[3]/div/div/div[1]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div").click()
 
     # Cierre del webdriver.
@@ -94,7 +95,10 @@ def rpaSecuritrac():
         if os.path.isfile(archivoSecuritrac) == True:
             time.sleep(2)
             driver.quit()
+            break
         else:
             time.sleep(2)
     else:
         driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+    
+    return archivoSecuritrac

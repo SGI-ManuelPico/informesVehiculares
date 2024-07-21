@@ -194,48 +194,51 @@ def sqlUbicom(file1, file2):
     # Securitrac
 
 def sqlSecuritrac(file):
-   # Cargar el archivo de Excel usando pandas
-    df = pd.read_excel(file)
+    try:
+    # Cargar el archivo de Excel usando pandas
+        df = pd.read_excel(file)
 
-    # Diccionario para almacenar los datos por placa
-    datos_por_placa = {}
+        # Diccionario para almacenar los datos por placa
+        datos_por_placa = {}
 
-    current_datetime = datetime.now()
-    current_time = current_datetime.strftime("%H:%M:%S")
-    
-    for index, row in df.iterrows():
-        placa = row['NROMOVIL']
-        evento = row['EVENTO']
-        kilometros = float(row['KILOMETROS'])
-        fecha = row['FECHAGPS']
+        current_datetime = datetime.now()
+        current_time = current_datetime.strftime("%H:%M:%S")
+        
+        for index, row in df.iterrows():
+            placa = row['NROMOVIL']
+            evento = row['EVENTO']
+            kilometros = float(row['KILOMETROS'])
+            fecha = row['FECHAGPS']
 
-    
-        fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
+        
+            fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
 
-        if placa not in datos_por_placa:
-            datos_por_placa[placa] = {
-                'placa': placa,
-                'fecha': fecha_formateada + ' ' + current_time, 
-                'km_recorridos': 0,
-                'num_excesos': 0,
-                'num_desplazamientos': 0,
-                'proveedor': 'Securitrac'
-            }
-        datos_por_placa[placa]['km_recorridos'] += kilometros
-        if evento == 'Exc. Velocidad':
-            datos_por_placa[placa]['num_excesos'] += 1
-        datos_por_placa[placa]['num_desplazamientos'] += 1
+            if placa not in datos_por_placa:
+                datos_por_placa[placa] = {
+                    'placa': placa,
+                    'fecha': fecha_formateada + ' ' + current_time, 
+                    'km_recorridos': 0,
+                    'num_excesos': 0,
+                    'num_desplazamientos': 0,
+                    'proveedor': 'Securitrac'
+                }
+            datos_por_placa[placa]['km_recorridos'] += kilometros
+            if evento == 'Exc. Velocidad':
+                datos_por_placa[placa]['num_excesos'] += 1
+            datos_por_placa[placa]['num_desplazamientos'] += 1
 
-    for placa, datos in datos_por_placa.items():
-        datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
-        datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else '-'
+        for placa, datos in datos_por_placa.items():
+            datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
+            datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else '-'
 
-    datos = []
-    for x in datos_por_placa.keys():
-        datos.append(datos_por_placa[x])
+        datos = []
+        for x in datos_por_placa.keys():
+            datos.append(datos_por_placa[x])
 
-    return datos
-
+        return datos
+    except Exception as e:
+        print('Archivos incorrectos o faltantes Securitrac')
+        return []
 
     # Wialon
 

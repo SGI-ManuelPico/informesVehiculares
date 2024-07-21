@@ -14,8 +14,6 @@ import glob
 #         archivos = glob.glob(os.path.join(lugarDescargasMDVR, '*.xls'))
 
 lugarDescargasMDVR = os.getcwd() + r"\outputMDVR"
-archivos = glob.glob(os.path.join(lugarDescargasMDVR, '*.xls'))
-
 
 def rpaMDVR():
     """
@@ -124,23 +122,27 @@ def rpaMDVR():
     time.sleep(1)
 
     # Cierre del webdriver.
+    archivos = glob.glob(os.path.join(lugarDescargasMDVR, '*.xls'))
+    archivoMDVR1 = archivoMDVR2 = archivoMDVR3 = str()
+
     while time.time() - tiempoInicio <181:
         if len(archivos) == 3:
             time.sleep(2)
             driver.quit()
+            for archivo in archivos:
+                if "general" in archivo:
+                    archivoMDVR1 += archivo
+                elif "drivers" in archivo:
+                    archivoMDVR2 += archivo
+                else:
+                    archivoMDVR3 += archivo
+            break
         else:
             time.sleep(2)
+            archivos = glob.glob(os.path.join(lugarDescargasMDVR, '*.xls'))
+
     else:
         driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
-archivoMDVR1 = str()
-archivoMDVR2 = str()
-archivoMDVR3 = str()
-if len(archivos) == 3:
-    for archivo in archivos:
-        if "general" in archivo:
-            archivoMDVR1 += archivo
-        elif "drivers" in archivo:
-            archivoMDVR2 += archivo
-        else:
-            archivoMDVR3 += archivo
+    return archivoMDVR1, archivoMDVR2, archivoMDVR3
+
