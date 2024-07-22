@@ -396,11 +396,11 @@ def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_fi
             df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
             df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
 
-         # Rellenar con 0's espacios en blanco
-        current_date = pd.to_datetime('today').strftime('%d/%m')
-        for col in df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
-            if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
-                df_existente[col].replace('', 0, inplace=True)
+         # Rellenar con 0's espacios en blanco. Esto puede ser necesario cambiarlo dependiendo de cómo el read_excel interprete los valores vacios del excel (NaN o ''). Lo voy a dejar comentado.
+        # current_date = pd.to_datetime('today').strftime('%d/%m')
+        # for col in df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
+        #     if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
+        #         df_existente[col].replace('', 0, inplace=True)
 
         # Escribir los datos actualizados en la hoja 'seguimiento'
         for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
