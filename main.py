@@ -5,7 +5,7 @@ from forms.securitracForm import rpaSecuritrac
 from forms.ubicarForm import rpaUbicar
 from forms.ubicomForm import rpaUbicom
 from forms.wialonForm import rpaWialon
-from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
+from util.eliminarArchivos import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
 from persistence.archivoExcel import crear_excel, actualizarInfractores, actualizarOdom, actualizarIndicadoresTotales, actualizarIndicadores, dfDiario
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 
