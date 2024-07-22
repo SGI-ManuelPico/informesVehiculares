@@ -134,7 +134,7 @@ def extraerMDVR(file1, file2): #file1 es el informe general, file2 es el informe
         placa_completa = sheet.cell_value(0, 1)  # A1 es (0, 1)
         placa = placa_completa.replace('-', '')  # Quitar el guion de la placa
         fecha = sheet.cell_value(1, 1).split()[0]  # A2 es (1, 1)
-        km_recorridos = float(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
+        km_recorridos = int(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
         dia_trabajado = 1 if km_recorridos > 0 else 0
         preoperacional = 1 if dia_trabajado == 1 else 0
         num_excesos = int(sheet.cell_value(8, 1))  # A9 es (8, 1)
@@ -222,7 +222,7 @@ def extraerUbicom(file1, file2):
         # Extraer la información necesaria del reporte
         fecha = sheet.cell_value(11, 11).split()[0]  # Celda L12
         
-        km_recorridos = float(sheet.cell_value(20, 12))  # Celda M20
+        km_recorridos = int(sheet.cell_value(20, 12))  # Celda M20
     
         num_excesos = int(sheet.cell_value(20, 21))  # Celda V20
     
