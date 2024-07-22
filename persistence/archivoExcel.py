@@ -345,6 +345,72 @@ def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan1, arch
 
 # Crear el archivo Excel seguimiento.xlsx con los datos extraídos. Si el archivo ya existe, simplemente lo actualiza con los datos nuevos.
 
+def crear_excel(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file):
+    # Ejecutar todas las extracciones
+    nuevos_datos = ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
+    # Convertir la lista de nuevos datos a DataFrame
+    df_nuevos = pd.DataFrame(nuevos_datos)
+
+    if not os.path.exists(output_file):
+        # Si el archivo no existe, crear el DataFrame inicial con el formato deseado
+        placas = df_nuevos['placa'].unique()
+        fechas = pd.date_range(start='2024-01-01', periods=365, freq='D')  # Ajustar el rango de fechas según sea necesario
+
+        rows = []
+        for placa in placas:
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Excesos'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Nº Desplazamiento'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Día Trabajado'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Preoperacional'})
+            rows.append({'PLACA': placa, 'SEGUIMIENTO': 'Km recorridos'})
+
+        df_formato = pd.DataFrame(rows)
+
+        for fecha in fechas:
+            mes_dia = fecha.strftime('%d/%m')
+            df_formato[mes_dia] = ''
+
+        # Guardar el DataFrame en un archivo Excel
+        with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+            df_formato.to_excel(writer, sheet_name='Seguimiento', index=False)
+
+    else:
+        # Leer el archivo existente
+        book = load_workbook(output_file)
+        if 'Seguimiento' in book.sheetnames:
+            sheet = book['Seguimiento']
+            df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
+        else:
+            sheet = book.create_sheet('Seguimiento')
+            df_existente = pd.DataFrame()
+
+        # Rellenar los datos en el DataFrame con el formato deseado
+        for _, row in df_nuevos.iterrows():
+            fecha = pd.to_datetime(row['fecha'], format='%d/%m/%Y')
+            dia = fecha.strftime('%d/%m')
+            placa = row['placa']
+
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+            df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+
+         # Rellenar con 0's espacios en blanco. Esto puede ser necesario cambiarlo dependiendo de cómo el read_excel interprete los valores vacios del excel (NaN o ''). Lo voy a dejar comentado.
+        # current_date = pd.to_datetime('today').strftime('%d/%m')
+        # for col in df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
+        #     if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
+        #         df_existente[col].replace('', 0, inplace=True)
+
+        # Escribir los datos actualizados en la hoja 'seguimiento'
+        for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
+            for c_idx, value in enumerate(row, 1):
+                sheet.cell(row=r_idx, column=c_idx, value=value)
+
+        # Guardar el archivo Excel
+        book.save(output_file)
+        return df_existente
+
 # Infractores diario Ubicar
 
 def infracUbicar(file1):
@@ -873,4 +939,53 @@ def calcular_IDP(df_diario):
     return df_IDP
 
 # Actualizar la hoja de 'Indicadores'
-    
+
+def actualizarIndicadores(df_diario, df_exist, file_seguimiento):
+
+
+    # Crear df_diario y df_hist
+  
+
+    # Calcular los cuatro indicadores
+    df_EJL = calcular_EJL(df_diario)
+    df_GVE = calcular_GVE(df_diario, df_exist)
+    df_ELVL = calcular_ELVL(df_diario)
+    df_IDP = calcular_IDP(df_diario)
+
+    # Crear una lista de DataFrames
+    dfs = [df_EJL, df_GVE, df_ELVL, df_IDP]
+
+    # Crear el archivo si no existe
+    if not os.path.exists(file_seguimiento):
+        with pd.ExcelWriter(file_seguimiento, engine='xlsxwriter') as writer:
+            # Crea un archivo de Excel vacío
+            pd.DataFrame().to_excel(writer)
+
+    # Cargar el archivo existente
+    book = load_workbook(file_seguimiento)
+
+    # Crear o seleccionar la hoja de trabajo 'Indicadores'
+    if 'Indicadores' in book.sheetnames:
+        del book['Indicadores']
+    sheet = book.create_sheet('Indicadores')
+
+    # Escribir cada DataFrame en la ubicación especificada con un espacio de 1 fila entre ellos
+    start_row = 1
+    for df in dfs:
+        df = df.reset_index()
+        df.rename(columns={'index': 'Indicador'}, inplace=True)
+        
+        for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=start_row):
+            for c_idx, value in enumerate(row):
+                cell = sheet.cell(row=r_idx, column=c_idx + 1, value=value)
+                if r_idx == start_row or c_idx == 0:  # Formato a los encabezados de los meses y la columna 'Indicador'
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        
+        start_row += len(df) + 2  # Incrementar la fila inicial para el siguiente DataFrame (1 fila de espacio + 1 fila de encabezado)
+
+    # Guardar el archivo
+    book.save(file_seguimiento)
+
+
+
