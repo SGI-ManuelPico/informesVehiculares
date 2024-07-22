@@ -274,46 +274,50 @@ def extraerWialon(file_path1, file_path2, file_path3):
                 placa = statistics_df.iloc[0, 1]  # Celda B1
                 fecha = statistics_df.iloc[1, 1].split()[0].replace('.', '/')  # Celda B2
                 fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
-            
-            
-            # Verificar si el archivo tiene datos
-            if 'Statistics' in xl.sheet_names and 'Excesos de velocidad' in xl.sheet_names and 'Cronología' in xl.sheet_names:
                 km_recorridos = int(statistics_df.iloc[7, 1])  # Celda B8, quitando 'km'
-                excesos_df = xl.parse('Excesos de velocidad', header=None)
-                num_excesos = len(excesos_df) - 1  # Descontar la fila de encabezado
-                crono = xl.parse('Cronología')
-                
-                # Extraer número de desplazamientos
-                desplazamientos = 0
-                for x in crono['Tipo'].to_list():
-                    if x == 'Trip':
-                        desplazamientos += 1
-                
-                # Calcular día trabajado y preoperacional
                 dia_trabajado = 1 if km_recorridos > 0 else 0
                 preoperacional = 1 if dia_trabajado == 1 else 0
-                
-                # Crear el diccionario con los datos extraídos
+            
                 datos = {
                     'placa': placa,
                     'fecha': fecha_formateada,
                     'km_recorridos': km_recorridos,
                     'dia_trabajado': dia_trabajado,
-                    'preoperacional': preoperacional,
-                    'num_excesos': num_excesos,
-                    'num_desplazamientos': desplazamientos
+                    'preoperacional': preoperacional
                 }
+
             else:
-                # Si el archivo no tiene datos, llenar con ceros pero usar placa y fecha
                 datos = {
                     'placa': placa,
                     'fecha': fecha_formateada,
                     'km_recorridos': 0,
                     'dia_trabajado': 0,
                     'preoperacional': 0,
-                    'num_excesos': 0,
-                    'num_desplazamientos': 0
                 }
+            
+            # Verificar si el archivo tiene datos
+            if 'Excesos de velocidad' in xl.sheet_names:
+                excesos_df = xl.parse('Excesos de velocidad', header=None)
+                num_excesos = len(excesos_df) - 1  # Descontar la fila de encabezado
+                datos.update({'num_excesos': num_excesos})
+                
+            else:
+                datos.update({'num_excesos': 0})
+
+            
+            # Extraer número de desplazamientos
+            if 'Cronología' in xl.sheet_names:
+                crono = xl.parse('Cronología')
+                desplazamientos = 0
+                for x in crono['Tipo'].to_list():
+                    if x == 'Trip':
+                        desplazamientos += 1
+                
+                datos.update({'num_desplazamientos': desplazamientos})
+
+            else:
+                datos.update({'num_desplazamientos': 0})
+                
             
             datos_extraidos.append(datos)
         
@@ -323,7 +327,7 @@ def extraerWialon(file_path1, file_path2, file_path3):
         print('Archivos incorrectos o faltantes WIALON')
         return []
 
-# Ejecuta todas las extracciones y las une en una única lista.
+#  Ejecuta todas las extracciones y las une en una única lista.
 
 def ejecutar_todas_extracciones(archivoMDVR1, archivoMDVR2, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2):
     # Ejecutar cada función de extracción con los archivos proporcionados
