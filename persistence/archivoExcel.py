@@ -323,23 +323,6 @@ class FuncionalidadExcel:
             print('Archivos incorrectos o faltantes WIALON')
             return []
 
-    #  Ejecuta todas las extracciones y las une en una única lista.
-
-    def ejecutar_todas_extracciones(self, archivoMDVR1, archivoMDVR2, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2):
-        # Ejecutar cada función de extracción con los archivos proporcionados
-        datosMDVR = self.extraerMDVR(archivoMDVR1, archivoMDVR2)
-        datosIturan = self.extraerIturan(archivoIturan1 , archivoIturan2)
-        datosSecuritrac = self.extraerSecuritrac(archivoSecuritrac)
-        datosWialon = self.extraerWialon(archivoWialon1, archivoWialon2, archivoWialon3)
-        datosUbicar = self.extraerUbicar(archivoUbicar1, archivoUbicar2)
-        datosUbicom = self.extraerUbicom(archivoUbicom1, archivoUbicom2)
-
-        # Unir todas las listas en una sola lista final
-        self.listaFinal = datosMDVR + datosIturan + datosSecuritrac + datosWialon + datosUbicar + datosUbicom
-
-        return self.listaFinal
-
-
     # Infractores diario Ubicar
 
     def infracUbicar(self, file1):
@@ -778,6 +761,9 @@ class FuncionalidadExcel:
 
         return self.df_IDP
     
+
+    # Fuera de horario laboral
+
     def fueraLaboralSecuritrac(self, file_path):
     # Cargar el archivo Excel
         secudf = pd.read_excel(file_path)
@@ -959,8 +945,9 @@ class FuncionalidadExcel:
             return self.result_dict
         
         else: 
-            return []
-        
+            return [] 
+
+
     def fueraLaboralTodos(self, rutasLaboral):
     
         all_results = []
@@ -975,7 +962,4 @@ class FuncionalidadExcel:
         self.todosDF = pd.DataFrame(all_results)
         self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
 
-        return self.todosDF    
-
-
-
+        return self.todosDF  

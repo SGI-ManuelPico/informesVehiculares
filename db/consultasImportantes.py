@@ -1,4 +1,5 @@
 from db.conexionDB import conexionDB
+from datetime import datetime
 
 class ConsultaImportante:
     def tablaCorreoPersonal(self):
@@ -79,7 +80,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"""select estado from vehiculos.estadosVehiculares""")
+        cursor.execute(f"""select plataforma, estado from vehiculos.estadosVehiculares""")
         self.tablaEstadosTotales = cursor.fetchall()
 
         #Desconectar BD
@@ -101,6 +102,21 @@ class ConsultaImportante:
         plataformasVehiculares = ["Ituran", "Securitac", "MDVR","Ubicar","Ubicom","Wialon"]
         for plataforma in plataformasVehiculares:
             cursor.execute(f"""UPDATE `vehiculos`.`estadosvehiculares` SET `estado` = 'No ejecutado' WHERE (`plataforma` = '{plataforma}');""")
+
+        #Desconectar BD
+        conexionDB().cerrarConexion()
+
+    def registrarError(plataforma):
+
+        conexionBaseCorreos = conexionDB().establecerConexion()
+        if conexionBaseCorreos:
+            cursor = conexionBaseCorreos.cursor()
+        else:
+            print("Error.")
+        
+        fecha = datetime.now().strftime('%d/%m/%Y')
+        #Consulta de los correos necesarios para el correo.
+        cursor.execute(f"INSERT INTO error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
 
         #Desconectar BD
         conexionDB().cerrarConexion()

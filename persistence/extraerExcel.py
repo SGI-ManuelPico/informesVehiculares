@@ -77,10 +77,10 @@ class Extracciones:
 
 
             # Rellenar con 0's espacios en blanco. Esto puede ser necesario cambiarlo dependiendo de cómo el read_excel interprete los valores vacios del excel (NaN o ''). Lo voy a dejar comentado.
-            # current_date = pd.to_datetime('today').strftime('%d/%m')
-            # for col in self.df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
-            #     if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
-            #         self.df_existente[col].replace('', 0, inplace=True)
+            current_date = pd.to_datetime('today').strftime('%d/%m')
+            for col in self.df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
+                if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
+                    self.df_existente[col].replace('', 0, inplace=True)
 
 
             # Escribir los datos actualizados en la hoja 'seguimiento'
@@ -240,3 +240,19 @@ class Extracciones:
 
         return self.df_diario
 
+
+    def fueraLaboralTodos(self, rutasLaboral):
+    
+        all_results = []
+        all_results.extend(self.fueraLaboralSecuritrac(rutasLaboral['securitrac']))
+        all_results.extend(self.fueraLaboralMDVR(rutasLaboral['mdvr']))
+        all_results.extend(self.fueraLaboralUbicar(rutasLaboral['ubicar']))
+        all_results.extend(self.fueraLaboralIturan(rutasLaboral['ituran']))
+    
+        for file_path in rutasLaboral['wialon']:
+            all_results.extend(self.fueraLaboralWialon(file_path))
+        
+        self.todosDF = pd.DataFrame(all_results)
+        self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
+
+        return self.todosDF    

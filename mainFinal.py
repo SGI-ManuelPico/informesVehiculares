@@ -7,6 +7,12 @@ from persistence.insertarSQL import FuncionalidadSQL
 from util.correosVehiculares import CorreosVehiculares
 from util.tratadoArchivos import TratadorArchivos
 
+
+#############################################################
+##### ATENCIÓN: ESTE MAIN SOLO SE EJECUTA A LAS 11:45PM #####
+#############################################################
+
+
 def main(self):
     """
     Ejecuta todos los códigos de la RPA en orden.
@@ -36,13 +42,22 @@ def main(self):
     # Wialon
     archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
 
-    # Verificar si los estados dejan que continúe el RPA.
+
+    ####################################
+    ##### Verificar estados Finales ####
+    ####################################
+
+
     tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
-    tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['eliminar', 'estado']).drop(columns='eliminar')
-    if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
-        pass
-    else:
-        sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
+    tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['plataforma', 'estado']).set_index('plataforma')
+    for plataforma in tablaEstadosTotales.index:
+        estado = tablaEstadosTotales.loc[plataforma]['estado']
+        if estado == "Ejecutado":
+            pass
+        else:
+            ConsultaImportante().registrarError(plataforma)
+            CorreosVehiculares().enviarCorreoPlataforma(plataforma)
+            
 
 
     ####################################
