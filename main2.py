@@ -1,12 +1,13 @@
 import sys, os, time
-from forms.ituranForm import rpaIturan
-from forms.MDVRForm import rpaMDVR
-from forms.securitracForm import rpaSecuritrac
-from forms.ubicarForm import rpaUbicar
-from forms.ubicomForm import rpaUbicom
-from forms.wialonForm import rpaWialon
-from util.funcionalidadVehicular import enviarCorreoPersonal, eliminarArchivosOutput, enviarCorreoConductor, enviarCorreoPlataforma
-from persistence.archivoExcel import crear_excel, actualizarInfractores, actualizarOdom, actualizarIndicadoresTotales, actualizarIndicadores, dfDiario
+from forms.ituranForm import DatosIturan
+from forms.MDVRForm import DatosMDVR
+from forms.securitracForm import DatosSecuritrac
+from forms.ubicarForm import DatosUbicar
+from forms.ubicomForm import DatosUbicom
+from forms.wialonForm import DatosWialon
+from util.correosVehiculares import CorreosVehiculares
+from persistence.archivoExcel import FuncionalidadExcel
+from persistence.extraerExcel import Extracciones
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 from persistence.estadoPlataforma import actualizarEstado, verificarEstado, logError, resetEstados
 
@@ -19,7 +20,7 @@ def ejecutarTareaRPA(plataforma, funcionRPA):
     except Exception as e:
         print(f"Hubo un error en el acceso por el internet para ingresar a {plataforma}.")
         actualizarEstado(plataforma, 'Error')
-        enviarCorreoPlataforma(plataforma)
+        CorreosVehiculares.enviarCorreoPlataforma(plataforma)
         
 
 def retryErrores(plataformas, resultados):
@@ -38,12 +39,12 @@ def main():
     
     resultados = {}
     plataformas = [
-        ('Ituran', rpaIturan),
-        ('MDVR', rpaMDVR),
-        ('Securitrac', rpaSecuritrac),
-        ('Ubicar', rpaUbicar),
-        ('Ubicom', rpaUbicom),
-        ('Wialon', rpaWialon)
+        ('Ituran', DatosIturan.rpaIturan),
+        ('MDVR',  DatosMDVR.rpaMDVR),
+        ('Securitrac', DatosSecuritrac.rpaSecuritrac),
+        ('Ubicar', DatosUbicar.rpaUbicar),
+        ('Ubicom', DatosUbicom.rpaUbicom),
+        ('Wialon', DatosWialon.rpaWialon)
     ]
 
     
@@ -84,17 +85,17 @@ def main():
     archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
 
     try:
-        df_exist = crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
+        df_exist = Extracciones.crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
 
-        actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
+        Extracciones.actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
-        actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
+        Extracciones.actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
 
-        df_diario = dfDiario(df_exist)
+        df_diario = Extracciones.dfDiario(df_exist)
 
-        actualizarIndicadoresTotales(df_diario, archivoSeguimiento)
+        Extracciones.actualizarIndicadoresTotales(df_diario, archivoSeguimiento)
 
-        actualizarIndicadores(df_diario, df_exist, archivoSeguimiento)
+        Extracciones.actualizarIndicadores(df_diario, df_exist, archivoSeguimiento)
 
     except Exception as e:
         print(f"Error al procesar los archivos de Excel: {e}")
@@ -115,15 +116,15 @@ def main():
     ####################################
 
     try:
-        enviarCorreoPersonal()
-        enviarCorreoConductor()
+        CorreosVehiculares.enviarCorreoPersonal()
+        CorreosVehiculares.enviarCorreoConductor()
     except Exception as e:
         print(f"Error al enviar correos: {e}")
 
         # Eliminar las carpetas del output ya que se tiene toda la información.
     print("Eliminando archivos")
     time.sleep(10)
-    eliminarArchivosOutput()
+    CorreosVehiculares.eliminarArchivosOutput()
 
     # Salida del sistema.
     sys.exit()
