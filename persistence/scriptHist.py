@@ -627,6 +627,8 @@ def crearInfractores(file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, file
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
     df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
+    df_infractores = df_infractores[(df_infractores['VELOCIDAD MÁXIMA'] > 80) & (df_infractores['TIEMPO DE EXCESO'] > 20)]
+
     # Cargar el archivo existente y añadir una nueva hoja
     with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a') as writer:
         df_infractores.to_excel(writer, sheet_name='Infractores', index=False)
@@ -642,6 +644,8 @@ def actualizarInfractoresSQL(file_Ituran, file_MDVR, file_Ubicar, file_Wialon, f
 
     # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
     df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
+
+    df_infractores = df_infractores[(df_infractores['VELOCIDAD MÁXIMA'] > 80) & (df_infractores['TIEMPO DE EXCESO'] > 20)]
 
     # Conexión
 

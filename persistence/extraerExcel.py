@@ -114,6 +114,8 @@ class Extracciones:
         # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
         df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
+        df_infractores = df_infractores[(df_infractores['VELOCIDAD MÁXIMA'] > 80) & (df_infractores['TIEMPO DE EXCESO'] > 20)]
+
         try:
             # Cargar el archivo existente y añadir una nueva hoja
             with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:

@@ -88,6 +88,8 @@ class FuncionalidadSQL:
         # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
         df_infractores['FECHA'] = pd.to_datetime(df_infractores['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%Y-%m-%d')
 
+        df_infractores = df_infractores[(df_infractores['VELOCIDAD MÁXIMA'] > 80) & (df_infractores['TIEMPO DE EXCESO'] > 20)]
+
         # Renombrar las columnas a camelCase
         df_infractores.columns = [
             'placa', 
