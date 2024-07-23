@@ -185,7 +185,8 @@ class FuncionalidadExcel:
                 datos_por_placa[placa]['km_recorridos'] += kilometros
                 if evento == 'Exc. Velocidad':
                     datos_por_placa[placa]['num_excesos'] += 1
-                datos_por_placa[placa]['num_desplazamientos'] += 1
+                if evento == 'Apagado':
+                    datos_por_placa[placa]['num_desplazamientos'] += 1
 
             for placa, datos in datos_por_placa.items():
                 datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
@@ -224,7 +225,7 @@ class FuncionalidadExcel:
 
             # Calcular día trabajado y preoperacional
             dia_trabajado = 1 if km_recorridos > 0 else 0
-            preoperacional = 1 if dia_trabajado == 1 else None
+            preoperacional = 1 if dia_trabajado == 1 else 0
 
             # Extraer el número de desplazamientos
 

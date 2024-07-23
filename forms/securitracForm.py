@@ -10,6 +10,7 @@ import os
 class DatosSecuritrac:
     def __init__(self):
         self.archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
+        self.lugarDescargasSecuritrac = os. getcwd() + r"\outputSecuritrac"
 
 
     def rpaSecuritrac(self):
@@ -20,12 +21,11 @@ class DatosSecuritrac:
         tiempoInicio = time.time()
 
         opcionesNavegador = webdriver.ChromeOptions()
-        lugarDescargasSecuritrac = os. getcwd() + r"\outputSecuritrac"
-        if not os.path.exists(lugarDescargasSecuritrac):
-            os.makedirs(lugarDescargasSecuritrac)
+        if not os.path.exists(self.lugarDescargasSecuritrac):
+            os.makedirs(self.lugarDescargasSecuritrac)
 
         opcionDescarga = {
-            "download.default_directory": lugarDescargasSecuritrac,
+            "download.default_directory": self.lugarDescargasSecuritrac,
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
         }
@@ -76,7 +76,7 @@ class DatosSecuritrac:
         WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"span.v-checkbox:nth-child(2) > label:nth-child(2)")))
         time.sleep(2)
         driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(2)").click()
-        #driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(4)").click()
+        driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(4)").click()
         driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(5)").click()
         driver.find_element(By.CSS_SELECTOR,"div.v-gridlayout-slot:nth-child(5) > div:nth-child(1)").click()
 

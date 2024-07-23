@@ -1,4 +1,4 @@
-import sys, os, time
+import sys, os, time, glob
 from db.consultasImportantes import ConsultaImportante
 from forms.rpaCompleto import RPA
 from persistence.extraerExcel import Extracciones
@@ -6,7 +6,7 @@ from persistence.insertarSQL import FuncionalidadSQL
 from util.correosVehiculares import CorreosVehiculares
 from util.tratadoArchivos import TratadorArchivos
 
-def main():
+def main(self):
     """
     Ejecuta todos los códigos de la RPA en orden.
     """
@@ -16,51 +16,28 @@ def main():
     ###### RPA por cada plataforma #####
     ####################################
 
-    ConsultaImportante().crearTablaEstados()
 
     # Ituran
-    try:
-        archivoIturan1, archivoIturan2, archivoIturan3 = RPA().ejecutarRPAIturan()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ituran.")
-        #enviarCorreoPlataforma("Ituran")
+    archivoIturan1, archivoIturan2, archivoIturan3, archivoIturan4 = RPA().ejecutarRPAIturan()
 
     # MDVR
-    try:
-        archivoMDVR1,archivoMDVR2, archivoMDVR3 = RPA().ejecutarRPAMDVR()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a MDVR.")
-        #enviarCorreoPlataforma("MDVR")
-    
+    archivoMDVR1,archivoMDVR2, archivoMDVR3 = RPA().ejecutarRPAMDVR()
+
     # Securitrac
-    try:
-        archivoSecuritrac = RPA().ejecutarRPASecuritrac()
-    except:
-        print("Hubo un error en el acceso por el internetpara ingresar a Securitrac.")
-        archivoSecuritrac = os.getcwd() + "\\outputSecuritrac\\exported-excel.xls"
-        #enviarCorreoPlataforma("Securitrac")
+    archivoSecuritrac = RPA().ejecutarRPASecuritrac()
 
     # Ubicar
-    try:
-        archivoUbicar1,archivoUbicar2,archivoUbicar3 = RPA().ejecutarRPAUbicar()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ubicar.")
-        #enviarCorreoPlataforma("Ubicar")
+    archivoUbicar1,archivoUbicar2,archivoUbicar3 = RPA().ejecutarRPAUbicar()
 
     # Ubicom
-    try:
-        archivoUbicom1, archivoUbicom2 = RPA().ejecutarRPAUbicom()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Ubicom.")
-        #enviarCorreoPlataforma("Ubicom")
+    archivoUbicom1, archivoUbicom2 = RPA().ejecutarRPAUbicom()
 
     # Wialon
-    try:
-        archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
-    except:
-        print("Hubo un error en el acceso por el internet para ingresar a Wialon.")
-        #enviarCorreoPlataforma("Wialon")
+    archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
 
+    # Verificar si los estados dejan que continúe el RPA.
+    tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
+    
 
     ####################################
     ####### Creación de informes #######
@@ -100,6 +77,8 @@ def main():
     # Enviar correo específico a los conductores con excesos de velocidad.
     CorreosVehiculares().enviarCorreoConductor()
     
+    # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
+    CorreosVehiculares().enviarCorreoLaboral()
 
     ####################################
     ######### Borrado y salida #########
@@ -110,7 +89,9 @@ def main():
     # print("Eliminando archivos")
     # time.sleep(10)
     # TratadorArchivos().eliminarArchivosOutput()
-    print("Gatitos24")
+
+    # Actualización de la tabla de estados.
+    ConsultaImportante().actualizarTablaEstados()
 
     # Salida del sistema.
     sys.exit()

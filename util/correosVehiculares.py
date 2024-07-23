@@ -44,7 +44,7 @@ class CorreosVehiculares:
 
         <p>Mediante el presente correo puede encontrar el informe vehicular actualizado hasta el d&iacute;a de hoy.<br>
         En este, podr&aacute; encontrar informaci&oacute;n como el n&uacute;mero y duraci&oacute;n de los excesos de velocidad, el kilometraje diario y total del veh&iacute;culo, o el n&uacute;mero de desplazamientos de cada veh&iacute;culo.<br>
-        Asimismo, mediante el presente correo puede encontrar una tabla con el n&uacute;mero de excesos de velocidad por veh&iacute;culo, con su respectivo nombre del conductor (en caso de que sea fijo) y placa.</p>
+        Asimismo, puede encontrar una tabla con el n&uacute;mero de excesos de velocidad por veh&iacute;culo, con su respectivo conductor y placa.</p>
 
         {build_table(self.tablaExcesos, 'green_light')}
 
@@ -89,51 +89,63 @@ class CorreosVehiculares:
 
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
+        self.tablaExcesos = pd.DataFrame(self.tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
+        self.tablaExcesos2 = self.tablaExcesos
+        self.tablaExcesos2['Número'] = 1
+        self.tablaExcesos2['correoCopia'] = self.tablaCorreos.iloc[0]['correo']
+        self.tablaExcesos2['correo'] = self.tablaCorreos.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
+        self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número' : 'sum'})
 
-        self.tablaExcesos = pd.DataFrame(self.tablaExcesos, columns=['Placa', 'Duración de excesos de velocidad', 'eliminar', 'Conductor']).drop(columns='eliminar')
-        self.tablaExcesos['Número de excesos de velocidad'] = 1
-        self.tablaExcesos['correoCopia'] = self.tablaCorreos.iloc[0]['correo']
-        self.tablaExcesos['correo'] = self.tablaCorreos.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
-        self.tablaExcesos = self.tablaExcesos.groupby('Placa', as_index=False).agg({'Duración de excesos de velocidad': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número de excesos de velocidad' : 'sum'})
 
+        listaConductores = self.tablaExcesos2['Conductor'].tolist()
 
-        listaConductores = self.tablaExcesos['Conductor'].tolist()
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
-            tablaExcesos3 = self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular]
-            tablaExcesos3 = tablaExcesos3.set_index('Conductor')
+            self.tablaExcesos3 = self.tablaExcesos2[self.tablaExcesos2['Conductor'] == conductorVehicular]
+            self.tablaExcesos3 = self.tablaExcesos3.set_index('Conductor')
 
             # Datos sobre el correo.
             correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-            correoReceptor = tablaExcesos3.loc[conductorVehicular]['correo']
-            correoCopia = tablaExcesos3.loc[conductorVehicular]['correoCopia']
+            correoReceptor = self.tablaExcesos3.loc[conductorVehicular]['correo']
+            correoCopia = self.tablaExcesos3.loc[conductorVehicular]['correoCopia']
             correoDestinatarios = [correoReceptor] + [correoCopia]
-            correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
+            correoAsunto = f'Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
 
             # Texto del correo.
             correoTexto = f"""
-            Buenos días. Espero que se encuentre bien.
-            
-            Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día. Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
-            
-            Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
-            Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
-            Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}
+            <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
+
+            <p>Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el d&iacute;a. Esta informaci&oacute;n le puede ayudar a mejorar sus h&aacute;bitos de conducci&oacute;n y, de esta manera, evitar posibles siniestros viales.</p>
+
+            <p>Conductor: {self.tablaExcesos3.reset_index().iloc[0]['Conductor']}<br>
+            N&uacute;mero de excesos de velocidad: {self.tablaExcesos3.loc[conductorVehicular]['Número']}<br>
+            Placa del veh&iacute;culo que maneja: {self.tablaExcesos3.loc[conductorVehicular]['Placa']}</p>
             """
 
-            if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
+            self.tablaExcesos = self.tablaExcesos[['Placa', 'Duración', 'Velocidad', 'Conductor']]
+
+            if self.tablaExcesos3.loc[conductorVehicular]['Duración'] >300:
                 correoTexto2 = f"""
-                Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
+                <p>Adicionalmente, se encontr&oacute; que sus excesos de velocidad acumularon m&aacute;s de 5 minutos en total. Espec&iacute;ficamente, su duraci&oacute;n total en exceso fue de {self.tablaExcesos3.loc[conductorVehicular]['Duración']} segundos. Esta informaci&oacute;n le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.</p>
+
+                <p>Por otro lado, tambi&eacute;n se le env&iacute;a su registro de n&uacute;mero de excesos de velocidad realizados durante el d&iacute;a.</p>
+
+
+                {build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], 'green_light')}
 
                 Atentamente,
                 Departamento de Tecnología y desarrollo, SGI SAS
                 """
             else:
                 correoTexto2 = f"""
-                
-                Atentamente,
-                Departamento de Tecnología y desarrollo, SGI SAS
+                <p>Por otro lado, a trav&eacute;s de este medio se le env&iacute;a su registro de n&uacute;mero de excesos de velocidad realizados durante el d&iacute;a.</p>
+
+                {build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], 'green_light')}
+
+                <p>Atentamente,<br>
+                Departamento de Tecnolog&iacute;a y desarrollo, SGI SAS</p>
+
                 """
             
             # Para formatear el texto de manera correcta.
@@ -147,7 +159,7 @@ class CorreosVehiculares:
             mensajeCorreo['To'] = correoReceptor
             mensajeCorreo['Cc'] = correoCopia
             mensajeCorreo['Subject'] = correoAsunto
-            mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
+            mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
 
 
             # Inicializar el correo y enviar.
@@ -214,41 +226,50 @@ class CorreosVehiculares:
         servidorCorreo.quit()
 
 
-    ####################################AAAAAAAAAAAAAAAAAA
-    ## Correo plataforma disfuncional ##AAAAAAAAAAAAAAAAAAAA
-    ####################################AAAAAAAAAAAAAAAAAAAAA
+
+   
+    ####################################
+    #### Enviar correo hora laboral ####
+    ####################################
 
 
-    def enviarCorreoPlataforma(self, plataforma):
+    def enviarCorreoLaboral(self):
         """
-        Realiza el proceso del envío del correo a los interesados en caso de que una plataforma no haya funcionado.
+        Realiza el proceso del envío del correo al personal interesado para informarles de desplazamientos fuera de horario laboral.
         """
 
-        ConsultaImportante.tablaCorreoPlataforma()
+        self.tablaHorarios, self.tablaPuntos = ConsultaImportante().tablaCorreoLaboral()
+        self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal() # Sí, aquí se llama otra base que no se usa.
 
         # Modificaciones iniciales a los datos de las consultas.
-        self.tablaCorreos2 = pd.DataFrame(self.tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
+        self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Hora'])
+        self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa'])
+        self.tablaPuntos = self.tablaPuntos[['Placa']].value_counts()
+
+
 
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = self.tablaCorreos2['correo'].dropna().tolist()
-        correoCopia = self.tablaCorreos2['correoCopia'].dropna().tolist()
+        correoReceptor = self.tablaCorreos[['correo']]
+        correoCopia = self.tablaCorreos[['correoCopia']]
         correoDestinatarios = correoReceptor + correoCopia
-        correoAsunto = f'Notificación de errores para la plataforma {plataforma} durante el día {datetime.date.today()}'
+        correoAsunto = f'Informe de desplazamientos fuera de horario laboral para el {datetime.date.today()}'
 
         # Texto del correo.
         correoTexto = f"""
-        Buenos días. Espero que se encuentre bien.
-        
-        Mediante el presente correo se le informa que la plataforma {plataforma} tuvo errores durante su ejecución. Esta ejecución se intentó varias veces sin éxito y, por ende, uno o varios archivos que esta plataforma descarga no se encuentran.
-        
-        Por ende, se le invita a revisar en caso de que la plataforma genuinamente presente un problema. Asimismo, el departamento de tecnología y desarrollo fue copiado en este correo y estará atento a las inquietudes o solicitudes que usted pueda tener.
+        <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
 
-        Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlos manualmente.
+        <p>Mediante el presente correo puede encontrar los desplazamientos fuera de horario que ocurrieron el {datetime.date.today()} por hora del evento.</p>
 
-        Atentamente,
-        Departamento de Tecnología y desarrollo, SGI SAS
-        """
+        {build_table(self.tablaHorarios, 'green_light')}
+
+        <p>Asimismo, puede encontrar la cantidad de desplazamientos fuera de horario que tuvo cada placa.</p>
+
+        {build_table(self.tablaPuntos, 'green_light')}
+
+        <p>Atentamente,<br>
+        Departamento de Tecnolog&iacute;a y desarrollo, SGI SAS</p>
+            """
         
         # Para formatear el texto de manera correcta.
         correoTexto = textwrap.dedent(correoTexto)
@@ -256,10 +277,10 @@ class CorreosVehiculares:
         # Creación del correo.
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-        mensajeCorreo['To'] = ", ".join(correoReceptor)
-        mensajeCorreo['Cc'] = ", ".join(correoCopia)
+        mensajeCorreo['To'] = correoReceptor
+        mensajeCorreo['Cc'] = correoCopia
         mensajeCorreo['Subject'] = correoAsunto
-        mensajeCorreo.attach(MIMEText(correoTexto, 'plain'))
+        mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
 
 
         # Inicializar el correo y enviar.
@@ -268,3 +289,10 @@ class CorreosVehiculares:
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
+
+
+
+
+
+
+
