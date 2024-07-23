@@ -21,6 +21,8 @@ class ConsultaImportante:
         #Desconectar BD
         conexionDB().cerrarConexion()
 
+        return self.tablaExcesos, self.tablaCorreos
+
     def tablaCorreoPlataforma(self):
         """
         Busca las tablas para los correos que son notificados de fallas en plataformas.
@@ -37,6 +39,8 @@ class ConsultaImportante:
 
         #Desconectar BD
         conexionDB().cerrarConexion()
+
+        return self.tablaCorreos2
 
     def tablaEstadosPlataforma(self, plataforma):
         conexionBaseCorreos = conexionDB().establecerConexion()

@@ -76,7 +76,7 @@ class DatosSecuritrac:
         WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"span.v-checkbox:nth-child(2) > label:nth-child(2)")))
         time.sleep(2)
         driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(2)").click()
-        driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(4)").click()
+        #driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(4)").click()
         driver.find_element(By.CSS_SELECTOR,"span.v-checkbox:nth-child(5)").click()
         driver.find_element(By.CSS_SELECTOR,"div.v-gridlayout-slot:nth-child(5) > div:nth-child(1)").click()
 

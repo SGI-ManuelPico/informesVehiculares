@@ -1,10 +1,10 @@
 import sys, os, time
+from db.consultasImportantes import ConsultaImportante
 from forms.rpaCompleto import RPA
 from persistence.extraerExcel import Extracciones
 from persistence.insertarSQL import FuncionalidadSQL
 from util.correosVehiculares import CorreosVehiculares
 from util.tratadoArchivos import TratadorArchivos
-
 
 def main():
     """
@@ -16,6 +16,7 @@ def main():
     ###### RPA por cada plataforma #####
     ####################################
 
+    ConsultaImportante().crearTablaEstados()
 
     # Ituran
     try:
@@ -113,6 +114,7 @@ def main():
 
     # Salida del sistema.
     sys.exit()
+
 
 if __name__=='__main__':
     main()

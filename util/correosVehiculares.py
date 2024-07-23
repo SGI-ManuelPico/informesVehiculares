@@ -26,7 +26,7 @@ class CorreosVehiculares:
         Realiza el proceso del envío del correo al personal de SGI interesado.
         """
 
-        ConsultaImportante.tablaCorreoPersonal()
+        self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal()
 
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
@@ -85,7 +85,7 @@ class CorreosVehiculares:
         Realiza el proceso del envío del correo a los conductores que tuvieron excesos de velocidad.
         """
 
-        ConsultaImportante.tablaCorreoPersonal()
+        self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal()
 
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
@@ -106,10 +106,10 @@ class CorreosVehiculares:
 
             # Datos sobre el correo.
             correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-            correoReceptor = self.tablaExcesos3.loc[conductorVehicular]['correo']
-            correoCopia = self.tablaExcesos3.loc[conductorVehicular]['correoCopia']
+            correoReceptor = tablaExcesos3.loc[conductorVehicular]['correo']
+            correoCopia = tablaExcesos3.loc[conductorVehicular]['correoCopia']
             correoDestinatarios = [correoReceptor] + [correoCopia]
-            correoAsunto = f'Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
+            correoAsunto = f'Informe de conducción individual de {tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
 
             # Texto del correo.
             correoTexto = f"""
@@ -117,14 +117,14 @@ class CorreosVehiculares:
             
             Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el día. Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.
             
-            Conductor: {self.tablaExcesos3.reset_index().iloc[0]['Conductor']}
-            Número de excesos de velocidad: {self.tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
-            Placa del vehículo que maneja: {self.tablaExcesos3.loc[conductorVehicular]['Placa']}
+            Conductor: {tablaExcesos3.reset_index().iloc[0]['Conductor']}
+            Número de excesos de velocidad: {tablaExcesos3.loc[conductorVehicular]['Número de excesos de velocidad']}
+            Placa del vehículo que maneja: {tablaExcesos3.loc[conductorVehicular]['Placa']}
             """
 
             if tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad'] >300:
                 correoTexto2 = f"""
-                Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {self.tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
+                Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {tablaExcesos3.loc[conductorVehicular]['Duración de excesos de velocidad']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.
 
                 Atentamente,
                 Departamento de Tecnología y desarrollo, SGI SAS
