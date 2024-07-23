@@ -5,7 +5,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
 from persistence.archivoExcel import FuncionalidadExcel
-
+from db.conexionDB import conexionDB
 
 
 
@@ -160,17 +160,17 @@ class FuncionalidadSQL:
 
     ## Esta función recibe como argumentos el df que sale de la función fueraLaboralTodos y db_conn es una instancia de la clase ConexionDB.
 
-    def sqlfueraLaboral(self, df, db_conn):
+    def sqlFueraLaboral(self, df):
     
         # Cambiar la fecha al formato de curdate() 
 
         df['fecha'] = pd.to_datetime(df['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
 
-        conn = db_conn.establecerConexion()
-        if conn is None:
-            return
-        
-        cursor = conn.cursor()
+        conexionBase = conexionDB().establecerConexion()
+        if conexionBase:
+            cursor = conexionBase.cursor()
+        else:
+            print("Error.")
 
         # Convertir el DataFrame en una lista de tuplas
         data = [tuple(row) for row in df.values]
@@ -185,11 +185,9 @@ class FuncionalidadSQL:
         cursor.executemany(insert_query, data)
         
         # Confirmar los cambios
-        conn.commit()
+        cursor.commit()
 
-        # Cerrar el cursor y la conexión
-        cursor.close()
-        db_conn.cerrarConexion()
+        conexionDB().cerrarConexion()
 
 
         
