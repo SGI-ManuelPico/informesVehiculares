@@ -1,16 +1,9 @@
 import pandas as pd
-import openpyxl
-import re
-import xlrd
 import os
 from openpyxl import load_workbook
-from datetime import datetime 
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
-import locale
-import win32com.client as win32
-
-from asdfg import Excelee
+from persistence.archivoExcel import FuncionalidadExcel
 
 
 class Extracciones:
@@ -18,9 +11,22 @@ class Extracciones:
         pass
 
         
-    def crear_excel(self, mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2, output_file):
+    def crear_excel(self, archivoMDVR1, archivoMDVR2, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, output_file):
         # Ejecutar todas las extracciones
-        nuevos_datos = Excelee().ejecutar_todas_extracciones(mdvr_file1, mdvr_file2, ituran_file, ituran_file2, securitrac_file, wialon_file1, wialon_file2, wialon_file3, ubicar_file1, ubicar_file2, ubicom_file1, ubicom_file2)
+
+
+        # Ejecutar cada función de extracción con los archivos proporcionados
+        datosMDVR = FuncionalidadExcel().extraerMDVR(archivoMDVR1, archivoMDVR2)
+        datosIturan = FuncionalidadExcel().extraerIturan(archivoIturan1 , archivoIturan2)
+        datosSecuritrac = FuncionalidadExcel().extraerSecuritrac(archivoSecuritrac)
+        datosWialon = FuncionalidadExcel().extraerWialon(archivoWialon1, archivoWialon2, archivoWialon3)
+        datosUbicar = FuncionalidadExcel().extraerUbicar(archivoUbicar1, archivoUbicar2)
+        datosUbicom = FuncionalidadExcel().extraerUbicom(archivoUbicom1, archivoUbicom2)
+
+        # Unir todas las listas en una sola lista final
+        nuevos_datos = datosMDVR + datosIturan + datosSecuritrac + datosWialon + datosUbicar + datosUbicom
+
+
         # Convertir la lista de nuevos datos a DataFrame
         df_nuevos = pd.DataFrame(nuevos_datos)
 
@@ -52,10 +58,10 @@ class Extracciones:
             book = load_workbook(output_file)
             if 'Seguimiento' in book.sheetnames:
                 sheet = book['Seguimiento']
-                df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
+                self.df_existente = pd.read_excel(output_file, sheet_name='Seguimiento')
             else:
                 sheet = book.create_sheet('Seguimiento')
-                df_existente = pd.DataFrame()
+                self.df_existente = pd.DataFrame()
 
             # Rellenar los datos en el DataFrame con el formato deseado
             for _, row in df_nuevos.iterrows():
@@ -63,25 +69,47 @@ class Extracciones:
                 dia = fecha.strftime('%d/%m')
                 placa = row['placa']
 
-                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
-                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
-                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
-                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
-                df_existente.loc[(df_existente['PLACA'] == placa) & (df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+                self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Nº Excesos'), dia] = row['num_excesos']
+                self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Nº Desplazamiento'), dia] = row['num_desplazamientos']
+                self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Día Trabajado'), dia] = row['dia_trabajado']
+                self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Preoperacional'), dia] = row['preoperacional']
+                self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
+
+
+            # Rellenar con 0's espacios en blanco. Esto puede ser necesario cambiarlo dependiendo de cómo el read_excel interprete los valores vacios del excel (NaN o ''). Lo voy a dejar comentado.
+            # current_date = pd.to_datetime('today').strftime('%d/%m')
+            # for col in self.df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
+            #     if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
+            #         self.df_existente[col].replace('', 0, inplace=True)
+
 
             # Escribir los datos actualizados en la hoja 'seguimiento'
-            for r_idx, row in enumerate(dataframe_to_rows(df_existente, index=False, header=True), 1):
+            for r_idx, row in enumerate(dataframe_to_rows(self.df_existente, index=False, header=True), 1):
                 for c_idx, value in enumerate(row, 1):
                     sheet.cell(row=r_idx, column=c_idx, value=value)
 
             # Guardar el archivo Excel
             book.save(output_file)
-            return df_existente
+            print("AAAAAAAAAAAaaaa")
+            return self.df_existente
 
     
     def actualizarInfractores(self, file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac):
         # Obtener todas las infracciones combinadas
-        todos_registros = Excelee().infracTodos(file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac)
+
+        registros_ituran = FuncionalidadExcel().infracIturan(file_Ituran)
+        registros_mdvr = FuncionalidadExcel().infracMDVR(file_MDVR)
+        registros_ubicar = FuncionalidadExcel().infracUbicar(file_Ubicar)
+        registros_wialon = FuncionalidadExcel().infracWialon(fileWialon1)
+        registros_wialon2 = FuncionalidadExcel().infracWialon(fileWialon2)
+        registros_wialon3 = FuncionalidadExcel().infracWialon(fileWialon3)
+        registros_securitrac = FuncionalidadExcel().infracSecuritrac(file_Securitrac)
+
+        # Combinar todos los resultados en una sola lista
+        todos_registros = (
+            registros_ituran + registros_mdvr + registros_ubicar + registros_wialon + registros_wialon2 + registros_wialon3 +registros_securitrac
+        )
+
         df_infractores = pd.DataFrame(todos_registros)
 
         # Convertir la columna 'FECHA' a datetime y luego a string con el formato correcto
@@ -111,7 +139,7 @@ class Extracciones:
 
     def actualizarOdom(self, file_seguimiento, file_ituran, file_ubicar):
         # Obtener todos los odómetros combinados
-        todos_registros = Excelee().OdomIturan(file_ituran) + Excelee().odomUbicar(file_ubicar)
+        todos_registros = FuncionalidadExcel().OdomIturan(file_ituran) + FuncionalidadExcel().odomUbicar(file_ubicar)
         df_odometros = pd.DataFrame(todos_registros)
 
         # Cargar el archivo existente y añadir una nueva hoja, sobreescribiendo si ya existe
@@ -143,10 +171,10 @@ class Extracciones:
     
 
         # Calcular los cuatro indicadores
-        df_EJL = Excelee().calcular_EJL(df_diario)
-        df_GVE = Excelee().calcular_GVE(df_diario, df_exist)
-        df_ELVL = Excelee().calcular_ELVL(df_diario)
-        df_IDP = Excelee().calcular_IDP(df_diario)
+        df_EJL = FuncionalidadExcel().calcular_EJL(df_diario)
+        df_GVE = FuncionalidadExcel().calcular_GVE(df_diario, df_exist)
+        df_ELVL = FuncionalidadExcel().calcular_ELVL(df_diario)
+        df_IDP = FuncionalidadExcel().calcular_IDP(df_diario)
 
         # Crear una lista de DataFrames
         dfs = [df_EJL, df_GVE, df_ELVL, df_IDP]
@@ -184,7 +212,7 @@ class Extracciones:
         book.save(file_seguimiento)
 
 
-    def dfDiario(df_exist):
+    def dfDiario(self, df_exist):
         sumas_diario = {
             'FECHA': [], 
             'KILOMETROS RECORRIDOS': [], 
@@ -205,20 +233,36 @@ class Extracciones:
             sumas_diario['DÍA TRABAJADO'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Día Trabajado'][date].sum())
             sumas_diario['PREOPERACIONAL'].append(df_exist[df_exist['SEGUIMIENTO'] == 'Preoperacional'][date].sum())
 
-        df_diario = pd.DataFrame(sumas_diario)
-        df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'] + '/2024', format='%d/%m/%Y').dt.strftime('%Y-%m-%d')  # Toca ajustar el año según lo necesitemos.
-        df_diario['FECHA'] = pd.to_datetime(df_diario['FECHA'])
+        self.df_diario = pd.DataFrame(sumas_diario)
+        self.df_diario['FECHA'] = pd.to_datetime(self.df_diario['FECHA'] + '/2024', format='%d/%m/%Y').dt.strftime('%Y-%m-%d')  # Toca ajustar el año según lo necesitemos.
+        self.df_diario['FECHA'] = pd.to_datetime(self.df_diario['FECHA'])
 
-        return df_diario
+        return self.df_diario
 
 
 archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
+archivoIturan1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report.csv"
+archivoIturan2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report(1).csv"
+archivoIturan3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report(2).csv"
+archivoSecuritrac = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputSecuritrac\exported-excel.xls"
+archivoUbicar1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\general_information_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700068.xlsx"
+archivoUbicar2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\stops_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700075.xlsx"
+archivoUbicar3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\overspeeds_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700080.xlsx"
+archivoWialon1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-22_21-06-38.xlsx"
+archivoWialon2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-22_21-06-51.xlsx"
+archivoWialon3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-22_21-07-00.xlsx"
+archivoMDVR1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\general_information_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699894.xls"
+archivoMDVR2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\stops_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699897.xls"
+archivoMDVR3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\overspeeds_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699902.xls"
+archivoUbicom1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicom\ReporteDiario.xls"
+archivoUbicom2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicom\Estacionados.xls"
 
 
 
-df_exist = Extracciones().crear_excel
-Extracciones().actualizarInfractores
-Extracciones().actualizarOdom
+df_exist = Extracciones().crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
+Extracciones().actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
+Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
 df_diario = Extracciones().dfDiario(df_exist)
-Extracciones().actualizarIndicadoresTotales
-Extracciones().actualizarIndicadores
+Extracciones().actualizarIndicadoresTotales(df_diario, archivoSeguimiento)
+Extracciones().actualizarIndicadores(df_diario, df_exist, archivoSeguimiento)
+

@@ -131,7 +131,7 @@ class DatosMDVR:
                         self.archivoMDVR1 += archivo
                     else:
                         self.archivoMDVR1
-                    if "drivers" in archivo:
+                    if "stops" in archivo:
                         self.archivoMDVR2 += archivo
                     else:
                         self.archivoMDVR2
