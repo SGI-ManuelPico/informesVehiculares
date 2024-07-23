@@ -11,6 +11,8 @@ from persistence.extraerExcel import Extracciones
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 from persistence.estadoPlataforma import actualizarEstado, verificarEstado, logError, resetEstados
 
+### Como estas funciones solo se van a ejecutar en el main, las defino acá. ###
+
 def ejecutarTareaRPA(plataforma, funcionRPA):
     try:
         actualizarEstado(plataforma, 'En ejecucion')
@@ -21,23 +23,35 @@ def ejecutarTareaRPA(plataforma, funcionRPA):
         print(f"Hubo un error en el acceso por el internet para ingresar a {plataforma}.")
         actualizarEstado(plataforma, 'Error')
         CorreosVehiculares.enviarCorreoPlataforma(plataforma)
-        
 
-def retryErrores(plataformas, resultados):
-    ocurrio_error = False
+# Verifica si hay alguna plataforma que tenga estado 'error' en la tabla estadoPlataforma. Si los hay, retorna True, si no, retorna False.
+
+def checkErrores():
     status = verificarEstado()
     for plataforma, estado in status:
         if estado == 'Error':
-            ocurrio_error = True
+            return True
+    return False
+
+# Si hay una plataforma con estado 'error' en la tabla estadoPlataforma, ejecuta el RPA para esa plataforma específica.
+
+def retryErrores(plataformas, resultados):
+    status = verificarEstado()
+    for plataforma, estado in status:
+        if estado == 'Error':
             resultados[plataforma] = ejecutarTareaRPA(plataforma, dict(plataformas)[plataforma])
-    return ocurrio_error
 
 
 def main():
     
-    # Ejecuta todos los códigos de la RPA en orden.
-    
+    """
+    Ejecuta todos los códigos de la RPA en orden. Guardamos los resultados de las RPA en un diccionario que tiene como llaves
+    los nombres de las plataformas y como valores las rutas que se generan con cada RPA.
+    """
+     
     resultados = {}
+
+    # Creamos una lista que contiene tuplas con el nombre de la plataforma y su funcion RPA correspondiente.
     plataformas = [
         ('Ituran', DatosIturan.rpaIturan),
         ('MDVR',  DatosMDVR.rpaMDVR),
@@ -47,15 +61,18 @@ def main():
         ('Wialon', DatosWialon.rpaWialon)
     ]
 
+    # Ejectuamos el RPA para cada plataforma y guardamos los resultados en el diccionario.
     
     for plataforma, funcionRPA in plataformas:
         resultados[plataforma] = ejecutarTareaRPA(plataforma, funcionRPA)
     
-    # Primer reintento después de 15 minutos.
-    if retryErrores(plataformas, resultados):
+    # Primer reintento después de 15 minutos solo si hay al menos una plataforma con estado 'Error'
+    if checkErrores():
         time.sleep(15 * 60)
-        # Segundo reintento después de 15 minutos.
-        if retryErrores(plataformas, resultados):
+        retryErrores(plataformas, resultados)
+        
+        # Segundo reintento después de 15 minutos solo si hay al menos una plataforma con estado 'Error'
+        if checkErrores():
             time.sleep(15 * 60)
             retryErrores(plataformas, resultados)
 
@@ -82,6 +99,7 @@ def main():
     ####################################
     ###### Creación de informes #####
     ####################################
+
     archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
 
     try:
