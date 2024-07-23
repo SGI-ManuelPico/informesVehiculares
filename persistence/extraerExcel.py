@@ -212,6 +212,7 @@ class Extracciones:
         # Guardar el archivo
         book.save(file_seguimiento)
 
+
     def actualizarFueraLaboral(file_seguimiento, df):
 
         with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
@@ -245,19 +246,3 @@ class Extracciones:
 
         return self.df_diario
 
-
-    def fueraLaboralTodos(self, rutasLaboral):
-    
-        all_results = []
-        all_results.extend(self.fueraLaboralSecuritrac(rutasLaboral['securitrac']))
-        all_results.extend(self.fueraLaboralMDVR(rutasLaboral['mdvr']))
-        all_results.extend(self.fueraLaboralUbicar(rutasLaboral['ubicar']))
-        all_results.extend(self.fueraLaboralIturan(rutasLaboral['ituran']))
-    
-        for file_path in rutasLaboral['wialon']:
-            all_results.extend(self.fueraLaboralWialon(file_path))
-        
-        self.todosDF = pd.DataFrame(all_results)
-        self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
-
-        return self.todosDF    
