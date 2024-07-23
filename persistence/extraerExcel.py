@@ -212,6 +212,11 @@ class Extracciones:
         # Guardar el archivo
         book.save(file_seguimiento)
 
+    def actualizarFueraLaboral(file_seguimiento, df):
+
+        with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            df.to_excel(writer, sheet_name='Act. fuera de horario laboral', index=False)
+
 
     def dfDiario(self, df_exist):
         sumas_diario = {
