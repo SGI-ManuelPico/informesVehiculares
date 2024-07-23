@@ -10,6 +10,7 @@ class DatosUbicom:
     def __init__(self):
         self.archivoUbicom1 = os.getcwd() + "\\outputUbicom\\ReporteDiario.xls"
         self.archivoUbicom2 = os.getcwd() + "\\outputUbicom\\Estacionados.xls"
+        self.lugarDescargasUbicom = os.getcwd() + r"\outputUbicom"
 
 
     def rpaUbicom(self):
@@ -20,12 +21,11 @@ class DatosUbicom:
         tiempoInicio = time.time()
 
         opcionesNavegador = webdriver.ChromeOptions()
-        lugarDescargasUbicom = os.getcwd() + r"\outputUbicom"
-        if not os.path.exists(lugarDescargasUbicom):
-            os.makedirs(lugarDescargasUbicom)
+        if not os.path.exists(self.lugarDescargasUbicom):
+            os.makedirs(self.lugarDescargasUbicom)
 
         opcionDescarga = {
-            "download.default_directory": lugarDescargasUbicom,
+            "download.default_directory": self.lugarDescargasUbicom,
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
         }

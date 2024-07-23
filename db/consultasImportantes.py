@@ -57,9 +57,8 @@ class ConsultaImportante:
         conexionDB().cerrarConexion()
 
         return self.tablaEstados
-        # PARA CADA PLATAFORMA VERIFICAR EN LA TABLA QUE SALE DE AQUÍ SI YA SE HIZO Y SI NO HACER EL RPA.
 
-    def actualizarEstadoPlataforma(self, plataforma,estado):
+    def actualizarEstadoPlataforma(self, plataforma, estado):
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
             cursor = conexionBaseCorreos.cursor()
@@ -72,6 +71,40 @@ class ConsultaImportante:
         #Desconectar BD
         conexionDB().cerrarConexion()
         
+    def verificarEstadosFinales(self):
+        conexionBaseCorreos = conexionDB().establecerConexion()
+        if conexionBaseCorreos:
+            cursor = conexionBaseCorreos.cursor()
+        else:
+            print("Error.")
+
+        #Consulta de los correos necesarios para el correo.
+        cursor.execute(f"""select estado from vehiculos.estadosVehiculares""")
+        self.tablaEstadosTotales = cursor.fetchall()
+
+        #Desconectar BD
+        conexionDB().cerrarConexion()
+
+        return self.tablaEstadosTotales
+
+    def actualizarTablaEstados(self):
+        """
+        Crea la tabla de estados para cada día.
+        """
+        
+        conexionBaseCorreos = conexionDB().establecerConexion()
+        if conexionBaseCorreos:
+            cursor = conexionBaseCorreos.cursor()
+        else:
+            print("Error.")
+
+        plataformasVehiculares = ["Ituran", "Securitac", "MDVR","Ubicar","Ubicom","Wialon"]
+        for plataforma in plataformasVehiculares:
+            cursor.execute(f"""UPDATE `vehiculos`.`estadosvehiculares` SET `estado` = 'No ejecutado' WHERE (`plataforma` = '{plataforma}');""")
+
+        #Desconectar BD
+        conexionDB().cerrarConexion()
+
     def tablaWialon(self):
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
@@ -88,9 +121,9 @@ class ConsultaImportante:
 
         return self.placasPWialon
 
-    def crearTablaEstados(self):
+    def tablaCorreoLaboral(self):
         """
-        Crea la tabla de estados para cada día.
+        Busca la tabla para el correo de vehículos con desplazamientos fuera de horario laboral.
         """
         
         conexionBaseCorreos = conexionDB().establecerConexion()
@@ -100,26 +133,12 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("DROP TABLE IF EXISTS vehiculos.estadosVehiculares")
-
-        cursor.execute(f"""CREATE TABLE vehiculos.estadosVehiculares(
-                        id int NOT NULL,
-                        plataforma varchar(20),
-                        estado varchar(20),
-                        PRIMARY KEY (`plataforma`)
-                        );""")
-
-        consultaDentro = "insert into vehiculos.estadosVehiculares (id, plataforma, estado) values (%s, %s, %s);"
-        consultaInserto = [('1', 'Ituran', 'No ejecutado'),
-                            ('2', 'Securitrac', 'No ejecutado'),
-                            ('3', 'MDVR', 'No ejecutado'),
-                            ('4', 'Ubicar', 'No ejecutado'),
-                            ('5', 'Ubicom', 'No ejecutado'),
-                            ('6', 'Wialon', 'No ejecutado')]
-
-        cursor.executemany(consultaDentro,consultaInserto)
-        conexionBaseCorreos.commit()
+        cursor.execute("SELECT placa, hora FROM vehiculos.horarioLaboral where date(fecha) like curdate();")
+        self.tablaHorarios = cursor.fetchall()
+        cursor.execute("SELECT placa FROM vehiculos.horarioLaboral;")
+        self.tablaPuntos = cursor.fetchall()
 
         #Desconectar BD
         conexionDB().cerrarConexion()
 
+        return self.tablaHorarios, self.tablaPuntos
