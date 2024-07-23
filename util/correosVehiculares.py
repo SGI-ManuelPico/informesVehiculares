@@ -242,7 +242,7 @@ class CorreosVehiculares:
         self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal() # Sí, aquí se llama otra base que no se usa.
 
         # Modificaciones iniciales a los datos de las consultas.
-        self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Hora'])
+        self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora'])
         self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa'])
         self.tablaPuntos = self.tablaPuntos[['Placa']].value_counts()
 
