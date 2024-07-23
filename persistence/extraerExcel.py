@@ -90,13 +90,12 @@ class Extracciones:
 
             # Guardar el archivo Excel
             book.save(output_file)
-            print("AAAAAAAAAAAaaaa")
             return self.df_existente
 
     
     def actualizarInfractores(self, file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac):
+    
         # Obtener todas las infracciones combinadas
-
         registros_ituran = FuncionalidadExcel().infracIturan(file_Ituran)
         registros_mdvr = FuncionalidadExcel().infracMDVR(file_MDVR)
         registros_ubicar = FuncionalidadExcel().infracUbicar(file_Ubicar)
@@ -238,31 +237,4 @@ class Extracciones:
         self.df_diario['FECHA'] = pd.to_datetime(self.df_diario['FECHA'])
 
         return self.df_diario
-
-
-archivoSeguimiento = os.getcwd() + "\\seguimiento.xlsx"
-archivoIturan1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report.csv"
-archivoIturan2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report(1).csv"
-archivoIturan3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputIturan\report(2).csv"
-archivoSecuritrac = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputSecuritrac\exported-excel.xls"
-archivoUbicar1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\general_information_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700068.xlsx"
-archivoUbicar2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\stops_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700075.xlsx"
-archivoUbicar3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicar\overspeeds_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721700080.xlsx"
-archivoWialon1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-07-22_21-06-38.xlsx"
-archivoWialon2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-07-22_21-06-51.xlsx"
-archivoWialon3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputWialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-07-22_21-07-00.xlsx"
-archivoMDVR1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\general_information_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699894.xls"
-archivoMDVR2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\stops_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699897.xls"
-archivoMDVR3 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputMDVR\overspeeds_report_2024_07_22_00_00_00_2024_07_23_00_00_00_1721699902.xls"
-archivoUbicom1 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicom\ReporteDiario.xls"
-archivoUbicom2 = r"C:\Users\pablo\Desktop\SGI - Práctica\RPA Vehículos\informesVehiculares\outputUbicom\Estacionados.xls"
-
-
-
-df_exist = Extracciones().crear_excel(archivoMDVR1,archivoMDVR3, archivoIturan1, archivoIturan2, archivoSecuritrac, archivoWialon1, archivoWialon2, archivoWialon3, archivoUbicar1, archivoUbicar2, archivoUbicom1, archivoUbicom2, archivoSeguimiento)
-Extracciones().actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
-Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
-df_diario = Extracciones().dfDiario(df_exist)
-Extracciones().actualizarIndicadoresTotales(df_diario, archivoSeguimiento)
-Extracciones().actualizarIndicadores(df_diario, df_exist, archivoSeguimiento)
 
