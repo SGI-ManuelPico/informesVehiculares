@@ -8,6 +8,7 @@ from persistence.archivoExcel import FuncionalidadExcel
 
 
 
+
 class FuncionalidadSQL:
     def __init__(self):
         pass
@@ -156,4 +157,40 @@ class FuncionalidadSQL:
             session.execute(consulta_sql, {'nuevo_valor': kilometraje, 'primary_key_value': placa1})
             session.commit()
         session.close() 
+
+    ## Esta función recibe como argumentos el df que sale de la función fueraLaboralTodos y db_conn es una instancia de la clase ConexionDB.
+
+    def sqlfueraLaboral(self, df, db_conn):
+    
+        # Cambiar la fecha al formato de curdate() 
+
+        df['fecha'] = pd.to_datetime(df['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
+
+        conn = db_conn.establecerConexion()
+        if conn is None:
+            return
+        
+        cursor = conn.cursor()
+
+        # Convertir el DataFrame en una lista de tuplas
+        data = [tuple(row) for row in df.values]
+        
+        # Definir la consulta SQL para insertar datos
+        insert_query = """
+        INSERT INTO fueraLaboral (placa, fecha)
+        VALUES (%s, %s)
+        """
+
+        # Ejecutar la consulta para cada fila de datos
+        cursor.executemany(insert_query, data)
+        
+        # Confirmar los cambios
+        conn.commit()
+
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        db_conn.cerrarConexion()
+
+
+        
         

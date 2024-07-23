@@ -776,7 +776,205 @@ class FuncionalidadExcel:
         self.df_IDP = self.df_IDP.set_index('MES').transpose()
 
         return self.df_IDP
+    
+    def fueraLaboralSecuritrac(self, file_path):
+    # Cargar el archivo Excel
+        secudf = pd.read_excel(file_path)
 
+        # Convertir 'FECHAGPS' a datetime
+        secudf['FECHAGPS'] = pd.to_datetime(secudf['FECHAGPS'])
+
+        # Filtrar filas donde 'EVENTO' es 'Encendido' y la hora es antes de las 6 AM o después de las 6 PM
+        filtered_df = secudf[(secudf['EVENTO'] == 'Encendido') & ((secudf['FECHAGPS'].dt.hour < 6) | (secudf['FECHAGPS'].dt.hour >= 18))]
+
+        # Verificar si el DataFrame filtrado está vacío
+        if filtered_df.empty:
+            return []
+
+        # Seleccionar solo las columnas requeridas y renombrarlas
+        filtered_df = filtered_df[['NROMOVIL', 'FECHAGPS']].rename(columns={'NROMOVIL': 'placa', 'FECHAGPS': 'fecha'})
+
+        # Formatear la columna 'fecha'
+        filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+        # Convertir el dataframe filtrado a un diccionario
+        self.result_dict = filtered_df.to_dict(orient='records')
+
+        # Devolver el resultado dentro de una lista
+        return self.result_dict
+    
+    def fueraLaboralIturan(self, file_path):
+        # Cargar el archivo CSV
+        df = pd.read_csv(file_path)
+
+        # Convertir 'TRIP_START_TIME' y 'TRIP_END_TIME' a datetime
+        df['TRIP_START_TIME'] = pd.to_datetime(df['TRIP_START_TIME'])
+        df['TRIP_END_TIME'] = pd.to_datetime(df['TRIP_END_TIME'])
+
+        # Filtrar filas donde la hora de 'TRIP_START_TIME' o 'TRIP_END_TIME' es antes de las 6 AM o después de las 6 PM
+        filtered_df = df[(df['TRIP_START_TIME'].dt.hour < 6) | (df['TRIP_START_TIME'].dt.hour >= 18) | (df['TRIP_END_TIME'].dt.hour < 6) | (df['TRIP_END_TIME'].dt.hour >= 18)]
+
+        # Verificar si el DataFrame filtrado está vacío
+        if filtered_df.empty:
+            return []
+
+        # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
+        filtered_df['fecha'] = filtered_df.apply(lambda row: row['TRIP_END_TIME'] if row['TRIP_END_TIME'].hour < 6 or row['TRIP_END_TIME'].hour >= 18 else row['TRIP_START_TIME'], axis=1)
+
+        # Seleccionar solo las columnas requeridas y renombrarlas
+        filtered_df = filtered_df[['V_NICK_NAME', 'fecha']].rename(columns={'V_NICK_NAME': 'placa'})
+
+        # Formatear la columna 'fecha'
+        filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+        # Convertir el dataframe filtrado a un diccionario
+        self.result_dict = filtered_df.to_dict(orient='records')
+
+        # Devolver el resultado dentro de una lista
+        return self.result_dict
+    
+    def fueraLaboralMDVR(self, file_path):
+        # Cargar el archivo Excel
+        md = pd.read_excel(file_path, header=2, skipfooter=8)
+        
+        # Eliminar la primera fila
+        md = md.iloc[1:]
+
+        # Convertir 'Comienzo' y 'Fin' a datetime
+        md['Comienzo'] = pd.to_datetime(md['Comienzo'])
+        md['Fin'] = pd.to_datetime(md['Fin'])
+
+        # Filtrar filas donde 'Estado' es 'Movimiento'
+        md = md[md['Estado'] == 'Movimiento']
+
+        # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
+        filtered_df = md[(md['Comienzo'].dt.hour < 6) | (md['Comienzo'].dt.hour >= 18) | (md['Fin'].dt.hour < 6) | (md['Fin'].dt.hour >= 18)]
+
+        # Verificar si el DataFrame filtrado está vacío
+        if filtered_df.empty:
+            return []
+
+        # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
+        filtered_df['fecha'] = filtered_df.apply(lambda row: row['Fin'] if row['Fin'].hour < 6 or row['Fin'].hour >= 18 else row['Comienzo'], axis=1)
+
+        # Seleccionar solo las columnas requeridas y renombrarlas
+        filtered_df = filtered_df[['Vehiculo', 'fecha']].rename(columns={'Vehiculo': 'placa'})
+
+        # Formatear la columna 'fecha'
+        filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+        # Convertir el dataframe filtrado a un diccionario
+        self.result_dict = filtered_df.to_dict(orient='records')
+
+        # Devolver el resultado dentro de una lista
+        return self.result_dict
+    
+    def fueraLaboralUbicar(self, file_path):
+        # Cargar el archivo Excel
+        ubi = pd.read_excel(file_path, header=2, skipfooter=11)
+        
+        # Eliminar la primera fila
+        ubi = ubi.iloc[1:]
+
+        # Convertir 'Comienzo' y 'Fin' a datetime
+        ubi['Comienzo'] = pd.to_datetime(ubi['Comienzo'], dayfirst=True)
+        ubi['Fin'] = pd.to_datetime(ubi['Fin'], dayfirst=True)
+
+        # Filtrar filas donde 'Estado' es 'Movimiento'
+        ubi = ubi[ubi['Estado'] == 'Movimiento']
+
+        # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
+        filtered_df = ubi[(ubi['Comienzo'].dt.hour < 6) | (ubi['Comienzo'].dt.hour >= 18) | (ubi['Fin'].dt.hour < 6) | (ubi['Fin'].dt.hour >= 18)]
+
+        # Verificar si el DataFrame filtrado está vacío
+        if filtered_df.empty:
+            return []
+
+        # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
+        fecha = filtered_df.apply(lambda row: row['Fin'] if row['Fin'].hour < 6 or row['Fin'].hour >= 18 else row['Comienzo'], axis=1)
+        
+        # Añadir la columna 'fecha' al DataFrame filtrado
+        filtered_df = filtered_df.assign(fecha=fecha)
+
+        # Añadir una columna constante 'placa'
+        filtered_df['placa'] = 'JYT620'
+
+        # Seleccionar solo las columnas requeridas
+        filtered_df = filtered_df[['placa', 'fecha']]
+
+        # Formatear la columna 'fecha'
+        filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+        # Convertir el dataframe filtrado a un diccionario
+        self.result_dict = filtered_df.to_dict(orient='records')
+
+        # Devolver el resultado dentro de una lista
+        return self.result_dict
+    
+    def fueraLaboralWialon(self, file_path):
+        # Cargar el archivo Excel
+        xl = pd.ExcelFile(file_path)
+        
+        # Extraer la placa
+        placa = xl.parse(sheet_name='Statistics').columns[1]
+        print(placa)
+        if 'Cronología' in xl.sheet_names:
+            # Cargar la hoja 'Cronología'
+            df = xl.parse(sheet_name='Cronología')
+            
+            # Filtrar filas donde 'Tipo' es 'Trip'
+            df = df[df['Tipo'] == 'Trip']
+
+            # Convertir 'Comienzo' y 'Fin' a datetime
+            df['Comienzo'] = pd.to_datetime(df['Comienzo'])
+            df['Fin'] = pd.to_datetime(df['Fin'])
+
+            # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
+            filtered_df = df[(df['Comienzo'].dt.hour < 6) | (df['Comienzo'].dt.hour >= 18) | (df['Fin'].dt.hour < 6) | (df['Fin'].dt.hour >= 18)]
+
+            # Verificar si el DataFrame filtrado está vacío
+            if filtered_df.empty:
+                return []
+
+            # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
+            fecha = filtered_df.apply(lambda row: row['Fin'] if row['Fin'].hour < 6 or row['Fin'].hour >= 18 else row['Comienzo'], axis=1)
+            
+            # Añadir la columna 'fecha' al DataFrame filtrado
+            filtered_df = filtered_df.assign(fecha=fecha)
+
+            # Añadir una columna constante 'placa'
+            filtered_df['placa'] = placa
+
+            # Seleccionar solo las columnas requeridas
+            filtered_df = filtered_df[['placa', 'fecha']]
+
+            # Formatear la columna 'fecha'
+            filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+            # Convertir el dataframe filtrado a un diccionario
+            self.result_dict = filtered_df.to_dict(orient='records')
+
+            # Devolver el resultado dentro de una lista
+            return self.result_dict
+        
+        else: 
+            return []
+        
+    def fueraLaboralTodos(self, rutasLaboral):
+    
+        all_results = []
+        all_results.extend(self.fueraLaboralSecuritrac(rutasLaboral['securitrac']))
+        all_results.extend(self.fueraLaboralMDVR(rutasLaboral['mdvr']))
+        all_results.extend(self.fueraLaboralUbicar(rutasLaboral['ubicar']))
+        all_results.extend(self.fueraLaboralIturan(rutasLaboral['ituran']))
+    
+        for file_path in rutasLaboral['wialon']:
+            all_results.extend(self.fueraLaboralWialon(file_path))
+        
+        self.todosDF = pd.DataFrame(all_results)
+        self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
+
+        return self.todosDF    
 
 
 
