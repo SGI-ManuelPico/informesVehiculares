@@ -64,7 +64,7 @@ def mainActualizarFaltantes():
                     actualizar.llenarIturan(orden_correcto[0], orden_correcto[1])
                     actualizar.llenarInfracIturan(orden_correcto[0], orden_correcto[1])
             elif plataforma == 'MDVR':
-                if len(plataforma_files['MDVR']) >= 2:
+                if len(plataforma_files['MDVR']) >= 2: # Acá pueden pasar cosas feas porque el código de MDVR crea un nuevo archivo cuando se ejecuta. Pero esto se puede manejar.
                     orden_correcto = test_permutaciones(plataforma_files['MDVR'], actualizar.extraerMDVR)
                     actualizar.llenarMDVR(orden_correcto[0], orden_correcto[1])
                     actualizar.llenarInfracMDVR(orden_correcto[0], orden_correcto[1])
