@@ -119,7 +119,7 @@ class ConsultaImportante:
         
         fecha = datetime.now().strftime('%d/%m/%Y')
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"INSERT INTO vehiculos.error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
+        cursor.execute(f"INSERT INTO vehiculos.tablaerrores (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
         conexionBaseCorreos.commit()
         #Desconectar BD
         conexionDB().cerrarConexion()
