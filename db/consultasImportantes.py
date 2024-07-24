@@ -1,5 +1,6 @@
 from db.conexionDB import conexionDB
 from datetime import datetime
+import mysql.connector
 
 class ConsultaImportante:
     def tablaCorreoPersonal(self):
@@ -161,3 +162,38 @@ class ConsultaImportante:
         conexionDB().cerrarConexion()
 
         return self.tablaHorarios, self.tablaPuntos
+    
+    def actualizarEstadoError(self, error_id, status):
+        conexionBaseErrores = conexionDB().establecerConexion()
+        if conexionBaseErrores:
+            cursor = conexionBaseErrores.cursor()
+            try:
+                update_query = f"UPDATE errores SET estado = '{status}' WHERE id = {error_id}"
+                cursor.execute(update_query)
+                conexionBaseErrores.commit()
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+            finally:
+                cursor.close()
+                self.db.cerrarConexion(conexionBaseErrores)
+        else:
+            print("Error al conectar a la base de datos.")
+
+    def checkCamposError(self):
+        conexionBaseErrores = conexionDB().establecerConexion()
+        if conexionBaseErrores:
+            cursor = conexionBaseErrores.cursor(dictionary=True)
+            try:
+                query = "SELECT id, plataforma, fecha FROM errores WHERE estado = 'error'"
+                cursor.execute(query)
+                error_entries = cursor.fetchall()
+                return error_entries
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+                return []
+            finally:
+                cursor.close()
+                self.db.cerrarConexion(conexionBaseErrores)
+        else:
+            print("Error al conectar a la base de datos.")
+            return []

@@ -427,27 +427,33 @@ def main():
         ##### Verificar estados finales ####
         ####################################
 
-
+        Tratador = TratadorArchivos()
         # Si alguna plataforma falló definitivamente, aparecerá aquí y se sigue con la ejecución normal.
         for estado in listaEstadosTotales: #Verifica qué plataformas definitivamente tuvieron errores.
             if estado == "ituranError":
                 ConsultaImportante().registrarError("Ituran")
                 CorreosVehiculares().enviarCorreoPlataforma("Ituran")
+                Tratador.crearDirectorioError('Ituran')
             if estado == "securitracError":
                 ConsultaImportante().registrarError("Securitrac")
                 CorreosVehiculares().enviarCorreoPlataforma("Securitrac")
+                Tratador.crearDirectorioError('Securitrac')
             if estado == "MDVRError":
                 ConsultaImportante().registrarError("MDVR")
                 CorreosVehiculares().enviarCorreoPlataforma("MDVR")
+                Tratador.crearDirectorioError('MDVR')
             if estado == "UbicarError":
                 ConsultaImportante().registrarError("Ubicar")
                 CorreosVehiculares().enviarCorreoPlataforma("Ubicar")
+                Tratador.crearDirectorioError('Ubicar')
             if estado == "UbicomError":
                 ConsultaImportante().registrarError("Ubicom")
                 CorreosVehiculares().enviarCorreoPlataforma("Ubicom")
+                Tratador.crearDirectorioError('Ubicom')
             if estado == "wialonError":
                 ConsultaImportante().registrarError("Wialon")
                 CorreosVehiculares().enviarCorreoPlataforma("Wialon")
+                Tratador.crearDirectorioError('Wialon')
             else:
                 print("hecho")
 
