@@ -200,7 +200,7 @@ class CorreosVehiculares:
         
         Por ende, se le invita a revisar en caso de que la plataforma genuinamente presente un problema. Asimismo, el departamento de tecnología y desarrollo fue copiado en este correo y estará atento a las inquietudes o solicitudes que usted pueda tener.
 
-        Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlos manualmente.
+        Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá enviar los archivos derivados de esta plataforma lo más pronto posible al correo desarrollo.software@sgiltda.com.
 
         Atentamente,
         Departamento de Tecnología y desarrollo, SGI SAS
