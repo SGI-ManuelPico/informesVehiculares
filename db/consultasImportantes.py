@@ -149,9 +149,9 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("SELECT placa, hora FROM vehiculos.horarioLaboral where date(fecha) like curdate();")
+        cursor.execute("SELECT * FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaHorarios = cursor.fetchall()
-        cursor.execute("SELECT placa FROM vehiculos.horarioLaboral;")
+        cursor.execute("SELECT placa FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaPuntos = cursor.fetchall()
 
         #Desconectar BD
