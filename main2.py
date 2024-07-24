@@ -13,30 +13,31 @@ from persistence.estadoPlataforma import EstadoPlataforma
 
 ### Como estas funciones solo se van a ejecutar en el main, las defino acá. ###
 
+estado_plataforma = EstadoPlataforma()
+
+
 def ejecutarTareaRPA(plataforma, funcionRPA):
     try:
-        EstadoPlataforma.actualizarEstado(plataforma, 'En ejecucion')
+        estado_plataforma.actualizar_estado(plataforma, 'En ejecucion')
         resultado = funcionRPA()
-        EstadoPlataforma.actualizarEstado(plataforma, 'Finalizado')
+        estado_plataforma.actualizar_estado(plataforma, 'Finalizado')
         return resultado
     except Exception as e:
         print(f"Hubo un error en el acceso por el internet para ingresar a {plataforma}.")
-        EstadoPlataforma.actualizarEstado(plataforma, 'Error')
+        estado_plataforma.actualizar_estado(plataforma, 'Error')
         CorreosVehiculares.enviarCorreoPlataforma(plataforma)
 
 # Verifica si hay alguna plataforma que tenga estado 'error' en la tabla estadoPlataforma. Si los hay, retorna True, si no, retorna False.
-
 def checkErrores():
-    status = EstadoPlataforma.verificarEstado()
+    status = estado_plataforma.verificar_estado()
     for plataforma, estado in status:
         if estado == 'Error':
             return True
     return False
 
 # Si hay una plataforma con estado 'error' en la tabla estadoPlataforma, ejecuta el RPA para esa plataforma específica.
-
 def retryErrores(plataformas, resultados):
-    status = EstadoPlataforma.verificarEstado()
+    status = estado_plataforma.verificar_estado()
     for plataforma, estado in status:
         if estado == 'Error':
             resultados[plataforma] = ejecutarTareaRPA(plataforma, dict(plataformas)[plataforma])
