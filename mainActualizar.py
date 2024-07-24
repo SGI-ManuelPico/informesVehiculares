@@ -1,6 +1,7 @@
 import os
 from persistence.estadoPlataforma import EstadoPlataforma
 from persistence.actualizarIndividuales import ActualizarIndividuales
+from itertools import permutations
 
 def mainActualizarFaltantes():
     estado_plataforma = EstadoPlataforma()
@@ -23,7 +24,8 @@ def mainActualizarFaltantes():
                 Acá se me ocurren dos ideas. Podemos guardar las rutas que hay ruta_dummy en un diccionario y accederlas después como variables locales como hacemos en el otro main.
                 La otra sería intentar accederlas de manera más directa con os, pero una vez más, ambas formas están atadas a que los nombres de los archivos sean siempre consistentes.
                 Alternamente, y esto es bien chambón, como se sabe que son 3 archivos en el peor de los casos, entonces podemos decirle que pruebe ejecutando con los archivos en ordenes
-                distintos y en el peor de los casos serían 6 pruebas porque solo se pueden permutar de 6 maneras.
+                distintos y en el peor de los casos serían 6 pruebas porque solo se pueden permutar de 6 maneras. Esto es en el caso de que queramos la actualización también de los que 
+                trabajaron fuera del horario establecido, de lo contrario es mucho más facil porque serían a lo sumo 2 archivos por categoría entonces solo tocaría probar 2 veces. 
                 
         '''
         if os.path.exists(ruta_dummy) and os.listdir(ruta_dummy):
@@ -45,32 +47,46 @@ def mainActualizarFaltantes():
             if plataforma in plataforma_files:
                 plataforma_files[plataforma] = files
 
-            # SOLO FUNCIONA SI LOS ARCHIVOS SE GUARDAN CON EL NOMBRE QUE QUEREMOS. POR EJEMPLO, SI PARA ITURAN GUARDAN LOS ARCHIVOS QUE DEBEN SER COMO ITURAN1, ITURAN2. Entonces 
+
+            def test_permutaciones(files, extraction_function):
+                for perm in permutations(files):
+                    result = extraction_function(*perm)
+                    if result != []:
+                        return perm  # Este es el orden correcto.
+                return files  
+
+            #
             
             actualizar = ActualizarIndividuales()
             if plataforma == 'Ituran':
                 if len(plataforma_files['Ituran']) >= 2:
-                    actualizar.llenarIturan(plataforma_files['Ituran'][0], plataforma_files['Ituran'][1])
-                    actualizar.llenarInfracIturan(plataforma_files['Ituran'][1])
+                    orden_correcto = test_permutaciones(plataforma_files['Ituran'], actualizar.extraerIturan)
+                    actualizar.llenarIturan(orden_correcto[0], orden_correcto[1])
+                    actualizar.llenarInfracIturan(orden_correcto[0], orden_correcto[1])
             elif plataforma == 'MDVR':
                 if len(plataforma_files['MDVR']) >= 2:
-                    actualizar.llenarMDVR(plataforma_files['MDVR'][0], plataforma_files['MDVR'][1])
-                    actualizar.llenarInfracMDVR(plataforma_files['MDVR'][1])
-            elif plataforma == 'Securitrac':
-                if len(plataforma_files['Securitrac']) >= 1: # Acá solo es un archivo entonces no hay lío.
+                    orden_correcto = test_permutaciones(plataforma_files['MDVR'], actualizar.extraerMDVR)
+                    actualizar.llenarMDVR(orden_correcto[0], orden_correcto[1])
+                    actualizar.llenarInfracMDVR(orden_correcto[0], orden_correcto[1])
+            elif plataforma == 'Securitrac': # Solo es un archivo 
+                if len(plataforma_files['Securitrac']) >= 1:
                     actualizar.llenarSecuritrac(plataforma_files['Securitrac'][0])
                     actualizar.llenarInfracSecuritrac(plataforma_files['Securitrac'][0])
             elif plataforma == 'Ubicar':
                 if len(plataforma_files['Ubicar']) >= 2:
-                    actualizar.llenarUbicar(plataforma_files['Ubicar'][0], plataforma_files['Ubicar'][1])
-                    actualizar.llenarInfracUbicar(plataforma_files['Ubicar'][0], plataforma_files['Ubicar'][1])
-            elif plataforma == 'Ubicom': 
+                    orden_correcto = test_permutaciones(plataforma_files['Ubicar'], actualizar.extraerUbicar)
+                    actualizar.llenarUbicar(orden_correcto[0], orden_correcto[1])
+                    actualizar.llenarInfracUbicar(orden_correcto[0], orden_correcto[1])
+            elif plataforma == 'Ubicom':
                 if len(plataforma_files['Ubicom']) >= 2:
-                    actualizar.llenarUbicom(plataforma_files['Ubicom'][0], plataforma_files['Ubicom'][1])
-            elif plataforma == 'Wialon': # Esto funciona sin importar el orden.
+                    orden_correcto = test_permutaciones(plataforma_files['Ubicom'], actualizar.extraerUbicom)
+                    actualizar.llenarUbicom(orden_correcto[0], orden_correcto[1])
+            elif plataforma == 'Wialon':
                 if len(plataforma_files['Wialon']) >= 3:
+                    # No importa el orden
                     actualizar.llenarWialon(plataforma_files['Wialon'][0], plataforma_files['Wialon'][1], plataforma_files['Wialon'][2])
                     actualizar.llenarInfracWialon(plataforma_files['Wialon'][0], plataforma_files['Wialon'][1], plataforma_files['Wialon'][2])
+
 
             # Cambiar el estado a 'Gestionado'
             estado_plataforma.update_error_status(error_id, 'Gestionado')
