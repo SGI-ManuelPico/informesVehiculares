@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from util.tratadoArchivos import TratadorArchivos
 
 
-class ActualizadorSQL:
+class ActualizadorSQL():
     def __init__(self):
         pass
 
@@ -66,8 +66,7 @@ class ActualizadorSQL:
         # Cargar el archivo de Excel usando xlrd
             workbook = xlrd.open_workbook(file1)
             sheet = workbook.sheet_by_index(0)
-            file2x = TratadorArchivos().xlsx(file2)
-            workbook2 = openpyxl.load_workbook(file2x)
+            workbook2 = openpyxl.load_workbook(file2)
             sheet2 = workbook2.active
 
 

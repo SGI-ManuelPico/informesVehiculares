@@ -101,7 +101,7 @@ class ConsultaImportante:
         else:
             print("Error.")
 
-        plataformasVehiculares = ["Ituran", "Securitac", "MDVR","Ubicar","Ubicom","Wialon"]
+        plataformasVehiculares = ["Ituran", "Securitrac", "MDVR","Ubicar","Ubicom","Wialon"]
         for plataforma in plataformasVehiculares:
             cursor.execute(f"""UPDATE `vehiculos`.`estadosvehiculares` SET `estado` = 'No ejecutado' WHERE (`plataforma` = '{plataforma}');""")
             conexionBaseCorreos.commit()
@@ -119,7 +119,7 @@ class ConsultaImportante:
         
         fecha = datetime.now().strftime('%d/%m/%Y')
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"INSERT INTO error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
+        cursor.execute(f"INSERT INTO vehiculos.error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
         conexionBaseCorreos.commit()
         #Desconectar BD
         conexionDB().cerrarConexion()
@@ -152,7 +152,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("SELECT * FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
+        cursor.execute("SELECT placa, fecha FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaHorarios = cursor.fetchall()
         cursor.execute("SELECT placa FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaPuntos = cursor.fetchall()

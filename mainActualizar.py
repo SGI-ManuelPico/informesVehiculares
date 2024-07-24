@@ -19,7 +19,7 @@ def mainActualizarFaltantes():
         ruta_dummy = f"/SGI/{plataforma}/{fecha}/"
         
         '''     (*) ¿Cómo hacemos esta verificación?. Supongo que se podría hacer una extracción parcial y si eso funciona que siga. Lo que dificulta es el orden de los archivos.
-                Si podemos asegurar que la persona que los guarda (Sea quien sea), lo haga con unos nomnbres especificos, entonces esto es más fácil.
+                Si podemos asegurar que la persona que los guarda (Sea quien sea), lo haga con unos nombres especificos, entonces esto es más fácil.
                 Si la ruta que queremos existe, entonces toca coger las rutas de los archivos que están en esta ruta y guardarlos. 
                 Acá se me ocurren dos ideas. Podemos guardar las rutas que hay ruta_dummy en un diccionario y accederlas después como variables locales como hacemos en el otro main.
                 La otra sería intentar accederlas de manera más directa con os, pero una vez más, ambas formas están atadas a que los nombres de los archivos sean siempre consistentes.

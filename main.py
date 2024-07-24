@@ -27,6 +27,7 @@ def main():
         tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
         tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['plataforma', 'estado']).set_index('plataforma')
 
+        listaEstadosTotales = []
 
         ####################################
         ###### RPA por cada plataforma #####
@@ -35,22 +36,45 @@ def main():
 
         # Ituran
         archivoIturan1, archivoIturan2, archivoIturan3, archivoIturan4 = RPA().ejecutarRPAIturan()
+        if archivoIturan4 == os.getcwd() + r"\archivoFicticio.csv":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         # MDVR
         archivoMDVR1,archivoMDVR2, archivoMDVR3 = RPA().ejecutarRPAMDVR()
+        if archivoMDVR1 == os.getcwd() + r"\archivoFicticio.xlsx":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         # Securitrac
         archivoSecuritrac = RPA().ejecutarRPASecuritrac()
+        if archivoSecuritrac == os.getcwd() + r"\archivoFicticio.xls":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         # Ubicar
         archivoUbicar1,archivoUbicar2,archivoUbicar3 = RPA().ejecutarRPAUbicar()
+        if archivoUbicar1 == os.getcwd() + r"\archivoFicticio.xlsx":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         # Ubicom
         archivoUbicom1, archivoUbicom2 = RPA().ejecutarRPAUbicom()
+        if archivoUbicom1 == os.getcwd() + r"\archivoFicticio.xls":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         # Wialon
         archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
-
+        if archivoWialon1 == os.getcwd() + r"\archivoFicticio.xlsx":
+            listaEstadosTotales.append('Error')
+        else:
+            listaEstadosTotales.append('Ejecutado')
 
         ####################################
         #### Verificar estados iniciales ###
@@ -58,11 +82,11 @@ def main():
 
 
         # Si alguna plataforma falló, pero se arregló, se ejecutará el archivo. Si no pasa esto, se sale.
-        if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
-            pass
-        else:
+
+        if all(ele == "Ejecutado" for ele in listaEstadosTotales) == False:
             sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
 
+        print("sigue")
 
         ####################################
         ####### Creación de informes #######
@@ -108,6 +132,7 @@ def main():
         
         # Excel
         fueraHorarioLaboral = FuncionalidadExcel().fueraLaboralTodos(rutasLaboral)
+        print(fueraHorarioLaboral)
         Extracciones().actualizarFueraLaboral(archivoSeguimiento, fueraHorarioLaboral)
 
         # SQL
@@ -134,12 +159,8 @@ def main():
 
         sys.exit()
 
-    else:
-        pass ### Consulta inicial 23:00
 
-    print("nuevo")
-
-    if hora >=2320 and hora <= 2340:
+    elif hora >= 2320 and hora <= 2340:
 
         ########################
         ### Consulta inicial ###
@@ -153,18 +174,17 @@ def main():
         if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
             sys.exit()
         else:
-            pass # En caso de que no todos sean Ejecutado, no se sigue.
+            print("ya") # En caso de que no todos sean Ejecutado, no se sigue.
 
 
         ### En caso de que se siga, revisar qué plataformas tuvieron errores.
         plataformasFallidas = []
         for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas tuvieron errores o no fueron ejecutadas por alguna razón.
             estado = tablaEstadosTotales.loc[plataforma]['estado']
-            if estado == "Ejecutado":
-                pass
-            else:
+            if estado != "Ejecutado":
                 plataformasFallidas.append(plataforma)
 
+        listaEstadosTotales = []
 
         ####################################
         ###### RPA por cada plataforma #####
@@ -174,46 +194,76 @@ def main():
         for plataforma in plataformasFallidas: # Realiza los RPA de las plataformas fallidas
             if plataforma in plataformasFallidas and plataforma == "Ituran":
                 archivoIturan1, archivoIturan2, archivoIturan3, archivoIturan4 = RPA().ejecutarRPAIturan()
+                if archivoIturan1 == os.getcwd() + r"\archivoFicticio.csv":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
             if plataforma in plataformasFallidas and plataforma == "Securitrac":
                 archivoSecuritrac = RPA().ejecutarRPASecuritrac()
+                if archivoSecuritrac == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
             if plataforma in plataformasFallidas and plataforma == "MDVR":
                 archivoMDVR1,archivoMDVR2, archivoMDVR3 = RPA().ejecutarRPAMDVR()
+                if archivoMDVR1 == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
             if plataforma in plataformasFallidas and plataforma == "Ubicar":
                 archivoUbicar1,archivoUbicar2,archivoUbicar3 = RPA().ejecutarRPAUbicar()
+                if archivoUbicar1 == os.getcwd() + r"\archivoFicticio.xlsx":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
             if plataforma in plataformasFallidas and plataforma == "Ubicom":
                 archivoUbicom1, archivoUbicom2 = RPA().ejecutarRPAUbicom()
+                if archivoUbicom1 == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
             if plataforma in plataformasFallidas and plataforma == "Wialon":
                 archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
+                if archivoWialon1 == os.getcwd() + r"\archivoFicticio.xlsx":
+                    listaEstadosTotales.append('Error')
+                else:
+                    listaEstadosTotales.append('Ejecutado')
             else:
-                pass
+                print("ya")
+                listaEstadosTotales.append('Ejecutado')
 
 
         ####################################
         ### Verificar estados intermedios ##
         ####################################
 
-
+        time.sleep(5)
         # Si alguna plataforma falló, pero se arregló, se ejecutará el archivo. Si no pasa esto, se sale.
-        if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
-            pass
-        else:
-            print(tablaEstadosTotales['estado'].values)
+        if all(ele == "Ejecutado" for ele in listaEstadosTotales) == False:
+            print(listaEstadosTotales)
             sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
+
+        print("sigue")
 
         
         ####################################
@@ -286,12 +336,8 @@ def main():
 
         sys.exit()
     
-    else:
-        pass ### Consulta intermedia 23:30
-    
-    print("nuevo")
 
-    if hora >=2340:
+    elif hora >= 2340:
 
         ########################
         ### Consulta inicial ###
@@ -305,20 +351,17 @@ def main():
         if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
             TratadorArchivos().eliminarArchivosOutput()
             ConsultaImportante().actualizarTablaEstados()
-            sys.exit()
-        else:
-            pass # En caso de que no todos sean Ejecutado, no se sigue.
+            sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
 
 
         ### En caso de que se siga, revisar qué plataformas tuvieron errores.
         plataformasFallidas = []
         for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas definitivamente tuvieron errores.
             estado = tablaEstadosTotales.loc[plataforma]['estado']
-            if estado == "Ejecutado":
-                pass
-            else:
+            if estado != "Ejecutado":
                 plataformasFallidas.append(plataforma)
 
+        listaEstadosTotales = []
 
         ####################################
         ###### RPA por cada plataforma #####
@@ -328,34 +371,57 @@ def main():
         for plataforma in plataformasFallidas: # Realiza los RPA de las plataformas fallidas
             if plataforma in plataformasFallidas and plataforma == "Ituran":
                 archivoIturan1, archivoIturan2, archivoIturan3, archivoIturan4 = RPA().ejecutarRPAIturan()
+                if archivoIturan1 == os.getcwd() + r"\archivoFicticio.csv":
+                    listaEstadosTotales.append('ituranError')
+                else:
+                    listaEstadosTotales.append('ituranEjecutado')
             else:
-                pass
+                print("ya")
 
             if plataforma in plataformasFallidas and plataforma == "Securitrac":
                 archivoSecuritrac = RPA().ejecutarRPASecuritrac()
+                if archivoSecuritrac == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('securitacError')
+                else:
+                    listaEstadosTotales.append('securitracEjecutado')
             else:
-                pass
+                print("ya")
 
             if plataforma in plataformasFallidas and plataforma == "MDVR":
                 archivoMDVR1,archivoMDVR2, archivoMDVR3 = RPA().ejecutarRPAMDVR()
+                if archivoMDVR1 == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('MDVRError')
+                else:
+                    listaEstadosTotales.append('MDVREjecutado')
             else:
-                pass
+                print("ya")
 
             if plataforma in plataformasFallidas and plataforma == "Ubicar":
                 archivoUbicar1,archivoUbicar2,archivoUbicar3 = RPA().ejecutarRPAUbicar()
+                if archivoUbicar1 == os.getcwd() + r"\archivoFicticio.xlsx":
+                    listaEstadosTotales.append('ubicarError')
+                else:
+                    listaEstadosTotales.append('ubicarEjecutado')
             else:
-                pass
+                print("ya")
 
             if plataforma in plataformasFallidas and plataforma == "Ubicom":
                 archivoUbicom1, archivoUbicom2 = RPA().ejecutarRPAUbicom()
+                if archivoUbicom1 == os.getcwd() + r"\archivoFicticio.xls":
+                    listaEstadosTotales.append('ubicomError')
+                else:
+                    listaEstadosTotales.append('ubicomEjecutado')
             else:
-                pass
+                print("ya")
 
             if plataforma in plataformasFallidas and plataforma == "Wialon":
                 archivoWialon1, archivoWialon2, archivoWialon3 = RPA().ejecutarRPAWialon()
+                if archivoWialon1 == os.getcwd() + r"\archivoFicticio.xlsx":
+                    listaEstadosTotales.append('wialonError')
+                else:
+                    listaEstadosTotales.append('wialonEjecutado')
             else:
-                pass
-
+                print("ya")
 
         ####################################
         ##### Verificar estados finales ####
@@ -363,19 +429,27 @@ def main():
 
 
         # Si alguna plataforma falló definitivamente, aparecerá aquí y se sigue con la ejecución normal.
-
-        tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
-        tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['plataforma', 'estado']).set_index('plataforma')
-
-
-        for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas definitivamente tuvieron errores.
-            estado = tablaEstadosTotales.loc[plataforma]['estado']
-            if estado == "Ejecutado":
-                pass
+        for estado in listaEstadosTotales: #Verifica qué plataformas definitivamente tuvieron errores.
+            if estado == "ituranError":
+                ConsultaImportante().registrarError("Ituran")
+                CorreosVehiculares().enviarCorreoPlataforma("Ituran")
+            if estado == "securitracError":
+                ConsultaImportante().registrarError("Securitrac")
+                CorreosVehiculares().enviarCorreoPlataforma("Securitrac")
+            if estado == "MDVRError":
+                ConsultaImportante().registrarError("MDVR")
+                CorreosVehiculares().enviarCorreoPlataforma("MDVR")
+            if estado == "UbicarError":
+                ConsultaImportante().registrarError("Ubicar")
+                CorreosVehiculares().enviarCorreoPlataforma("Ubicar")
+            if estado == "UbicomError":
+                ConsultaImportante().registrarError("Ubicom")
+                CorreosVehiculares().enviarCorreoPlataforma("Ubicom")
+            if estado == "wialonError":
+                ConsultaImportante().registrarError("Wialon")
+                CorreosVehiculares().enviarCorreoPlataforma("Wialon")
             else:
-                ConsultaImportante().registrarError(plataforma)
-                CorreosVehiculares().enviarCorreoPlataforma(plataforma)
-
+                print("hecho")
 
         ####################################
         ####### Creación de informes #######
@@ -457,11 +531,9 @@ def main():
         # Salida del sistema.
         sys.exit()
     
+
     else:
-        print("ppgup") ### Consulta final 23:45
-
-
-
+        print("No tiene sentido llegar aquí.")
 
 if __name__=='__main__':
     main()

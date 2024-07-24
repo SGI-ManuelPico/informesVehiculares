@@ -16,7 +16,7 @@ locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
 class FuncionalidadExcel:
     def __init__(self):
-        pass
+        super().__init__()
 
     def extraerUbicar(self, file1, file2): 
         try:
@@ -111,13 +111,11 @@ class FuncionalidadExcel:
 
     def extraerMDVR(self, file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
-        file2x = TratadorArchivos().xlsx(file2)
-
         try:
         # Cargar el archivo de Excel usando xlrd
             workbook = xlrd.open_workbook(file1)
             sheet = workbook.sheet_by_index(0)
-            workbook2 = openpyxl.load_workbook(file2x)
+            workbook2 = openpyxl.load_workbook(file2)
             sheet2 = workbook2.active
 
 
