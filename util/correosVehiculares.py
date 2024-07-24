@@ -226,8 +226,6 @@ class CorreosVehiculares:
         servidorCorreo.quit()
 
 
-
-   
     ####################################
     #### Enviar correo hora laboral ####
     ####################################

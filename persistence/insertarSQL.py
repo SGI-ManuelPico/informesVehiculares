@@ -162,7 +162,7 @@ class FuncionalidadSQL:
 
     def sqlFueraLaboral(self, df):
     
-        # Cambiar la fecha al formato de curdate() 
+        # Cambiar la fecha al formato de curdate()
 
         df['fecha'] = pd.to_datetime(df['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
 
