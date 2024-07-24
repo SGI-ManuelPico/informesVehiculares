@@ -10,6 +10,7 @@ from persistence.archivoExcel import FuncionalidadExcel
 from persistence.extraerExcel import Extracciones
 from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 from persistence.estadoPlataforma import EstadoPlataforma
+from util.tratadoArchivos import TratadorArchivos
 
 ### Como estas funciones solo se van a ejecutar en el main, las defino acá. ###
 
@@ -143,7 +144,7 @@ def main():
         # Eliminar las carpetas del output ya que se tiene toda la información.
     print("Eliminando archivos")
     time.sleep(10)
-    CorreosVehiculares.eliminarArchivosOutput()
+    TratadorArchivos.eliminarArchivosOutput()
 
     # Salida del sistema.
     sys.exit()

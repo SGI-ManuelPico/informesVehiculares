@@ -98,6 +98,19 @@ class ActualizarIndividuales:
         except Exception as e:
             print(f"Error al llenar infracciones de Securitrac: {e}")
 
+    def llenarInfracWialon(self, file_Wialon1, file_Wialon2, file_Wialon3, output_file):
+        try:
+            infrac1 = infracWialon(file_Wialon1)
+            infrac2 = infracWialon(file_Wialon2)
+            infrac3 = infracWialon(file_Wialon3)
+            infracciones = infrac1 + infrac2 + infrac3
+            df_infracciones = pd.DataFrame(infracciones)
+            df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
+            self.actualizar_excel_con_infracciones(output_file, df_infracciones)
+        except Exception as e:
+            print(f"Error al llenar infracciones de Securitrac: {e}")   
+
+
     def llenarIturan(self, ituran_file1, ituran_file2, output_file):
         try:
             nuevos_datos = extraerIturan(ituran_file1, ituran_file2)
