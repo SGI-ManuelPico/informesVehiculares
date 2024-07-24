@@ -437,23 +437,23 @@ def main():
             if estado == "securitracError":
                 ConsultaImportante().registrarError("Securitrac")
                 CorreosVehiculares().enviarCorreoPlataforma("Securitrac")
-                Tratador.crearDirectorioError('Ituran')
+                Tratador.crearDirectorioError('Securitrac')
             if estado == "MDVRError":
                 ConsultaImportante().registrarError("MDVR")
                 CorreosVehiculares().enviarCorreoPlataforma("MDVR")
-                Tratador.crearDirectorioError('Ituran')
+                Tratador.crearDirectorioError('MDVR')
             if estado == "UbicarError":
                 ConsultaImportante().registrarError("Ubicar")
                 CorreosVehiculares().enviarCorreoPlataforma("Ubicar")
-                Tratador.crearDirectorioError('Ituran')
+                Tratador.crearDirectorioError('Ubicar')
             if estado == "UbicomError":
                 ConsultaImportante().registrarError("Ubicom")
                 CorreosVehiculares().enviarCorreoPlataforma("Ubicom")
-                Tratador.crearDirectorioError('Ituran')
+                Tratador.crearDirectorioError('Ubicom')
             if estado == "wialonError":
                 ConsultaImportante().registrarError("Wialon")
                 CorreosVehiculares().enviarCorreoPlataforma("Wialon")
-                Tratador.crearDirectorioError('Ituran')
+                Tratador.crearDirectorioError('Wialon')
             else:
                 print("hecho")
 
