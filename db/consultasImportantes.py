@@ -168,7 +168,7 @@ class ConsultaImportante:
         if conexionBaseErrores:
             cursor = conexionBaseErrores.cursor()
             try:
-                update_query = f"UPDATE errores SET estado = '{status}' WHERE id = {error_id}"
+                update_query = f"UPDATE vehiculos.tablaerrores SET estado = '{status}' WHERE id = {error_id}"
                 cursor.execute(update_query)
                 conexionBaseErrores.commit()
             except mysql.connector.Error as err:
@@ -184,7 +184,7 @@ class ConsultaImportante:
         if conexionBaseErrores:
             cursor = conexionBaseErrores.cursor(dictionary=True)
             try:
-                query = "SELECT id, plataforma, fecha FROM errores WHERE estado = 'error'"
+                query = "SELECT id, plataforma, fecha FROM vehiculos.tablaerrores WHERE estado = 'error'"
                 cursor.execute(query)
                 error_entries = cursor.fetchall()
                 return error_entries
