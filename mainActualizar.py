@@ -22,32 +22,57 @@ def mainActualizarFaltantes():
                 Si la ruta que queremos existe, entonces toca coger las rutas de los archivos que están en esta ruta y guardarlos. 
                 Acá se me ocurren dos ideas. Podemos guardar las rutas que hay ruta_dummy en un diccionario y accederlas después como variables locales como hacemos en el otro main.
                 La otra sería intentar accederlas de manera más directa con os, pero una vez más, ambas formas están atadas a que los nombres de los archivos sean siempre consistentes.
+                Alternamente, y esto es bien chambón, como se sabe que son 3 archivos en el peor de los casos, entonces podemos decirle que pruebe ejecutando con los archivos en ordenes
+                distintos y en el peor de los casos serían 6 pruebas porque solo se pueden permutar de 6 maneras.
                 
         '''
-        files_exist = os.path.exists(ruta_dummy)  
+        if os.path.exists(ruta_dummy) and os.listdir(ruta_dummy):
+            # Tomar los archivos en la ruta especificada
+            files = [os.path.join(ruta_dummy, f) for f in os.listdir(ruta_dummy)]
+            files.sort()  # acá se ordenan en orden alfabetico, y después númerico. e.g: [ituran1, ituran2]
 
-        if files_exist:
-            # Perform individual update using ActualizarIndividuales class
+            # Acá se guardan las rutas para cada plataforma
+            plataforma_files = {
+                'Ituran': [],
+                'MDVR': [],
+                'Securitrac': [],
+                'Ubicar': [],
+                'Ubicom': [],
+                'Wialon': []
+            }
+
+            # Agregamos las rutas a la llave (plataforma) correspondiente
+            if plataforma in plataforma_files:
+                plataforma_files[plataforma] = files
+
+            # SOLO FUNCIONA SI LOS ARCHIVOS SE GUARDAN CON EL NOMBRE QUE QUEREMOS. POR EJEMPLO, SI PARA ITURAN GUARDAN LOS ARCHIVOS QUE DEBEN SER COMO ITURAN1, ITURAN2. Entonces 
+            
             actualizar = ActualizarIndividuales()
             if plataforma == 'Ituran':
-                actualizar.llenarIturan(ruta_dummy)
-                actualizar.llenarInfracIturan(ruta_dummy)
+                if len(plataforma_files['Ituran']) >= 2:
+                    actualizar.llenarIturan(plataforma_files['Ituran'][0], plataforma_files['Ituran'][1])
+                    actualizar.llenarInfracIturan(plataforma_files['Ituran'][1])
             elif plataforma == 'MDVR':
-                actualizar.llenarMDVR(ruta_dummy)
-                actualizar.llenarInfracMDVR(ruta_dummy)
+                if len(plataforma_files['MDVR']) >= 2:
+                    actualizar.llenarMDVR(plataforma_files['MDVR'][0], plataforma_files['MDVR'][1])
+                    actualizar.llenarInfracMDVR(plataforma_files['MDVR'][1])
             elif plataforma == 'Securitrac':
-                actualizar.llenarSecuritrac(ruta_dummy)
-                actualizar.llenarInfracSecuritrac
+                if len(plataforma_files['Securitrac']) >= 1: # Acá solo es un archivo entonces no hay lío.
+                    actualizar.llenarSecuritrac(plataforma_files['Securitrac'][0])
+                    actualizar.llenarInfracSecuritrac(plataforma_files['Securitrac'][0])
             elif plataforma == 'Ubicar':
-                actualizar.llenarUbicar(ruta_dummy)
-                actualizar.llenarInfracUbicar
-            elif plataforma == 'Ubicom':
-                actualizar.llenarUbicom(ruta_dummy)
-            elif plataforma == 'Wialon':
-                actualizar.llenarWialon(ruta_dummy)
-                actualizar.llnear
+                if len(plataforma_files['Ubicar']) >= 2:
+                    actualizar.llenarUbicar(plataforma_files['Ubicar'][0], plataforma_files['Ubicar'][1])
+                    actualizar.llenarInfracUbicar(plataforma_files['Ubicar'][0], plataforma_files['Ubicar'][1])
+            elif plataforma == 'Ubicom': 
+                if len(plataforma_files['Ubicom']) >= 2:
+                    actualizar.llenarUbicom(plataforma_files['Ubicom'][0], plataforma_files['Ubicom'][1])
+            elif plataforma == 'Wialon': # Esto funciona sin importar el orden.
+                if len(plataforma_files['Wialon']) >= 3:
+                    actualizar.llenarWialon(plataforma_files['Wialon'][0], plataforma_files['Wialon'][1], plataforma_files['Wialon'][2])
+                    actualizar.llenarInfracWialon(plataforma_files['Wialon'][0], plataforma_files['Wialon'][1], plataforma_files['Wialon'][2])
 
-            # Actualizar el estado de esa actualización particular a especifica a 'Gestionado'
+            # Cambiar el estado a 'Gestionado'
             estado_plataforma.update_error_status(error_id, 'Gestionado')
 
 if __name__ == "__main__":
