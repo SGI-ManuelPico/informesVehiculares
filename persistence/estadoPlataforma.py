@@ -82,5 +82,40 @@ class EstadoPlataforma:
                 cursor.close()
             self.db.cerrarConexion()
 
-    def update_error(self):
-        pass  
+    def checkCamposError(self):
+        connection = None
+        cursor = None
+        try:
+            connection = self.db.establecerConexion()
+            if connection is None:
+                return []
+            cursor = connection.cursor(dictionary=True)
+            query = "SELECT id, plataforma, fecha FROM errores WHERE estado = 'error'"
+            cursor.execute(query)
+            error_entries = cursor.fetchall()
+            return error_entries
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            self.db.cerrarConexion(connection)
+
+    def actualizarEstadoError(self, error_id, status):
+        connection = None
+        cursor = None
+        try:
+            connection = self.db.establecerConexion()
+            if connection is None:
+                return
+            cursor = connection.cursor()
+            update_query = f"UPDATE errores SET estado = '{status}' WHERE id = {error_id}"
+            cursor.execute(update_query)
+            connection.commit()
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+        finally:
+            if cursor:
+                cursor.close()
+            self.db.cerrarConexion(connection)

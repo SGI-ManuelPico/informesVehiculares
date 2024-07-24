@@ -78,16 +78,16 @@ def main():
             retryErrores(plataformas, resultados)
 
     # Verificar estados finales y registrar errores en la tabla 'error'
-    estadoFinal = EstadoPlataforma.verificarEstado()
+    estadoFinal = estado_plataforma.verificar_estado()
     existe_error = False
     for plataforma, estado in estadoFinal:
         if estado == 'Error':
-            EstadoPlataforma.logError(plataforma)
+            estado_plataforma.log_error(plataforma)
             existe_error = True
 
     # Si no hay errores en las plataformas, reseteamos el estado de todas las plataformas en la tabla 'estadoPlataforma'
     if not existe_error:
-        EstadoPlataforma.resetEstados()
+        estado_plataforma.reset_estados()
 
     # Rutas.
     archivoIturan1, archivoIturan2, archivoIturan3 = resultados.get('Ituran', (None, None, None))
