@@ -1,22 +1,13 @@
-# class FuncionalidadExcel():
-    
-#     def algo(self):
-#         self.variable = "a"
-
-#     def algo2(self):
-#         self.algo()
-#         self.variable = self.variable + " b"
-#         print(self.variable)
-
-# FuncionalidadExcel().algo2()
-
-
-
 import pandas as pd
+from util.tratadoArchivos import TratadorArchivos
 
-df = pd.read_excel(r"C:\Users\SGI SAS\Desktop\Book1.xlsx")
+Tratador = TratadorArchivos()
+
+plataforma = 'Ituran'
+
+
+Tratador.create_error_directory(plataforma)
 
 
 
 
-print(df)
