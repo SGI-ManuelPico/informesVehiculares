@@ -164,7 +164,6 @@ class DatosIturan():
         while time.time() - tiempoInicio <181:
             if os.path.isfile(self.archivoIturan3) == True:
                 time.sleep(2)
-                driver.quit()
                 break
             else:
                 time.sleep(2)

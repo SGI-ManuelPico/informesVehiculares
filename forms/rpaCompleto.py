@@ -36,7 +36,7 @@ class RPA:
                 print("Hubo un error en el acceso por el internet para ingresar a Ituran.")
                 TratadorArchivos().eliminarArchivosPlataforma("Ituran")
                 ConsultaImportante().actualizarEstadoPlataforma("Ituran","Error")
-                self.archivoIturan1 = self.archivoIturan2 = self.archivoIturan3, self.archivoIturan4 = os.getcwd() + r"\archivoFicticio.csv"
+                self.archivoIturan1 = self.archivoIturan2 = self.archivoIturan3 = self.archivoIturan4 = os.getcwd() + r"\archivoFicticio.csv"
                 return self.archivoIturan1, self.archivoIturan2, self.archivoIturan3, self.archivoIturan4
 
 

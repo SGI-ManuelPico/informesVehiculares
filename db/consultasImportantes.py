@@ -67,7 +67,9 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"""UPDATE vehiculos.estadosvehiculares SET estado = "{estado}" WHERE plataforma = '{plataforma}'""")
+        cursor.execute(f"""UPDATE vehiculos.estadosvehiculares SET estado = "{estado}" WHERE (plataforma = '{plataforma}')""")
+
+        conexionBaseCorreos.commit()
 
         #Desconectar BD
         conexionDB().cerrarConexion()
@@ -102,11 +104,12 @@ class ConsultaImportante:
         plataformasVehiculares = ["Ituran", "Securitac", "MDVR","Ubicar","Ubicom","Wialon"]
         for plataforma in plataformasVehiculares:
             cursor.execute(f"""UPDATE `vehiculos`.`estadosvehiculares` SET `estado` = 'No ejecutado' WHERE (`plataforma` = '{plataforma}');""")
-
+            conexionBaseCorreos.commit()
+        
         #Desconectar BD
         conexionDB().cerrarConexion()
 
-    def registrarError(plataforma):
+    def registrarError(self, plataforma):
 
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
@@ -117,7 +120,7 @@ class ConsultaImportante:
         fecha = datetime.now().strftime('%d/%m/%Y')
         #Consulta de los correos necesarios para el correo.
         cursor.execute(f"INSERT INTO error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
-
+        conexionBaseCorreos.commit()
         #Desconectar BD
         conexionDB().cerrarConexion()
 

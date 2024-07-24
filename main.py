@@ -16,6 +16,7 @@ def main():
 
     # Actualización de la tabla de estados.
     hora = int(str(datetime.now().hour) + str(datetime.now().minute))
+    print(hora)
 
     if hora <= 2310:
 
@@ -136,6 +137,8 @@ def main():
     else:
         pass ### Consulta inicial 23:00
 
+    print("nuevo")
+
     if hora >=2320 and hora <= 2340:
 
         ########################
@@ -155,7 +158,7 @@ def main():
 
         ### En caso de que se siga, revisar qué plataformas tuvieron errores.
         plataformasFallidas = []
-        for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas definitivamente tuvieron errores.
+        for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas tuvieron errores o no fueron ejecutadas por alguna razón.
             estado = tablaEstadosTotales.loc[plataforma]['estado']
             if estado == "Ejecutado":
                 pass
@@ -209,6 +212,7 @@ def main():
         if all(ele == "Ejecutado" for ele in tablaEstadosTotales['estado'].values) == True:
             pass
         else:
+            print(tablaEstadosTotales['estado'].values)
             sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
 
         
@@ -284,6 +288,8 @@ def main():
     
     else:
         pass ### Consulta intermedia 23:30
+    
+    print("nuevo")
 
     if hora >=2340:
 
@@ -357,6 +363,11 @@ def main():
 
 
         # Si alguna plataforma falló definitivamente, aparecerá aquí y se sigue con la ejecución normal.
+
+        tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
+        tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['plataforma', 'estado']).set_index('plataforma')
+
+
         for plataforma in tablaEstadosTotales.index: #Verifica qué plataformas definitivamente tuvieron errores.
             estado = tablaEstadosTotales.loc[plataforma]['estado']
             if estado == "Ejecutado":
@@ -447,7 +458,7 @@ def main():
         sys.exit()
     
     else:
-        pass # Consulta final 23:45
+        print("ppgup") ### Consulta final 23:45
 
 
 

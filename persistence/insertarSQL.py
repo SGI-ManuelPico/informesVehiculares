@@ -185,7 +185,7 @@ class FuncionalidadSQL:
         cursor.executemany(insert_query, data)
         
         # Confirmar los cambios
-        cursor.commit()
+        conexionBase.commit()
 
         conexionDB().cerrarConexion()
 
