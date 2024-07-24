@@ -53,9 +53,9 @@ def mainActualizarFaltantes():
                     result = extraction_function(*perm)
                     if result != []:
                         return perm  # Este es el orden correcto.
-                return files  
+                return files  # Si ambas dan [] entonces una de dos: no hay nada para extraer (el carro no se movió) o la persona que bajo los archivos lo hizo mal (Una buena te pido Gina/Yuliana)
 
-            #
+            
             
             actualizar = ActualizarIndividuales()
             if plataforma == 'Ituran':
