@@ -22,7 +22,7 @@ class ActualizadorSQL():
             current_datetime = datetime.now()
             current_time = current_datetime.strftime("%H:%M:%S")
 
-            fecha = datetime.now().strftime('%d/%m/%Y') + ' ' + current_time
+            fecha = fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME']).strftime('%d/%m/%Y') + current_time
             
             # Cambiar el nombre de las columnas
             itu = itu.rename(columns={
