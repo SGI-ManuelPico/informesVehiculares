@@ -1,5 +1,6 @@
 from db.conexionDB import conexionDB
 from datetime import datetime
+import mysql.connector
 
 class ConsultaImportante:
     def tablaCorreoPersonal(self):
@@ -101,7 +102,7 @@ class ConsultaImportante:
         else:
             print("Error.")
 
-        plataformasVehiculares = ["Ituran", "Securitac", "MDVR","Ubicar","Ubicom","Wialon"]
+        plataformasVehiculares = ["Ituran", "Securitrac", "MDVR","Ubicar","Ubicom","Wialon"]
         for plataforma in plataformasVehiculares:
             cursor.execute(f"""UPDATE `vehiculos`.`estadosvehiculares` SET `estado` = 'No ejecutado' WHERE (`plataforma` = '{plataforma}');""")
             conexionBaseCorreos.commit()
@@ -119,7 +120,7 @@ class ConsultaImportante:
         
         fecha = datetime.now().strftime('%d/%m/%Y')
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"INSERT INTO error (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
+        cursor.execute(f"INSERT INTO vehiculos.tablaerrores (plataforma, fecha, estado) VALUES ('{plataforma}', '{fecha}', 'error')")
         conexionBaseCorreos.commit()
         #Desconectar BD
         conexionDB().cerrarConexion()
@@ -152,7 +153,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("SELECT * FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
+        cursor.execute("SELECT placa, fecha FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaHorarios = cursor.fetchall()
         cursor.execute("SELECT placa FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaPuntos = cursor.fetchall()
@@ -162,9 +163,37 @@ class ConsultaImportante:
 
         return self.tablaHorarios, self.tablaPuntos
     
+    def actualizarEstadoError(self, error_id, status):
+        conexionBaseErrores = conexionDB().establecerConexion()
+        if conexionBaseErrores:
+            cursor = conexionBaseErrores.cursor()
+            try:
+                update_query = f"UPDATE vehiculos.tablaerrores SET estado = '{status}' WHERE id = {error_id}"
+                cursor.execute(update_query)
+                conexionBaseErrores.commit()
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+            finally:
+                cursor.close()
+                self.db.cerrarConexion(conexionBaseErrores)
+        else:
+            print("Error al conectar a la base de datos.")
 
-
-
-
-a =  ConsultaImportante().verificarEstadosFinales()
-print(a)
+    def checkCamposError(self):
+        conexionBaseErrores = conexionDB().establecerConexion()
+        if conexionBaseErrores:
+            cursor = conexionBaseErrores.cursor(dictionary=True)
+            try:
+                query = "SELECT id, plataforma, fecha FROM vehiculos.tablaerrores WHERE estado = 'error'"
+                cursor.execute(query)
+                error_entries = cursor.fetchall()
+                return error_entries
+            except mysql.connector.Error as err:
+                print(f"Error: {err}")
+                return []
+            finally:
+                cursor.close()
+                self.db.cerrarConexion(conexionBaseErrores)
+        else:
+            print("Error al conectar a la base de datos.")
+            return []

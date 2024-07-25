@@ -6,7 +6,7 @@ from forms.ubicarForm import DatosUbicar
 from forms.ubicomForm import DatosUbicom
 from forms.wialonForm import DatosWialon
 from util.tratadoArchivos import TratadorArchivos
-import os
+import os, glob
 import pandas as pd
 
 
@@ -25,9 +25,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoIturan1, self.archivoIturan2, self.archivoIturan3, self.archivoIturan4 = DatosIturan().rpaIturan()
                 ConsultaImportante().actualizarEstadoPlataforma("Ituran","Ejecutado")
@@ -49,9 +47,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoSecuritrac = DatosSecuritrac().rpaSecuritrac()
                 ConsultaImportante().actualizarEstadoPlataforma("Securitrac","Ejecutado")
@@ -73,9 +69,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoMDVR1, self.archivoMDVR2, self.archivoMDVR3 = DatosMDVR().rpaMDVR()
                 ConsultaImportante().actualizarEstadoPlataforma("MDVR","Ejecutado")
@@ -84,7 +78,7 @@ class RPA:
                 print("Hubo un error en el acceso por el internet para ingresar a MDVR.")
                 TratadorArchivos().eliminarArchivosPlataforma("MDVR")
                 ConsultaImportante().actualizarEstadoPlataforma("MDVR","Error")
-                self.archivoMDVR1 = self.archivoMDVR2 = self.archivoMDVR3= os.getcwd() + r"\archivoFicticio.xls"
+                self.archivoMDVR1 = self.archivoMDVR2 = self.archivoMDVR3= os.getcwd() + r"\archivoFicticio.xlsx"
                 return self.archivoMDVR1, self.archivoMDVR2, self.archivoMDVR3
 
 
@@ -97,9 +91,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoUbicar1, self.archivoUbicar2, self.archivoUbicar3 = DatosUbicar().rpaUbicar()
                 ConsultaImportante().actualizarEstadoPlataforma("Ubicar","Ejecutado")
@@ -121,9 +113,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoUbicom1, self.archivoUbicom2 = DatosUbicom().rpaUbicom()
                 ConsultaImportante().actualizarEstadoPlataforma("Ubicom","Ejecutado")
@@ -145,9 +135,7 @@ class RPA:
 
         self.tablaEstados = pd.DataFrame(self.tablaEstados, columns=["estado"])
 
-        if self.tablaEstados.iloc[0]["estado"]=="Ejecutado":
-            pass
-        else:
+        if self.tablaEstados.iloc[0]["estado"]!="Ejecutado":
             try:
                 self.archivoWialon1, self.archivoWialon2, self.archivoWialon3 = DatosWialon().rpaWialon()
                 ConsultaImportante().actualizarEstadoPlataforma("Wialon","Ejecutado")

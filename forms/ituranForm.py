@@ -91,7 +91,7 @@ class DatosIturan():
         # Descargar en formato CSV.
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)")))
         driver.find_element(By.CSS_SELECTOR,".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)").click()
-        time.sleep(2)
+        time.sleep(5)
 
         # Verificar si puede salirse de la descarga.
         while time.time() - tiempoInicio <91:
@@ -100,7 +100,7 @@ class DatosIturan():
             else:
                 time.sleep(2)
         else:
-            pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+            driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
         ####################################
         #### Descargar Informe Detallado ###
@@ -125,7 +125,7 @@ class DatosIturan():
         # Descargar en formato CSV.
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)")))
         driver.find_element(By.CSS_SELECTOR,".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)").click()
-        time.sleep(2)
+        time.sleep(5)
 
         # Verificar si puede salirse de la descarga.
         while time.time() - tiempoInicio <136:
@@ -134,7 +134,7 @@ class DatosIturan():
             else:
                 time.sleep(2)
         else:
-            pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+            driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
         ####################################
         #### Descargar Distancia Diaria ####
@@ -159,7 +159,7 @@ class DatosIturan():
         # Descargar en formato CSV.
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)")))
         driver.find_element(By.CSS_SELECTOR,".slidingDiv > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1)").click()
-        time.sleep(2)
+        time.sleep(5)
 
         while time.time() - tiempoInicio <181:
             if os.path.isfile(self.archivoIturan3) == True:
@@ -168,7 +168,7 @@ class DatosIturan():
             else:
                 time.sleep(2)
         else:
-            pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+            driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
         ####################################
         ### Descargar Viajes de vehículo ###
@@ -208,6 +208,6 @@ class DatosIturan():
             else:
                 time.sleep(2)
         else:
-            pass # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+            driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
 
         return self.archivoIturan1, self.archivoIturan2, self.archivoIturan3, self.archivoIturan4

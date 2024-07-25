@@ -1,12 +1,11 @@
 # Preámbulos
-import time
+import time, os, glob
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-import os
-import glob
+from util.tratadoArchivos import TratadorArchivos
 
 class DatosMDVR:
     def __init__(self):
@@ -111,7 +110,7 @@ class DatosMDVR:
         driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(17)")))
         driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[16]/a").send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
+        time.sleep(3)
         driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[17]/a").click()
 
         # Descargar
@@ -146,6 +145,11 @@ class DatosMDVR:
 
         else:
             driver.quit() # Se avisa en el archivo excel para que las excepciones queden en conjunto.
+
+        self.archivoMDVR1 = TratadorArchivos().xlsx(self.archivoMDVR1)
+        self.archivoMDVR2 = TratadorArchivos().xlsx(self.archivoMDVR2)
+        self.archivoMDVR3 = TratadorArchivos().xlsx(self.archivoMDVR3)
+
 
         return self.archivoMDVR1, self.archivoMDVR2, self.archivoMDVR3
 

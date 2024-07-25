@@ -162,9 +162,6 @@ class FuncionalidadSQL:
 
     def sqlFueraLaboral(self, df):
     
-        # Cambiar la fecha al formato de curdate()
-
-        df['fecha'] = pd.to_datetime(df['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
 
         conexionBase = conexionDB().establecerConexion()
         if conexionBase:
@@ -177,7 +174,7 @@ class FuncionalidadSQL:
         
         # Definir la consulta SQL para insertar datos
         insert_query = """
-        INSERT INTO fueraLaboral (placa, fecha)
+        INSERT INTO vehiculos.fueraLaboral (placa, fecha)
         VALUES (%s, %s)
         """
 

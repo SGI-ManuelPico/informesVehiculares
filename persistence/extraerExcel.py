@@ -76,17 +76,21 @@ class Extracciones:
                 self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
 
 
-            # Rellenar con 0's espacios en blanco. Esto puede ser necesario cambiarlo dependiendo de cómo el read_excel interprete los valores vacios del excel (NaN o ''). Lo voy a dejar comentado.
-            current_date = pd.to_datetime('today').strftime('%d/%m')
-            for col in self.df_existente.columns[2:]:  # Saltar 'PLACA' y 'SEGUIMIENTO'.
+        current_date = pd.to_datetime('today').strftime('%d/%m')
+        for col in self.df_existente.columns[2:]:  # saltar 'PLACA' y 'SEGUIMIENTO'
+            try:
                 if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
                     self.df_existente[col].replace('', 0, inplace=True)
+                    self.df_existente[col].fillna(0, inplace=True)
+            except ValueError as e:
+                print(f"No se pudo rellenar: {col} - {e}")
 
 
             # Escribir los datos actualizados en la hoja 'seguimiento'
             for r_idx, row in enumerate(dataframe_to_rows(self.df_existente, index=False, header=True), 1):
                 for c_idx, value in enumerate(row, 1):
                     sheet.cell(row=r_idx, column=c_idx, value=value)
+
 
             # Guardar el archivo Excel
             book.save(output_file)

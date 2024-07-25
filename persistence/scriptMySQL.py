@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from util.tratadoArchivos import TratadorArchivos
 
 
-class ActualizadorSQL:
+class ActualizadorSQL():
     def __init__(self):
         pass
 
@@ -22,7 +22,7 @@ class ActualizadorSQL:
             current_datetime = datetime.now()
             current_time = current_datetime.strftime("%H:%M:%S")
 
-            fecha = datetime.now().strftime('%d/%m/%Y') + ' ' + current_time
+            fecha = fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME']).strftime('%d/%m/%Y') + current_time
             
             # Cambiar el nombre de las columnas
             itu = itu.rename(columns={
@@ -66,8 +66,7 @@ class ActualizadorSQL:
         # Cargar el archivo de Excel usando xlrd
             workbook = xlrd.open_workbook(file1)
             sheet = workbook.sheet_by_index(0)
-            file2x = TratadorArchivos().xlsx(file2)
-            workbook2 = openpyxl.load_workbook(file2x)
+            workbook2 = openpyxl.load_workbook(file2)
             sheet2 = workbook2.active
 
 

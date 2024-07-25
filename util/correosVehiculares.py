@@ -200,7 +200,7 @@ class CorreosVehiculares:
         
         Por ende, se le invita a revisar en caso de que la plataforma genuinamente presente un problema. Asimismo, el departamento de tecnología y desarrollo fue copiado en este correo y estará atento a las inquietudes o solicitudes que usted pueda tener.
 
-        Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá corregirlos manualmente.
+        Es importante aclarar que el informe dejará todos los valores asociados a los vehículos de {plataforma} vacíos y deberá enviar los archivos derivados de esta plataforma lo más pronto posible al correo desarrollo.software@sgiltda.com.
 
         Atentamente,
         Departamento de Tecnología y desarrollo, SGI SAS
@@ -242,14 +242,15 @@ class CorreosVehiculares:
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora'])
         self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa'])
-        self.tablaPuntos = self.tablaPuntos[['Placa']].value_counts()
+        self.tablaPuntos = self.tablaPuntos[['Placa']].value_counts().reset_index().rename(columns={'count':"Desplazamientos fuera de hora laboral"})
+        self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
-
+        print(self.tablaPuntos)
 
         # Datos sobre el correo.
         correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = self.tablaCorreos[['correo']]
-        correoCopia = self.tablaCorreos[['correoCopia']]
+        correoReceptor = self.tablaCorreos['correo'].dropna().tolist()
+        correoCopia = self.tablaCorreos['correoCopia'].dropna().tolist()
         correoDestinatarios = correoReceptor + correoCopia
         correoAsunto = f'Informe de desplazamientos fuera de horario laboral para el {datetime.date.today()}'
 
@@ -275,8 +276,8 @@ class CorreosVehiculares:
         # Creación del correo.
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-        mensajeCorreo['To'] = correoReceptor
-        mensajeCorreo['Cc'] = correoCopia
+        mensajeCorreo['To'] = ", ".join(correoReceptor)
+        mensajeCorreo['Cc'] = ", ".join(correoCopia)
         mensajeCorreo['Subject'] = correoAsunto
         mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
 
@@ -287,10 +288,6 @@ class CorreosVehiculares:
         servidorCorreo.login(correoEmisor, '$f~Pu$9zUIu)%=3')
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
-
-
-
-
 
 
 

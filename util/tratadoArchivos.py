@@ -1,6 +1,7 @@
 import os
 import shutil
 import win32com.client as win32
+from datetime import datetime
 
 class TratadorArchivos:
     def __init__(self):
@@ -75,4 +76,21 @@ class TratadorArchivos:
             if 's' in part:
                 seconds += int(part.replace('s', ''))
         return minutes * 60 + seconds
+    
+    def crearDirectorioError(self, plataforma):
+        """
+        Crea un directorio con el nombre de la plataforma, y un subdirectorio dentro de este on la fecha en la que ocurre el error.
+        """
+        current_date = datetime.now().strftime("%d-%m")
+        directorio_plataforma = plataforma
+        directorio_fecha = f"{directorio_plataforma}/{current_date}"
+        
+        if not os.path.exists(directorio_plataforma):
+            os.makedirs(directorio_plataforma)
+            os.makedirs(directorio_fecha)
+        else:
+            if not os.path.exists(directorio_fecha):
+                os.makedirs(directorio_fecha)
+            else:
+                print(f"Ya existe el directorio {directorio_fecha}.")
 
