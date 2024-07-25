@@ -161,3 +161,10 @@ class ConsultaImportante:
         conexionDB().cerrarConexion()
 
         return self.tablaHorarios, self.tablaPuntos
+    
+
+
+
+
+a =  ConsultaImportante().verificarEstadosFinales()
+print(a)
