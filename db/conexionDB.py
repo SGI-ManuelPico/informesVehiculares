@@ -3,7 +3,7 @@ from tkinter import messagebox
 
 class conexionDB:
     def __init__(self):
-        self.host = 'vehiculos.cxywo8y86b60.us-east-1.rds.amazonaws.com'
+        self.host = 'localhost'
         self.user = 'root'
         self.password = 'Gatitos24'
         self.database = 'vehiculos'
