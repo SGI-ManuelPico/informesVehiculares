@@ -266,8 +266,12 @@ class FuncionalidadExcel:
                 if 'Statistics' in xl.sheet_names:
                     statistics_df = xl.parse('Statistics', header=None)
                     placa = statistics_df.iloc[0, 1]  # Celda B1
-                    fecha = statistics_df.iloc[1, 1].split()[0].replace('.', '/')  # Celda B2
-                    fecha_formateada = pd.to_datetime(fecha).strftime('%d/%m/%Y')
+                    fecha = statistics_df.iloc[1, 1]
+                    
+                    if isinstance(fecha, str):
+                        fecha = pd.to_datetime(fecha.split()[0].replace('-', '/'))
+
+                    fecha_formateada = fecha.strftime('%d/%m/%Y')
                     km_recorridos = int(statistics_df.iloc[7, 1])  # Celda B8, quitando 'km'
                     dia_trabajado = 1 if km_recorridos > 0 else 0
                     preoperacional = 1 if dia_trabajado == 1 else 0
