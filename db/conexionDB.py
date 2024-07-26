@@ -3,10 +3,10 @@ from tkinter import messagebox
 
 class conexionDB:
     def __init__(self):
-        self.host = '127.0.0.1'
+        self.host = 'vehiculos.cxywo8y86b60.us-east-1.rds.amazonaws.com'
         self.user = 'root'
         self.password = 'Gatitos24'
-        self.database = ''
+        self.database = 'vehiculos'
         self.conexion = None
         
     def establecerConexion(self):

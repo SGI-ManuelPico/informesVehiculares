@@ -55,7 +55,7 @@ class FuncionalidadSQL:
 
         user = 'root'
         password = 'Gatitos24'  
-        host = '127.0.0.1'
+        host = 'vehiculos.cxywo8y86b60.us-east-1.rds.amazonaws.com'
         port = '3306'
         schema = 'vehiculos'
 
@@ -104,7 +104,7 @@ class FuncionalidadSQL:
         ]
 
         # Conexión a la base de datos MySQL
-        engine = sqlalchemy.create_engine('mysql+mysqlconnector://root:Gatitos24@127.0.0.1:3306/vehiculos')
+        engine = sqlalchemy.create_engine('mysql+mysqlconnector://root:Gatitos24@vehiculos.cxywo8y86b60.us-east-1.rds.amazonaws.com:3306/vehiculos')
 
         try:
             # Leer los datos existentes en la tabla 'infractores'
@@ -133,7 +133,7 @@ class FuncionalidadSQL:
 
         user = 'root'
         password = 'Gatitos24'
-        host = '127.0.0.1'
+        host = 'vehiculos.cxywo8y86b60.us-east-1.rds.amazonaws.com'
         port = '3306'
         schema = 'vehiculos'
         tabla = 'carro'
@@ -174,7 +174,7 @@ class FuncionalidadSQL:
         
         # Definir la consulta SQL para insertar datos
         insert_query = """
-        INSERT INTO vehiculos.fueraLaboral (placa, fecha)
+        INSERT INTO vehiculos.fueralaboral (placa, fecha)
         VALUES (%s, %s)
         """
 

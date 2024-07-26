@@ -17,7 +17,7 @@ class ConsultaImportante:
         #Consulta de los correos necesarios para el correo.
         cursor.execute("SELECT placa, tiempoDeExceso, velocidadMaxima, conductor FROM vehiculos.infractores where date(fecha) like curdate();")
         self.tablaExcesos = cursor.fetchall()
-        cursor.execute("select * from vehiculos.plataformasVehiculares")
+        cursor.execute("select * from vehiculos.plataformasvehiculares")
         self.tablaCorreos = cursor.fetchall()
 
         #Desconectar BD
@@ -36,7 +36,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("select * from vehiculos.plataformasVehiculares")
+        cursor.execute("select * from vehiculos.plataformasvehiculares")
         self.tablaCorreos2 = cursor.fetchall()
 
         #Desconectar BD
@@ -52,7 +52,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"""select estado from vehiculos.estadosVehiculares where plataforma = '{plataforma}'""")
+        cursor.execute(f"""select estado from vehiculos.estadosvehiculares where plataforma = '{plataforma}'""")
         self.tablaEstados = cursor.fetchall()
 
         #Desconectar BD
@@ -83,7 +83,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute(f"""select plataforma, estado from vehiculos.estadosVehiculares""")
+        cursor.execute(f"""select plataforma, estado from vehiculos.estadosvehiculares""")
         self.tablaEstadosTotales = cursor.fetchall()
 
         #Desconectar BD
@@ -133,7 +133,7 @@ class ConsultaImportante:
             print("Error.")
         
         #Consulta de las placas que componen a Wialon.
-        cursor.execute("select placa, plataforma from vehiculos.placasVehiculos where plataforma = 'Wialon'")
+        cursor.execute("select placa, plataforma from vehiculos.placasvehiculos where plataforma = 'Wialon'")
         self.placasPWialon = cursor.fetchall() #Obtener todos los resultados
         
         #Desconectar BD
@@ -155,7 +155,7 @@ class ConsultaImportante:
         #Consulta de los correos necesarios para el correo.
         cursor.execute("SELECT placa, fecha FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
         self.tablaHorarios = cursor.fetchall()
-        cursor.execute("SELECT placa FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
+        cursor.execute("SELECT placa FROM vehiculos.fueralaboral where date(fecha) like curdate();")
         self.tablaPuntos = cursor.fetchall()
 
         #Desconectar BD
