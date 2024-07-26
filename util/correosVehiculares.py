@@ -110,8 +110,8 @@ class CorreosVehiculares:
             correoReceptor = self.tablaExcesos3.loc[conductorVehicular]['correo']
             correoCopia = self.tablaExcesos3.loc[conductorVehicular]['correoCopia']
             correoDestinatarios = [correoReceptor] + [correoCopia]
-            correoAsunto = f'Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}'
-
+            correoAsunto = f"Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}"
+            
             # Texto del correo.
             correoTexto = f"""
             <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
