@@ -9,5 +9,4 @@ from forms.rpaCompleto import RPA
 #     print("Connection failed")
 
 
-
-RPA().ejecutarRPAMDVR()
+RPA().ejecutarRPAMDVR
