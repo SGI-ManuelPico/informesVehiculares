@@ -38,6 +38,8 @@ class DatosIturan():
             "download.directory_upgrade": True,
         }
 
+        opcionesNavegador.add_argument("--headless=new")
+
         # Opciones del navegador
         opcionesNavegador.add_experimental_option("prefs", opcionDescarga)
         driver = webdriver.Chrome(options= opcionesNavegador)

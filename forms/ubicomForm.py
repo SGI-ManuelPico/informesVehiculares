@@ -29,6 +29,8 @@ class DatosUbicom:
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
         }
+        
+        opcionesNavegador.add_argument("--headless=new")
 
         opcionesNavegador.add_experimental_option("prefs", opcionDescarga)
         driver = webdriver.Chrome(options= opcionesNavegador)

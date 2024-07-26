@@ -28,6 +28,8 @@ class DatosMDVR:
             "download.directory_upgrade": True,
         }
 
+        opcionesNavegador.add_argument("--headless=new")
+
         opcionesNavegador.add_experimental_option("prefs", opcionDescarga)
         driver = webdriver.Chrome(options= opcionesNavegador)
         driver.set_window_size(1280, 720)
