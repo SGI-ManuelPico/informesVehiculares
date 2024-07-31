@@ -1,8 +1,7 @@
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from archivoExcel import extraerIturan, extraerMDVR, extraerSecuritrac, extraerUbicar, extraerUbicom, extraerWialon, infracIturan, infracMDVR, infracSecuritrac, infracUbicar, infracWialon
-
+from persistence.archivoExcel import FuncionalidadExcel
 class ActualizarIndividuales:
     def __init__(self):
         pass
@@ -64,7 +63,7 @@ class ActualizarIndividuales:
 
     def llenarInfracIturan(self, file_Ituran, output_file):
         try:
-            infracciones = infracIturan(file_Ituran)
+            infracciones = FuncionalidadExcel.infracIturan(file_Ituran)
             df_infracciones = pd.DataFrame(infracciones)
             df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
             self.actualizar_excel_con_infracciones(output_file, df_infracciones)
@@ -73,7 +72,7 @@ class ActualizarIndividuales:
 
     def llenarInfracMDVR(self, file_MDVR, output_file):
         try:
-            infracciones = infracMDVR(file_MDVR)
+            infracciones = FuncionalidadExcel.infracMDVR(file_MDVR)
             df_infracciones = pd.DataFrame(infracciones)
             df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
             self.actualizar_excel_con_infracciones(output_file, df_infracciones)
@@ -82,7 +81,7 @@ class ActualizarIndividuales:
 
     def llenarInfracUbicar(self, file_Ubicar, output_file):
         try:
-            infracciones = infracUbicar(file_Ubicar)
+            infracciones = FuncionalidadExcel.infracUbicar(file_Ubicar)
             df_infracciones = pd.DataFrame(infracciones)
             df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
             self.actualizar_excel_con_infracciones(output_file, df_infracciones)
@@ -91,7 +90,7 @@ class ActualizarIndividuales:
 
     def llenarInfracSecuritrac(self, file_Securitrac, output_file):
         try:
-            infracciones = infracSecuritrac(file_Securitrac)
+            infracciones = FuncionalidadExcel.infracSecuritrac(file_Securitrac)
             df_infracciones = pd.DataFrame(infracciones)
             df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
             self.actualizar_excel_con_infracciones(output_file, df_infracciones)
@@ -100,9 +99,9 @@ class ActualizarIndividuales:
 
     def llenarInfracWialon(self, file_Wialon1, file_Wialon2, file_Wialon3, output_file):
         try:
-            infrac1 = infracWialon(file_Wialon1)
-            infrac2 = infracWialon(file_Wialon2)
-            infrac3 = infracWialon(file_Wialon3)
+            infrac1 = FuncionalidadExcel.infracWialon(file_Wialon1)
+            infrac2 = FuncionalidadExcel.infracWialon(file_Wialon2)
+            infrac3 = FuncionalidadExcel.infracWialon(file_Wialon3)
             infracciones = infrac1 + infrac2 + infrac3
             df_infracciones = pd.DataFrame(infracciones)
             df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], errors='coerce', dayfirst=True).dt.strftime('%d/%m/%Y %H:%M:%S')
@@ -113,7 +112,7 @@ class ActualizarIndividuales:
 
     def llenarIturan(self, ituran_file1, ituran_file2, output_file):
         try:
-            nuevos_datos = extraerIturan(ituran_file1, ituran_file2)
+            nuevos_datos = FuncionalidadExcel.extraerIturan(ituran_file1, ituran_file2)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:
@@ -121,7 +120,7 @@ class ActualizarIndividuales:
 
     def llenarMDVR(self, mdvr_file1, mdvr_file2, output_file):
         try:
-            nuevos_datos = extraerMDVR(mdvr_file1, mdvr_file2)
+            nuevos_datos = FuncionalidadExcel.extraerMDVR(mdvr_file1, mdvr_file2)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:
@@ -129,7 +128,7 @@ class ActualizarIndividuales:
 
     def llenarUbicar(self, ubicar_file1, ubicar_file2, output_file):
         try:
-            nuevos_datos = extraerUbicar(ubicar_file1, ubicar_file2)
+            nuevos_datos = FuncionalidadExcel.extraerUbicar(ubicar_file1, ubicar_file2)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:
@@ -137,7 +136,7 @@ class ActualizarIndividuales:
 
     def llenarUbicom(self, ubicom_file1, ubicom_file2, output_file):
         try:
-            nuevos_datos = extraerUbicom(ubicom_file1, ubicom_file2)
+            nuevos_datos = FuncionalidadExcel.extraerUbicom(ubicom_file1, ubicom_file2)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:
@@ -145,7 +144,7 @@ class ActualizarIndividuales:
 
     def llenarWialon(self, wialon_file1, wialon_file2, wialon_file3, output_file):
         try:
-            nuevos_datos = extraerWialon(wialon_file1, wialon_file2, wialon_file3)
+            nuevos_datos = FuncionalidadExcel.extraerWialon(wialon_file1, wialon_file2, wialon_file3)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:
@@ -153,7 +152,7 @@ class ActualizarIndividuales:
 
     def llenarSecuritrac(self, securitrac_file, output_file):
         try:
-            nuevos_datos = extraerSecuritrac(securitrac_file)
+            nuevos_datos = FuncionalidadExcel.extraerSecuritrac(securitrac_file)
             df_nuevos = pd.DataFrame(nuevos_datos)
             self.actualizar_excel_con_datos(output_file, df_nuevos)
         except Exception as e:

@@ -175,7 +175,7 @@ class ConsultaImportante:
                 print(f"Error: {err}")
             finally:
                 cursor.close()
-                self.db.cerrarConexion(conexionBaseErrores)
+                conexionDB().cerrarConexion()
         else:
             print("Error al conectar a la base de datos.")
 
@@ -193,7 +193,7 @@ class ConsultaImportante:
                 return []
             finally:
                 cursor.close()
-                self.db.cerrarConexion(conexionBaseErrores)
+                conexionDB().cerrarConexion()
         else:
             print("Error al conectar a la base de datos.")
             return []
