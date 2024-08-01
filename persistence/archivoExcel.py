@@ -70,7 +70,7 @@ class FuncionalidadExcel:
             itu = pd.read_csv(file1)[['NICK_NAME', 'TOTAL_TRIP_DISTANCE', 'TOTAL_NUMBER_OF_TRIPS']]
             itu2 = pd.read_csv(file2)
             
-            fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME']).strftime('%m/%d/%Y')
+            fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME'], dayfirst= True).strftime('%d/%m/%Y')
             print(fecha)
             
             # Cambiar el nombre de las columnas
