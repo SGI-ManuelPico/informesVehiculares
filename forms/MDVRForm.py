@@ -111,6 +111,7 @@ class DatosMDVR:
         # Seleccionar Tipo y "Excesos de velocidad"
         driver.find_element(By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > button:nth-child(1)").click()
         WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"#reports-form-reports > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > ul:nth-child(1) > li:nth-child(17)")))
+        time.sleep(2)
         driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[16]/a").send_keys(Keys.PAGE_DOWN)
         time.sleep(3)
         driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div/div/div[2]/div/form/div/div[1]/div[1]/div[2]/div/div/div/ul/li[17]/a").click()
