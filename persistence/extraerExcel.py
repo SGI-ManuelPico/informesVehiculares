@@ -30,6 +30,8 @@ class Extracciones:
         # Convertir la lista de nuevos datos a DataFrame
         df_nuevos = pd.DataFrame(nuevos_datos)
 
+            
+
         if not os.path.exists(output_file):
             # Si el archivo no existe, crear el DataFrame inicial con el formato deseado
             placas = df_nuevos['placa'].unique()

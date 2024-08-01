@@ -70,7 +70,8 @@ class FuncionalidadExcel:
             itu = pd.read_csv(file1)[['NICK_NAME', 'TOTAL_TRIP_DISTANCE', 'TOTAL_NUMBER_OF_TRIPS']]
             itu2 = pd.read_csv(file2)
             
-            fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME']).strftime('%d/%m/%Y')
+            fecha = pd.to_datetime(itu2.loc[0, 'EVENT_START_DAY_TIME']).strftime('%m/%d/%Y')
+            print(fecha)
             
             # Cambiar el nombre de las columnas
             itu = itu.rename(columns={
@@ -109,26 +110,25 @@ class FuncionalidadExcel:
 
     # Extraer los datos de los informes de MDVR.
 
-    def extraerMDVR(self, file1, file2): #file1 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
+    def extraerMDVR(self, file1, file2):  # file2 es el informe general, file2 es el informe de paradas (para determinar los desplazamientos)
 
-        try:
-        # Cargar el archivo de Excel usando xlrd
-            workbook = xlrd.open_workbook(file1)
-            sheet = workbook.sheet_by_index(0)
+        try:   # Cargar el archivo de Excel usando openpyxl
+            workbook = openpyxl.load_workbook(file1)
+            sheet = workbook.active
+
             workbook2 = openpyxl.load_workbook(file2)
             sheet2 = workbook2.active
 
-
             # Extraer la información necesaria del reporte
-            placa_completa = sheet.cell_value(0, 1)  # A1 es (0, 1)
-            placa = placa_completa.replace('-', '')  # Quitar el guion de la placa
-            fecha = sheet.cell_value(1, 1).split()[0]  # A2 es (1, 1)
-            km_recorridos = int(sheet.cell_value(3, 1).replace(' Km', ''))  # A5 es (4, 1)
+            placa_completa = sheet.cell(row=1, column=2).value  
+            placa = placa_completa.replace('-', '')  
+            fecha = sheet.cell(row=2, column=2).value.split()[0] 
+            km_recorridos = float(sheet.cell(row=4, column=2).value.replace(' Km', '')) 
             dia_trabajado = 1 if km_recorridos > 0 else 0
             preoperacional = 1 if dia_trabajado == 1 else 0
-            num_excesos = int(sheet.cell_value(8, 1))  # A9 es (8, 1)
+            num_excesos = int(sheet.cell(row=9, column=2).value)  # A9 es (9, 1)
 
-            #Contar número de desplazamientos
+            # Contar número de desplazamientos
             num_desplazamientos = 0
             for i in range(1, sheet2.max_row + 1):
                 if sheet2.cell(row=i, column=2).value == 'Movimiento':
@@ -144,13 +144,12 @@ class FuncionalidadExcel:
                 'num_excesos': num_excesos,
                 'num_desplazamientos': num_desplazamientos,
             }
+            self.datosMdvr = [datos_extraidos]
+            return self.datosMdvr
+        except Exception as e:
+            return []
 
-            self.datosMDVR = [datos_extraidos]
-
-            return self.datosMDVR
-        except Exception as e: 
-            return [] 
-
+        
     # Extraer los datos de los informes de Securitrac.
 
     def extraerSecuritrac(self, file_path):

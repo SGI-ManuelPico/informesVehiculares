@@ -102,7 +102,7 @@ def main():
         Extracciones().actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
         # Actualización del odómetro
-        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
+        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan4, archivoUbicar1)
 
         # Actualización de indicadores
         df_diario = Extracciones().dfDiario(df_exist)
@@ -122,7 +122,7 @@ def main():
 
                     'mdvr': archivoMDVR2,
 
-                    'ituran': archivoIturan4,
+                    'ituran': archivoIturan3,
 
                     'ubicar': archivoUbicar2,
 
@@ -280,7 +280,7 @@ def main():
         Extracciones().actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
         # Actualización del odómetro
-        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
+        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan4, archivoUbicar1)
 
         # Actualización de indicadores
         df_diario = Extracciones().dfDiario(df_exist)
@@ -300,7 +300,7 @@ def main():
 
                     'mdvr': archivoMDVR2,
 
-                    'ituran': archivoIturan4,
+                    'ituran': archivoIturan3,
 
                     'ubicar': archivoUbicar2,
 
@@ -471,7 +471,7 @@ def main():
         Extracciones().actualizarInfractores(archivoSeguimiento, archivoIturan2, archivoMDVR3, archivoUbicar3, archivoWialon1, archivoWialon2, archivoWialon3, archivoSecuritrac)
 
         # Actualización del odómetro
-        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan3, archivoUbicar1)
+        Extracciones().actualizarOdom(archivoSeguimiento, archivoIturan4, archivoUbicar1)
 
         # Actualización de indicadores
         df_diario = Extracciones().dfDiario(df_exist)
@@ -491,7 +491,7 @@ def main():
 
                     'mdvr': archivoMDVR2,
 
-                    'ituran': archivoIturan4,
+                    'ituran': archivoIturan3,
 
                     'ubicar': archivoUbicar2,
 

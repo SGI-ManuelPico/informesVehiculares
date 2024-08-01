@@ -63,11 +63,16 @@ class DatosSecuritrac:
 
 
         # Seleccionar botón mora xd.
-        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/div[2]/div[2]/div/div/div[3]/div/div/div/div[3]/div")))
-        driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/div/div/div[3]/div/div/div/div[3]/div").click()
+
+        #WebDriverWait(driver,50).until(EC.presence_of_element_located((By.XPATH,"/html/body/div[2]/div[2]/div/div/div[3]/div/div/div/div[3]/div"))):
+        #time.sleep(2)    
+        #driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/div/div/div[3]/div/div/div/div[3]/div").click()
 
         # Seleccionar todos los vehículos
-        driver.find_element(By.ID, "gwt-uid-7").click()
+        
+        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[3]/div/div/div[3]/div/div/div[2]/div/div[3]/table/thead/tr/th[1]/span/input")))
+        time.sleep(1)
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div/div[3]/div/div/div[3]/div/div/div[2]/div/div[3]/table/thead/tr/th[1]/span/input").click()
 
         # Seleccionar botón Informes Eventos.
         driver.find_element(By.XPATH,"/html/body/div[1]/div/div[2]/div/div/div[1]/div/div/div[2]/div/span[2]").click()
