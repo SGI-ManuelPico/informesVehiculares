@@ -20,7 +20,8 @@ def main():
 
     if hora <= 2310:
 
-        TratadorArchivos().eliminarArchivosOutput()        
+        TratadorArchivos().eliminarArchivosOutput()
+        ConsultaImportante().actualizarTablaEstados()        
         ########################
         ### Consulta inicial ###
         ########################
