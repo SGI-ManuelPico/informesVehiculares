@@ -146,9 +146,9 @@ class DatosIturan():
         driver.switch_to.default_content()
 
         # Seleccionar "Distancia diaria de vehículos"
-        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[5]")))
+        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[7]")))
         time.sleep(1)
-        driver.find_element(By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[5]").click()
+        driver.find_element(By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[7]").click()
         time.sleep(1)
 
         # Oprimir botón exportar.
@@ -180,9 +180,9 @@ class DatosIturan():
         driver.switch_to.default_content()
 
         # Seleccionar ""
-        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[6]")))
+        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[3]")))
         time.sleep(1)
-        driver.find_element(By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[6]").click()
+        driver.find_element(By.XPATH,"/html/body/form/div[4]/div/div/div/table/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/ul/li[1]/div/ul/li[3]").click()
         time.sleep(1)
 
         # Oprimir botón exportar.
