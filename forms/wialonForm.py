@@ -50,7 +50,7 @@ class DatosWialon:
 
         # Entrada a página web de Wialon
         driver.get("https://hosting.wialon.com/?lang=en")
-        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
+        WebDriverWait(driver,100).until(EC.presence_of_element_located((By.ID,"LoginInputControl")))
 
 
         # Usuario
@@ -67,9 +67,12 @@ class DatosWialon:
         ##### Selección Informe General ####
         ####################################
 
+        WebDriverWait(driver,100).until(EC.presence_of_element_located((By.XPATH,"/html/body/div[12]/div/div/div[2]/div[5]/div")))
+        time.sleep(2)
+        driver.find_element(By.XPATH,"/html/body/div[12]/div/div/div[2]/div[5]").click()    
 
         # Seleccionar template "INFORME DETALLADO POR UNIDAD".
-        WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
+        WebDriverWait(driver,100).until(EC.presence_of_element_located((By.ID,"report_templates_filter_reports")))
         time.sleep(2)
         driver.find_element(By.ID,"report_templates_filter_reports").click()
         time.sleep(1)
@@ -92,17 +95,17 @@ class DatosWialon:
             time.sleep(1)
 
             # Oprimir el botón execute.
-            WebDriverWait(driver,500).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
+            WebDriverWait(driver,100).until(EC.presence_of_element_located((By.ID,"report_templates_filter_params_execute")))
             driver.find_element(By.ID,"report_templates_filter_params_execute").click()
             time.sleep(1)
 
             # Oprimir botón Export.
-            WebDriverWait(driver,500).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
+            WebDriverWait(driver,100).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#report_result_export > div:nth-child(2)")))
             time.sleep(2)
             driver.find_element(By.XPATH,"/html/body/div[14]/div[6]/div/div/div[1]/div[7]/div/span/div").click()
 
             # Descargar en Excel para el día seleccionado. ES POSIBLE QUE SE TENGA QUE CAMBIAR PARA LOS DÍAS QUE SE PIDAN.
-            WebDriverWait(driver,500).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
+            WebDriverWait(driver,100).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)")))
             time.sleep(2)
             driver.find_element(By.CSS_SELECTOR,"div.dropdown-option:nth-child(1)").click()
 

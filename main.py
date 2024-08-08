@@ -428,33 +428,34 @@ def main():
         ####################################
         ##### Verificar estados finales ####
         ####################################
-
+        Correos = CorreosVehiculares()
         Tratador = TratadorArchivos()
+        
         # Si alguna plataforma falló definitivamente, aparecerá aquí y se sigue con la ejecución normal.
         for estado in listaEstadosTotales: #Verifica qué plataformas definitivamente tuvieron errores.
             if estado == "ituranError":
                 ConsultaImportante().registrarError("Ituran")
-                CorreosVehiculares().enviarCorreoPlataforma("Ituran")
+                Correos.enviarCorreoPlataforma("Ituran")
                 Tratador.crearDirectorioError('Ituran')
             if estado == "securitracError":
                 ConsultaImportante().registrarError("Securitrac")
-                CorreosVehiculares().enviarCorreoPlataforma("Securitrac")
+                Correos.enviarCorreoPlataforma("Securitrac")
                 Tratador.crearDirectorioError('Securitrac')
             if estado == "MDVRError":
                 ConsultaImportante().registrarError("MDVR")
-                CorreosVehiculares().enviarCorreoPlataforma("MDVR")
+                Correos.enviarCorreoPlataforma("MDVR")
                 Tratador.crearDirectorioError('MDVR')
             if estado == "UbicarError":
                 ConsultaImportante().registrarError("Ubicar")
-                CorreosVehiculares().enviarCorreoPlataforma("Ubicar")
+                Correos.enviarCorreoPlataforma("Ubicar")
                 Tratador.crearDirectorioError('Ubicar')
             if estado == "UbicomError":
                 ConsultaImportante().registrarError("Ubicom")
-                CorreosVehiculares().enviarCorreoPlataforma("Ubicom")
+                Correos.enviarCorreoPlataforma("Ubicom")
                 Tratador.crearDirectorioError('Ubicom')
             if estado == "wialonError":
                 ConsultaImportante().registrarError("Wialon")
-                CorreosVehiculares().enviarCorreoPlataforma("Wialon")
+                Correos.enviarCorreoPlataforma("Wialon")
                 Tratador.crearDirectorioError('Wialon')
             else:
                 print("hecho")

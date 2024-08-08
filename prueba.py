@@ -6,6 +6,7 @@ from forms.MDVRForm import DatosMDVR
 from forms.securitracForm import DatosSecuritrac
 from persistence.archivoExcel import FuncionalidadExcel
 from persistence.extraerExcel import Extracciones
+from db.consultasImportantes import ConsultaImportante
 import xlrd
 import openpyxl
 import pandas as pd
@@ -69,6 +70,16 @@ file_ituran2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report (1).c
 
 # print(odom)
 
-functionalidad.extraerIturan(file_ituran1, file_ituran2)
+# functionalidad.extraerIturan(file_ituran1, file_ituran2)
 
-# extracciones.crear_excel(file_mdvr1, file_mdvr2, file_ituran1, file_ituran2, file_securitrac, file_wialon1, file_wialon2, file_wialon3, file_ubicar1, file_ubicar2, file_ubicom1, file_ubicom2, r'C:\Users\SGI SAS\Documents\GitHub\SGI\seguimiento.xlsx')
+wialon.rpaWialon()
+
+
+
+
+
+
+
+
+
+
