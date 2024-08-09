@@ -430,7 +430,6 @@ def main():
         ####################################
         Correos = CorreosVehiculares()
         Tratador = TratadorArchivos()
-        
         # Si alguna plataforma falló definitivamente, aparecerá aquí y se sigue con la ejecución normal.
         for estado in listaEstadosTotales: #Verifica qué plataformas definitivamente tuvieron errores.
             if estado == "ituranError":
