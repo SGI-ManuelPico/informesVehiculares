@@ -787,6 +787,8 @@ class FuncionalidadExcel:
             # Formatear la columna 'fecha'
             filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
 
+            filtered_df['conductor'] = ''
+           
             # Convertir el dataframe filtrado a un diccionario
             self.result_dict = filtered_df.to_dict(orient='records')
 
@@ -815,7 +817,7 @@ class FuncionalidadExcel:
             filtered_df['fecha'] = filtered_df.apply(lambda row: row['TRIP_END_TIME'] if row['TRIP_END_TIME'].hour < 6 or row['TRIP_END_TIME'].hour >= 18 else row['TRIP_START_TIME'], axis=1)
 
             # Seleccionar solo las columnas requeridas y renombrarlas
-            filtered_df = filtered_df[['V_NICK_NAME', 'fecha']].rename(columns={'V_NICK_NAME': 'placa'})
+            filtered_df = filtered_df[['V_NICK_NAME', 'fecha', 'DRIVER_NAME']].rename(columns={'V_NICK_NAME': 'placa', 'DRIVER_NAME': 'conductor'})
 
             # Formatear la columna 'fecha'
             filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
@@ -858,6 +860,8 @@ class FuncionalidadExcel:
 
             # Formatear la columna 'fecha'
             filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+            filtered_df['conductor'] = ''
 
             # Convertir el dataframe filtrado a un diccionario
             self.result_dict = filtered_df.to_dict(orient='records')
@@ -903,6 +907,8 @@ class FuncionalidadExcel:
 
             # Formatear la columna 'fecha'
             filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+            filtered_df['conductor'] = ''
 
             # Convertir el dataframe filtrado a un diccionario
             self.result_dict = filtered_df.to_dict(orient='records')
@@ -952,6 +958,8 @@ class FuncionalidadExcel:
 
                 # Formatear la columna 'fecha'
                 filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+
+                filtered_df['conductor'] = ''
 
                 # Convertir el dataframe filtrado a un diccionario
                 self.result_dict = filtered_df.to_dict(orient='records')

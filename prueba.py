@@ -72,7 +72,9 @@ file_ituran2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report (1).c
 
 # functionalidad.extraerIturan(file_ituran1, file_ituran2)
 
-wialon.rpaWialon()
+x = functionalidad.fueraLaboralSecuritrac(r"C:\Users\Soporte\Documents\Temporal\06\outputSecuritrac\exported-excel.xls")
+
+print(pd.DataFrame(x))
 
 
 
