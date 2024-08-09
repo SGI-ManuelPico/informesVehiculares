@@ -93,7 +93,7 @@ class CorreosVehiculares:
         self.tablaExcesos2 = self.tablaExcesos
         self.tablaExcesos2['Número'] = 1
         self.tablaExcesos2['correoCopia'] = self.tablaCorreos.iloc[0]['correo']
-        self.tablaExcesos2['correo'] = self.tablaCorreos.iloc[1]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
+        self.tablaExcesos2['correo'] = self.tablaCorreos.iloc[0]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
         self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número' : 'sum'})
 
 
@@ -186,11 +186,7 @@ class CorreosVehiculares:
         self.tablaCorreos2 = pd.DataFrame(self.tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
         # Datos sobre el correo.
-        correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = self.tablaCorreos2['correo'].dropna().tolist()
-        correoCopia = self.tablaCorreos2['correoCopia'].dropna().tolist()
-        correoDestinatarios = correoReceptor + correoCopia
-        correoAsunto = f'Notificación de errores para la plataforma {plataforma} durante el día {datetime.date.today()}'
+        correoEmisor, correoReceptor, correoCopia, correoDestinatarios, correoAsunto = self.new_method(plataforma)
 
         # Texto del correo.
         correoTexto = f"""
@@ -225,6 +221,14 @@ class CorreosVehiculares:
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
 
+    def new_method(self, plataforma):
+        correoEmisor = 'notificaciones.sgi@appsgi.com.co'
+        correoReceptor = self.tablaCorreos2['correo'].dropna().tolist()
+        correoCopia = self.tablaCorreos2['correoCopia'].dropna().tolist()
+        correoDestinatarios = correoReceptor + correoCopia
+        correoAsunto = f'Notificación de errores para la plataforma {plataforma} durante el día {datetime.date.today()}'
+        return correoEmisor,correoReceptor,correoCopia,correoDestinatarios,correoAsunto
+
 
     ####################################
     #### Enviar correo hora laboral ####
@@ -240,9 +244,10 @@ class CorreosVehiculares:
         self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal() # Sí, aquí se llama otra base que no se usa.
 
         # Modificaciones iniciales a los datos de las consultas.
-        self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora'])
-        self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa'])
-        self.tablaPuntos = self.tablaPuntos[['Placa']].value_counts().reset_index().rename(columns={'count':"Desplazamientos fuera de hora laboral"})
+        self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora', 'Conductor'])
+        self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa', 'Conductor'])
+        self.tablaPuntos = self.tablaHorarios.groupby(['Placa', 'Conductor']).size().reset_index(name='Desplazamientos fuera de hora laboral')
+        self.tablaPuntos = self.tablaPuntos.sort_values(by='Desplazamientos fuera de hora laboral', ascending=False)
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
         print(self.tablaPuntos)

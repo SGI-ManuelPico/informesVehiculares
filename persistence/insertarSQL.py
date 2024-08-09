@@ -174,8 +174,8 @@ class FuncionalidadSQL:
         
         # Definir la consulta SQL para insertar datos
         insert_query = """
-        INSERT INTO vehiculos.fueralaboral (placa, fecha)
-        VALUES (%s, %s)
+        INSERT INTO vehiculos.fueralaboral (placa, fecha, conductor)
+        VALUES (%s, %s, %s)
         """
 
         # Ejecutar la consulta para cada fila de datos

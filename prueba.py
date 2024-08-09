@@ -11,7 +11,7 @@ import xlrd
 import openpyxl
 import pandas as pd
 
-
+consulta = ConsultaImportante()
 wialon = DatosWialon()
 mdvr = DatosMDVR()
 secu = DatosSecuritrac()
@@ -72,10 +72,28 @@ file_ituran2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report (1).c
 
 # functionalidad.extraerIturan(file_ituran1, file_ituran2)
 
-x = functionalidad.fueraLaboralSecuritrac(r"C:\Users\Soporte\Documents\Temporal\06\outputSecuritrac\exported-excel.xls")
+# wialon.rpaWialon()
 
-print(pd.DataFrame(x))
+# x, y = consulta.tablaCorreoLaboral()
 
+# print(x)
+
+
+rutasLaboral = {'securitrac': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputSecuritrac\exported-excel.xls",
+
+            'mdvr': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputMDVR\drives_stops_drivers_report_2024_08_09_00_00_00_2024_08_10_00_00_00_1723225380.xlsx",
+
+            'ituran': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputIturan\report (2).csv",
+
+            'ubicar': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputUbicar\drives_stops_report_2024_08_09_00_00_00_2024_08_10_00_00_00_1723225435.xlsx",
+
+            'wialon': [r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-06.xlsx", r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-14.xlsx", r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-23.xlsx"]
+
+            }
+
+df = functionalidad.fueraLaboralTodos(rutasLaboral)
+
+print(df)
 
 
 

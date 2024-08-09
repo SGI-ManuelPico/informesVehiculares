@@ -772,7 +772,7 @@ class FuncionalidadExcel:
             secudf = pd.read_excel(file_path)
 
             # Convertir 'FECHAGPS' a datetime
-            secudf['FECHAGPS'] = pd.to_datetime(secudf['FECHAGPS'])
+            secudf['FECHAGPS'] = pd.to_datetime(secudf['FECHAGPS'], dayfirst=True)
 
             # Filtrar filas donde 'EVENTO' es 'Encendido' y la hora es antes de las 6 AM o después de las 6 PM
             filtered_df = secudf[(secudf['EVENTO'] == 'Encendido') & ((secudf['FECHAGPS'].dt.hour < 6) | (secudf['FECHAGPS'].dt.hour >= 18))]
@@ -803,8 +803,8 @@ class FuncionalidadExcel:
             df = pd.read_csv(file_path)
 
             # Convertir 'TRIP_START_TIME' y 'TRIP_END_TIME' a datetime
-            df['TRIP_START_TIME'] = pd.to_datetime(df['TRIP_START_TIME'])
-            df['TRIP_END_TIME'] = pd.to_datetime(df['TRIP_END_TIME'])
+            df['TRIP_START_TIME'] = pd.to_datetime(df['TRIP_START_TIME'], dayfirst=True)
+            df['TRIP_END_TIME'] = pd.to_datetime(df['TRIP_END_TIME'], dayfirst=True)
 
             # Filtrar filas donde la hora de 'TRIP_START_TIME' o 'TRIP_END_TIME' es antes de las 6 AM o después de las 6 PM
             filtered_df = df[(df['TRIP_START_TIME'].dt.hour < 6) | (df['TRIP_START_TIME'].dt.hour >= 18) | (df['TRIP_END_TIME'].dt.hour < 6) | (df['TRIP_END_TIME'].dt.hour >= 18)]
@@ -839,8 +839,8 @@ class FuncionalidadExcel:
             md = md.iloc[1:]
 
             # Convertir 'Comienzo' y 'Fin' a datetime
-            md['Comienzo'] = pd.to_datetime(md['Comienzo'])
-            md['Fin'] = pd.to_datetime(md['Fin'])
+            md['Comienzo'] = pd.to_datetime(md['Comienzo'], dayfirst=True)
+            md['Fin'] = pd.to_datetime(md['Fin'], dayfirst=True)
 
             # Filtrar filas donde 'Estado' es 'Movimiento'
             md = md[md['Estado'] == 'Movimiento']
@@ -859,6 +859,9 @@ class FuncionalidadExcel:
 
             # Seleccionar solo las columnas requeridas y renombrarlas
             filtered_df = filtered_df[['Vehiculo', 'fecha']].rename(columns={'Vehiculo': 'placa'})
+
+            # Remover el '-' de la columna 'placa'
+            filtered_df['placa'] = filtered_df['placa'].str.replace('-', '', regex=False)
 
             # Formatear la columna 'fecha' 
             filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -938,8 +941,8 @@ class FuncionalidadExcel:
                 df = df[df['Tipo'] == 'Trip']
 
                 # Convertir 'Comienzo' y 'Fin' a datetime
-                df['Comienzo'] = pd.to_datetime(df['Comienzo'])
-                df['Fin'] = pd.to_datetime(df['Fin'])
+                df['Comienzo'] = pd.to_datetime(df['Comienzo'], dayfirst=True)
+                df['Fin'] = pd.to_datetime(df['Fin'], dayfirst=True)
 
                 # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
                 filtered_df = df[(df['Comienzo'].dt.hour < 6) | (df['Comienzo'].dt.hour >= 18) | (df['Fin'].dt.hour < 6) | (df['Fin'].dt.hour >= 18)]
@@ -978,17 +981,21 @@ class FuncionalidadExcel:
 
 
     def fueraLaboralTodos(self, rutasLaboral):
-    
         all_results = []
         all_results.extend(self.fueraLaboralSecuritrac(rutasLaboral['securitrac']))
         all_results.extend(self.fueraLaboralMDVR(rutasLaboral['mdvr']))
         all_results.extend(self.fueraLaboralUbicar(rutasLaboral['ubicar']))
         all_results.extend(self.fueraLaboralIturan(rutasLaboral['ituran']))
-    
+
         for file_path in rutasLaboral['wialon']:
             all_results.extend(self.fueraLaboralWialon(file_path))
-        
+
         self.todosDF = pd.DataFrame(all_results)
+        print(self.todosDF['fecha'])
+
         self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
 
-        return self.todosDF  
+        print(self.todosDF['fecha'])
+
+        return self.todosDF
+
