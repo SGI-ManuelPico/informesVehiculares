@@ -834,7 +834,7 @@ class FuncionalidadExcel:
         try:
             # Cargar el archivo Excel
             md = pd.read_excel(file_path, header=2, skipfooter=8)
-            
+
             # Eliminar la primera fila
             md = md.iloc[1:]
 
@@ -846,20 +846,22 @@ class FuncionalidadExcel:
             md = md[md['Estado'] == 'Movimiento']
 
             # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
-            filtered_df = md[(md['Comienzo'].dt.hour < 6) | (md['Comienzo'].dt.hour >= 18) | (md['Fin'].dt.hour < 6) | (md['Fin'].dt.hour >= 18)]
+            filtered_df = md[(md['Comienzo'].dt.hour < 6) | (md['Comienzo'].dt.hour >= 18) |
+                            (md['Fin'].dt.hour < 6) | (md['Fin'].dt.hour >= 18)]
 
             # Verificar si el DataFrame filtrado está vacío
             if filtered_df.empty:
                 return []
 
             # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
-            filtered_df['fecha'] = filtered_df.apply(lambda row: row['Fin'] if row['Fin'].hour < 6 or row['Fin'].hour >= 18 else row['Comienzo'], axis=1)
+            filtered_df['fecha'] = filtered_df.apply(
+                lambda row: row['Fin'] if row['Fin'].dt.hour < 6 or row['Fin'].dt.hour >= 18 else row['Comienzo'], axis=1)
 
             # Seleccionar solo las columnas requeridas y renombrarlas
             filtered_df = filtered_df[['Vehiculo', 'fecha']].rename(columns={'Vehiculo': 'placa'})
 
-            # Formatear la columna 'fecha'
-            filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M')
+            # Formatear la columna 'fecha' 
+            filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
             filtered_df['conductor'] = ''
 
@@ -868,8 +870,10 @@ class FuncionalidadExcel:
 
             # Devolver el resultado dentro de una lista
             return self.result_dict
+
         except Exception as e:
             return []
+
     
     def fueraLaboralUbicar(self, file_path):
         try:
