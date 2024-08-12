@@ -528,42 +528,49 @@ class FuncionalidadExcel:
     # Odómetro Ituran
 
     def OdomIturan(self, file):
-        # Leer el archivo de Excel
-        od = pd.read_csv(file)
+        try:
+            # Leer el archivo de Excel
+            od = pd.read_csv(file)
 
-        # Extraer la placa y el odómetro
+            # Extraer la placa y el odómetro
 
-        df = od[['V_PLATE_NUMBER', 'END_ODOMETER']]
+            df = od[['V_PLATE_NUMBER', 'END_ODOMETER']]
 
-        # Renombrar las columnas
+            # Renombrar las columnas
 
-        df.columns = ['PLACA', 'KILOMETRAJE']
+            df.columns = ['PLACA', 'KILOMETRAJE']
 
-        # Crear el diccionario con el formato requerido
+            # Crear el diccionario con el formato requerido
 
-        self.datos = df.to_dict('records')
-        return self.datos
+            self.datos = df.to_dict('records')
+            return self.datos
+        except Exception as e:
+            return []
 
     # Odómetro Ubicar 
 
     def odomUbicar(self, file):
-        # Leer el archivo de Excel
-        df = pd.read_excel(file)  
 
-        # Extraer la placa del vehículo de la celda B1, si agregan otro carro a esta plataforma toca cambiar como se extrae esto.
-        placa = 'JYT620'
+        try:
+            # Leer el archivo de Excel
+            df = pd.read_excel(file)  
 
-        # Extraer el odómetro de la celda correspondiente
-        odometro = df.iloc[11, 2] 
+            # Extraer la placa del vehículo de la celda B1, si agregan otro carro a esta plataforma toca cambiar como se extrae esto.
+            placa = 'JYT620'
 
-        # Crear el diccionario con el formato requerido
-        registro = {
-            'PLACA': placa,
-            'KILOMETRAJE': float(odometro.split()[0].replace(',', ''))
-        }
+            # Extraer el odómetro de la celda correspondiente
+            odometro = df.iloc[11, 2] 
 
-        self.registroUbicar = [registro]
-        return self.registroUbicar
+            # Crear el diccionario con el formato requerido
+            registro = {
+                'PLACA': placa,
+                'KILOMETRAJE': float(odometro.split()[0].replace(',', ''))
+            }
+
+            self.registroUbicar = [registro]
+            return self.registroUbicar
+        except Exception as e:
+            return []
 
 
     ## ACTUALIZAR HOJAS DE INDICADORES
