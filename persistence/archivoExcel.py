@@ -155,7 +155,7 @@ class FuncionalidadExcel:
     def extraerSecuritrac(self, file_path):
 
         try:
-        # Cargar el archivo de Excel usando pandas
+            # Cargar el archivo de Excel usando pandas
             df = pd.read_excel(file_path)
 
             # Diccionario para almacenar los datos por placa
@@ -175,18 +175,21 @@ class FuncionalidadExcel:
                     datos_por_placa[placa] = {
                         'placa': placa,
                         'fecha': fecha_formateada,  # Usar la fecha formateada
-                        'km_recorridos': 0,
+                        'max_kilometros': 0,
                         'num_excesos': 0,
                         'num_desplazamientos': 0
                     }
-                datos_por_placa[placa]['km_recorridos'] += kilometros
+
+                # Tomar el máximo valor de kilómetros
+                datos_por_placa[placa]['max_kilometros'] = max(datos_por_placa[placa]['max_kilometros'], kilometros)
+
                 if evento == 'Exc. Velocidad':
                     datos_por_placa[placa]['num_excesos'] += 1
                 if evento == 'Apagado':
                     datos_por_placa[placa]['num_desplazamientos'] += 1
 
             for placa, datos in datos_por_placa.items():
-                datos['dia_trabajado'] = 1 if datos['km_recorridos'] > 0 else 0
+                datos['dia_trabajado'] = 1 if datos['max_kilometros'] > 0 else 0
                 datos['preoperacional'] = 1 if datos['dia_trabajado'] == 1 else 0
 
             self.datos = []
@@ -194,10 +197,9 @@ class FuncionalidadExcel:
                 self.datos.append(datos_por_placa[x])
 
             return self.datos
-        
+
         except Exception as e:
             print('Archivos incorrectos o faltantes SECURITRAC')
-            return []
 
     # Extraer los datos de los informes de Ubicom.
 
