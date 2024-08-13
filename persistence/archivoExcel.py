@@ -458,11 +458,11 @@ class FuncionalidadExcel:
             # Filtrar la hoja que contiene la información relevante
             df_infracciones = df[['V_NICK_NAME', 'EVENT_DURATION_SEC', 'EVENT_DISTANCE', 'TOP_SPEED', 'VEHICLE_GROUP', 'ADDRESS', 'DRIVER_NAME', 'EVENT_START_DAY_TIME']]
 
-            # Renombrar las columnas según lo solicitado
+            # Renombrar las columnas
             df_infracciones.columns = ['PLACA', 'TIEMPO DE EXCESO', 'DURACIÓN EN KM DE EXCESO', 'VELOCIDAD MÁXIMA', 'PROYECTO', 'RUTA DE EXCESO', 'CONDUCTOR', 'FECHA']
 
             # Mantener la hora en la columna FECHA y convertirla al formato dd/mm/yyyy HH:MM:SS
-            df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA']).dt.strftime('%d/%m/%Y %H:%M:%S')
+            df_infracciones['FECHA'] = pd.to_datetime(df_infracciones['FECHA'], dayfirst= True).dt.strftime('%d/%m/%Y %H:%M:%S')
 
             # Filtrar los registros relevantes
             df_infracciones = df_infracciones[df_infracciones['DURACIÓN EN KM DE EXCESO'] > 0]
