@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
 from persistence.archivoExcel import FuncionalidadExcel
+import numpy as np
 
 
 class Extracciones:
@@ -78,25 +79,26 @@ class Extracciones:
                 self.df_existente.loc[(self.df_existente['PLACA'] == placa) & (self.df_existente['SEGUIMIENTO'] == 'Km recorridos'), dia] = row['km_recorridos']
 
 
-        current_date = pd.to_datetime('today').strftime('%d/%m')
-        for col in self.df_existente.columns[2:]:  # saltar 'PLACA' y 'SEGUIMIENTO'
-            try:
-                if pd.to_datetime(col, format='%d/%m') < pd.to_datetime(current_date, format='%d/%m'):
-                    self.df_existente[col].replace('', 0, inplace=True)
-                    self.df_existente[col].fillna(0, inplace=True)
-            except ValueError as e:
-                print(f"No se pudo rellenar: {col} - {e}")
+            current_date = pd.to_datetime('today').strftime('%d/%m')
+            for col in self.df_existente.columns[2:]:  # saltar 'PLACA' y 'SEGUIMIENTO'
+                try:
+                    # Verificar si la columna se puede convertir a datetime
+                    if pd.to_datetime(col, format='%d/%m') <= pd.to_datetime(current_date, format='%d/%m'):
+                        # Reemplazar cualquier cadena vacía con NaN, luego llenar todos los NaN con 0
+                        self.df_existente[col].replace('', np.nan, inplace=True)
+                        self.df_existente[col].fillna(0, inplace=True)
+                except ValueError as e:
+                    print(f"No se pudo rellenar: {col} - {e}")
 
-
-            # Escribir los datos actualizados en la hoja 'seguimiento'
+            # Escribir el DataFrame actualizado en la hoja 'seguimiento'
             for r_idx, row in enumerate(dataframe_to_rows(self.df_existente, index=False, header=True), 1):
                 for c_idx, value in enumerate(row, 1):
                     sheet.cell(row=r_idx, column=c_idx, value=value)
 
-
-            # Guardar el archivo Excel
+            # Guardar el archivo de Excel
             book.save(output_file)
             return self.df_existente
+
 
     
     def actualizarInfractores(self, file_seguimiento, file_Ituran, file_MDVR, file_Ubicar, fileWialon1, fileWialon2, fileWialon3, file_Securitrac):
