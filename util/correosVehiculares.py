@@ -1,4 +1,4 @@
-import smtplib
+import smtplib, time
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -102,6 +102,7 @@ class CorreosVehiculares:
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
+            time.sleep(5)
             self.tablaExcesos3 = self.tablaExcesos2[self.tablaExcesos2['Conductor'] == conductorVehicular]
             self.tablaExcesos3 = self.tablaExcesos3.set_index('Conductor')
 

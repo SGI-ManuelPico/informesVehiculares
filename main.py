@@ -159,14 +159,16 @@ def main():
             try:
                 CorreosVehiculares().enviarCorreoPersonal()
             except Exception as e:
-    
+            
                 logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo específico a los conductores con excesos de velocidad.
+            time.sleep(3)
             try:
                 CorreosVehiculares().enviarCorreoConductor()
             except Exception as e:
     
-                logging.error("Ocurrió un error", exc_info=True)           
+                logging.error("Ocurrió un error", exc_info=True)
+            time.sleep(4)   
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
             try:
                 CorreosVehiculares().enviarCorreoLaboral()
@@ -347,12 +349,14 @@ def main():
             except Exception as e:
     
                 logging.error("Ocurrió un error", exc_info=True)
+            time.sleep(3)
             # Enviar correo específico a los conductores con excesos de velocidad.
             try:
                 CorreosVehiculares().enviarCorreoConductor()
             except Exception as e:
     
                 logging.error("Ocurrió un error", exc_info=True)
+            time.sleep(4)
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
             try:
                 CorreosVehiculares().enviarCorreoLaboral()
@@ -548,12 +552,14 @@ def main():
             except Exception as e:
     
                 logging.error("Ocurrió un error", exc_info=True)
+            time.sleep(2)
             # Enviar correo específico a los conductores con excesos de velocidad.
             try:
                 CorreosVehiculares().enviarCorreoConductor()
             except Exception as e:
     
                 logging.error("Ocurrió un error", exc_info=True)
+                time.sleep(7)
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
             try:
                 CorreosVehiculares().enviarCorreoLaboral()
