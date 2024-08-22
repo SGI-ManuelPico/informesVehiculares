@@ -151,6 +151,12 @@ class Extracciones:
         todos_registros = FuncionalidadExcel().OdomIturan(file_ituran) + FuncionalidadExcel().odomUbicar(file_ubicar)
         df_odometros = pd.DataFrame(todos_registros)
 
+        archivoInicial = pd.ExcelFile(file_seguimiento)
+        archivoIntermedio = pd.read_excel(archivoInicial,"Odómetro")
+        archivoFinal = pd.merge(df_odometros, archivoIntermedio,how="outer",on="PLACA").fillna(0)
+        archivoFinal['km2'] = archivoFinal[['KILOMETRAJE_x','KILOMETRAJE_y']].max(axis=1)
+        archivoFinal = archivoFinal.drop(['KILOMETRAJE_x','KILOMETRAJE_y'], axis=1).rename(columns={'km2':'KILOMETRAJE'})
+
         # Cargar el archivo existente y añadir una nueva hoja, sobreescribiendo si ya existe
         with pd.ExcelWriter(file_seguimiento, engine='openpyxl', mode='a') as writer:
             # Verificar si la hoja ya existe
@@ -159,7 +165,7 @@ class Extracciones:
                 std = writer.book['Odómetro']
                 writer.book.remove(std)
             # Escribir el DataFrame en una nueva hoja llamada 'Odometro'
-            df_odometros.to_excel(writer, sheet_name='Odómetro', index=False)
+            archivoFinal.to_excel(writer, sheet_name='Odómetro', index=False)
 
 
     def actualizarIndicadoresTotales(self, df_diario, file_seguimiento):

@@ -853,7 +853,6 @@ class FuncionalidadExcel:
 
             # Filtrar filas donde 'Estado' es 'Movimiento'
             md = md[md['Estado'] == 'Movimiento']
-
             # Filtrar filas donde la hora de 'Comienzo' o 'Fin' es antes de las 6 AM o después de las 6 PM
             filtered_df = md[(md['Comienzo'].dt.hour < 6) | (md['Comienzo'].dt.hour >= 18) |
                             (md['Fin'].dt.hour < 6) | (md['Fin'].dt.hour >= 18)]
@@ -863,8 +862,7 @@ class FuncionalidadExcel:
                 return []
 
             # Crear una nueva columna 'fecha' que tome el valor correcto basado en la condición
-            filtered_df['fecha'] = filtered_df.apply(
-                lambda row: row['Fin'] if row['Fin'].dt.hour < 6 or row['Fin'].dt.hour >= 18 else row['Comienzo'], axis=1)
+            filtered_df['fecha'] = filtered_df.apply(lambda row: row['Fin'] if row['Fin'].hour < 6 or row['Fin'].hour >= 18 else row['Comienzo'], axis=1)
 
             # Seleccionar solo las columnas requeridas y renombrarlas
             filtered_df = filtered_df[['Vehiculo', 'fecha']].rename(columns={'Vehiculo': 'placa'})

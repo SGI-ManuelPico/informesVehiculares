@@ -23,15 +23,19 @@ def main():
         if hora <= 2310:
 
             TratadorArchivos().eliminarArchivosOutput()
-            ConsultaImportante().actualizarTablaEstados()        
+            ConsultaImportante().actualizarTablaEstados()  
+
+        
             ########################
             ### Consulta inicial ###
             ########################
+
 
             tablaEstadosTotales = ConsultaImportante().verificarEstadosFinales()
             tablaEstadosTotales = pd.DataFrame(tablaEstadosTotales, columns=['plataforma', 'estado']).set_index('plataforma')
 
             listaEstadosTotales = []
+
 
             ####################################
             ###### RPA por cada plataforma #####
@@ -80,6 +84,7 @@ def main():
             else:
                 listaEstadosTotales.append('Ejecutado')
 
+
             ####################################
             #### Verificar estados iniciales ###
             ####################################
@@ -91,6 +96,7 @@ def main():
                 sys.exit() # En caso de que no todos sean Ejecutado, no se sigue.
 
             print("sigue")
+
 
             ####################################
             ####### Creación de informes #######
@@ -122,6 +128,7 @@ def main():
             ##### Fuera de horario laboral #####
             ####################################
 
+
             rutasLaboral = {'securitrac': archivoSecuritrac,
 
                         'mdvr': archivoMDVR2,
@@ -142,20 +149,30 @@ def main():
             # SQL
             FuncionalidadSQL().sqlFueraLaboral(fueraHorarioLaboral)
 
+
             ####################################
             ######### Envío de correos #########
             ####################################
 
 
             # Enviar correo al personal de SGI.
-            CorreosVehiculares().enviarCorreoPersonal()
-
+            try:
+                CorreosVehiculares().enviarCorreoPersonal()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo específico a los conductores con excesos de velocidad.
-            CorreosVehiculares().enviarCorreoConductor()
-            
+            try:
+                CorreosVehiculares().enviarCorreoConductor()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)           
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
-            CorreosVehiculares().enviarCorreoLaboral()
-
+            try:
+                CorreosVehiculares().enviarCorreoLaboral()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             ####################################
             ######## Salida del sistema ########
             ####################################
@@ -325,13 +342,23 @@ def main():
 
 
             # Enviar correo al personal de SGI.
-            CorreosVehiculares().enviarCorreoPersonal()
-
+            try:
+                CorreosVehiculares().enviarCorreoPersonal()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo específico a los conductores con excesos de velocidad.
-            CorreosVehiculares().enviarCorreoConductor()
-            
+            try:
+                CorreosVehiculares().enviarCorreoConductor()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
-            CorreosVehiculares().enviarCorreoLaboral()
+            try:
+                CorreosVehiculares().enviarCorreoLaboral()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
 
             ####################################
             ######## Salida del sistema ########
@@ -516,14 +543,24 @@ def main():
 
 
             # Enviar correo al personal de SGI.
-            CorreosVehiculares().enviarCorreoPersonal()
-
+            try:
+                CorreosVehiculares().enviarCorreoPersonal()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo específico a los conductores con excesos de velocidad.
-            CorreosVehiculares().enviarCorreoConductor()
-            
+            try:
+                CorreosVehiculares().enviarCorreoConductor()
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             # Enviar correo al personal de SGI de vehículos fuera de horario laboral.
-            CorreosVehiculares().enviarCorreoLaboral()
+            try:
+                CorreosVehiculares().enviarCorreoLaboral()
 
+            except Exception as e:
+    
+                logging.error("Ocurrió un error", exc_info=True)
             ####################################
             ######### Borrado y salida #########
             ####################################
