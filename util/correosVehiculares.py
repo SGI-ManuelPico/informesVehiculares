@@ -92,8 +92,6 @@ class CorreosVehiculares:
         self.tablaExcesos = pd.DataFrame(self.tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
         self.tablaExcesos2 = self.tablaExcesos
         self.tablaExcesos2['Número'] = 1
-        self.tablaExcesos2['correoCopia'] = self.tablaCorreos.iloc[0]['correo']
-        self.tablaExcesos2['correo'] = self.tablaCorreos.iloc[0]['correoCopia'] ########################### CAMBIAR AL CORREO DEL CONDUCTOR QUE APARECERÍA CON LA BASE DE DATOS ORIGINAL DE INFRACTORES
         self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número' : 'sum'})
 
 
@@ -108,8 +106,8 @@ class CorreosVehiculares:
 
             # Datos sobre el correo.
             correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-            correoReceptor = self.tablaExcesos3.loc[conductorVehicular]['correo']
-            correoCopia = self.tablaExcesos3.loc[conductorVehicular]['correoCopia']
+            correoReceptor = self.tablaCorreos['correoCopia'].dropna().tolist()
+            correoCopia = self.tablaCorreos['correo'].dropna().tolist()
             correoDestinatarios = [correoReceptor] + [correoCopia]
             correoAsunto = f"Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}"
             
@@ -157,8 +155,8 @@ class CorreosVehiculares:
             # Creación del correo.
             mensajeCorreo = MIMEMultipart()
             mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
-            mensajeCorreo['To'] = correoReceptor
-            mensajeCorreo['Cc'] = correoCopia
+            mensajeCorreo['To'] = ", ".join(correoReceptor)
+            mensajeCorreo['Cc'] = ", ".join(correoCopia)
             mensajeCorreo['Subject'] = correoAsunto
             mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
 
@@ -181,13 +179,17 @@ class CorreosVehiculares:
         Realiza el proceso del envío del correo a los interesados en caso de que una plataforma no haya funcionado.
         """
 
-        ConsultaImportante.tablaCorreoPlataforma()
+        self.tablacorreos2 = ConsultaImportante.tablaCorreoPlataforma()
 
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaCorreos2 = pd.DataFrame(self.tablaCorreos2,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
 
         # Datos sobre el correo.
-        correoEmisor, correoReceptor, correoCopia, correoDestinatarios, correoAsunto = self.new_method(plataforma)
+        correoEmisor = 'notificaciones.sgi@appsgi.com.co'
+        correoReceptor = self.tablaCorreos['correo'].dropna().tolist()
+        correoCopia = self.tablaCorreos['correoCopia'].dropna().tolist()
+        correoDestinatarios = correoReceptor + correoCopia
+        correoAsunto = f'Notificación de errores en el ejecución de la plataforma {plataforma}'
 
         # Texto del correo.
         correoTexto = f"""
