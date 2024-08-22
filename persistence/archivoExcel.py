@@ -870,8 +870,9 @@ class FuncionalidadExcel:
             # Remover el '-' de la columna 'placa'
             filtered_df['placa'] = filtered_df['placa'].str.replace('-', '', regex=False)
 
-            # Formatear la columna 'fecha' 
-            filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%Y-%m-%d %H:%M:%S')
+            # Formatear la columna 'fecha'
+            filtered_df['fecha'] = filtered_df['fecha'].str.replace('-', '/', regex=False)
+            filtered_df['fecha'] = filtered_df['fecha'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
             filtered_df['conductor'] = ''
 
@@ -1001,6 +1002,9 @@ class FuncionalidadExcel:
         print(self.todosDF['fecha'])
 
         self.todosDF['fecha'] = pd.to_datetime(self.todosDF['fecha'], format='%d/%m/%Y %H:%M').dt.strftime('%Y-%m-%d %H:%M:%S')
+
+        self.todosDF['conductor'] = self.todosDF['conductor'].str.upper()
+
 
         print(self.todosDF['fecha'])
 

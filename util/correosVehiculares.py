@@ -92,7 +92,7 @@ class CorreosVehiculares:
         self.tablaExcesos = pd.DataFrame(self.tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
         self.tablaExcesos2 = self.tablaExcesos
         self.tablaExcesos2['Número'] = 1
-        self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'correo': 'first', 'correoCopia' : 'first', 'Número' : 'sum'})
+        self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'Número' : 'sum'})
 
 
         listaConductores = self.tablaExcesos2['Conductor'].tolist()
