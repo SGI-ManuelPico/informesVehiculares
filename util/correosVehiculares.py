@@ -14,7 +14,7 @@ from db.consultasImportantes import ConsultaImportante
 
 class CorreosVehiculares:
     def __init__(self):
-        pass
+        self.dia = datetime.date.today() - datetime.timedelta(1)
 
     ####################################
     ### Enviar correo a personal SGI ###
@@ -52,7 +52,7 @@ class CorreosVehiculares:
         Departamento de tecnología y desarrollo, SGI SAS</p>"""
 
         correoTexto = textwrap.dedent(correoTexto)
-        correoAsunto = f'Informe de seguimiento a vehículos del día {datetime.date.today()}'
+        correoAsunto = f'Informe de seguimiento a vehículos del día {self.dia}'
 
         mensajeCorreo = MIMEMultipart()
         mensajeCorreo['From'] = f"{Header('Notificaciones SGI', 'utf-8')} <{correoEmisor}>"
@@ -100,7 +100,7 @@ class CorreosVehiculares:
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
-            time.sleep(5)
+            time.sleep(29)
             self.tablaExcesos3 = self.tablaExcesos2[self.tablaExcesos2['Conductor'] == conductorVehicular]
             self.tablaExcesos3 = self.tablaExcesos3.set_index('Conductor')
 
@@ -109,7 +109,7 @@ class CorreosVehiculares:
             correoReceptor = self.tablaCorreos['correoCopia'].dropna().tolist()
             correoCopia = self.tablaCorreos['correo'].dropna().tolist()
             correoDestinatarios = [correoReceptor] + [correoCopia]
-            correoAsunto = f"Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {datetime.date.today()}"
+            correoAsunto = f"Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {self.dia}"
             
             # Texto del correo.
             correoTexto = f"""
@@ -224,14 +224,6 @@ class CorreosVehiculares:
         servidorCorreo.sendmail(correoEmisor, correoDestinatarios, mensajeCorreo.as_string())
         servidorCorreo.quit()
 
-    def new_method(self, plataforma):
-        correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-        correoReceptor = self.tablaCorreos2['correo'].dropna().tolist()
-        correoCopia = self.tablaCorreos2['correoCopia'].dropna().tolist()
-        correoDestinatarios = correoReceptor + correoCopia
-        correoAsunto = f'Notificación de errores para la plataforma {plataforma} durante el día {datetime.date.today()}'
-        return correoEmisor,correoReceptor,correoCopia,correoDestinatarios,correoAsunto
-
 
     ####################################
     #### Enviar correo hora laboral ####
@@ -260,13 +252,13 @@ class CorreosVehiculares:
         correoReceptor = self.tablaCorreos['correo'].dropna().tolist()
         correoCopia = self.tablaCorreos['correoCopia'].dropna().tolist()
         correoDestinatarios = correoReceptor + correoCopia
-        correoAsunto = f'Informe de desplazamientos fuera de horario laboral para el {datetime.date.today()}'
+        correoAsunto = f'Informe de desplazamientos fuera de horario laboral para el {self.dia}'
 
         # Texto del correo.
         correoTexto = f"""
         <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
 
-        <p>Mediante el presente correo puede encontrar los desplazamientos fuera de horario que ocurrieron el {datetime.date.today()} por hora del evento.</p>
+        <p>Mediante el presente correo puede encontrar los desplazamientos fuera de horario que ocurrieron el {self.dia} por hora del evento.</p>
 
         {build_table(self.tablaHorarios, 'green_light')}
 
