@@ -17,7 +17,7 @@ class ConsultaImportante:
         #Consulta de los correos necesarios para el correo.
         cursor.execute("SELECT placa, tiempoDeExceso, velocidadMaxima, conductor FROM vehiculos.infractores where date(fecha) = curdate();")
         self.tablaExcesos = cursor.fetchall()
-        cursor.execute("select * from vehiculos.plataformasvehiculares")
+        cursor.execute("select * from vehiculos.correovehicular")
         self.tablaCorreos = cursor.fetchall()
 
         #Desconectar BD
@@ -36,7 +36,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("select * from vehiculos.plataformasvehiculares")
+        cursor.execute("select * from vehiculos.correovehicular")
         self.tablaCorreos2 = cursor.fetchall()
 
         #Desconectar BD

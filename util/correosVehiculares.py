@@ -106,16 +106,16 @@ class CorreosVehiculares:
 
             # Datos sobre el correo.
             correoEmisor = 'notificaciones.sgi@appsgi.com.co'
-            correoReceptor = self.tablaCorreos['correoCopia'].dropna().tolist()
-            correoCopia = self.tablaCorreos['correo'].dropna().tolist()
+            correoReceptor = self.tablaCorreos['correo'].dropna().tolist()
+            correoCopia = self.tablaCorreos['correoCopia'].dropna().tolist()
             correoDestinatarios = [correoReceptor] + [correoCopia]
-            correoAsunto = f"Informe de conducción individual de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {self.dia}"
+            correoAsunto = f"Informe de conducción de {self.tablaExcesos3.reset_index().iloc[0]['Conductor']} para el {self.dia}"
             
             # Texto del correo.
             correoTexto = f"""
             <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
 
-            <p>Mediante el presente correo puede encontrar los excesos de velocidad que usted tuvo en el d&iacute;a. Esta informaci&oacute;n le puede ayudar a mejorar sus h&aacute;bitos de conducci&oacute;n y, de esta manera, evitar posibles siniestros viales.</p>
+            <p>Mediante el presente correo encuentra los excesos de velocidad que tuvo en el d&iacute;a. Esta informaci&oacute;n le puede ayudar a mejorar sus h&aacute;bitos de conducci&oacute;n y, de esta manera, evitar posibles siniestros viales.</p>
 
             <p>Conductor: {self.tablaExcesos3.reset_index().iloc[0]['Conductor']}<br>
             N&uacute;mero de excesos de velocidad: {self.tablaExcesos3.loc[conductorVehicular]['Número']}<br>
