@@ -1,8 +1,8 @@
 import os
-from db.consultasImportantes import ConsultaImportante
+from db.consultaImportante import ConsultaImportante
 from persistence.actualizarIndividuales import ActualizarIndividuales
 from itertools import permutations
-from persistence.archivoExcel import FuncionalidadExcel
+from persistence.funcionalidadExcel import FuncionalidadExcel
 
 def mainActualizarFaltantes():
     

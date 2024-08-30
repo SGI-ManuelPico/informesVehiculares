@@ -1,7 +1,8 @@
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from persistence.archivoExcel import FuncionalidadExcel
+from persistence.funcionalidadExcel import FuncionalidadExcel
+
 class ActualizarIndividuales:
     def __init__(self):
         pass

@@ -1,10 +1,10 @@
 import pandas as pd
-from persistence.scriptMySQL import ActualizadorSQL
+from persistence.actualizadorSQL import ActualizadorSQL
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import create_engine, text, Table, update
 from sqlalchemy.orm import sessionmaker
-from persistence.archivoExcel import FuncionalidadExcel
+from persistence.funcionalidadExcel import FuncionalidadExcel
 from db.conexionDB import conexionDB
 
 

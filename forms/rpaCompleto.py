@@ -1,11 +1,11 @@
-from db.consultasImportantes import ConsultaImportante
-from forms.ituranForm import DatosIturan
-from forms.MDVRForm import DatosMDVR
-from forms.securitracForm import DatosSecuritrac
-from forms.ubicarForm import DatosUbicar
-from forms.ubicomForm import DatosUbicom
-from forms.wialonForm import DatosWialon
-from util.tratadoArchivos import TratadorArchivos
+from db.consultaImportante import ConsultaImportante
+from forms.datosIturan import DatosIturan
+from forms.datosMDVR import DatosMDVR
+from forms.datosSecuritrac import DatosSecuritrac
+from forms.datosUbicar import DatosUbicar
+from forms.datosUbicom import DatosUbicom
+from forms.datosWialon import DatosWialon
+from util.tratadorArchivos import TratadorArchivos
 import os, glob
 import pandas as pd
 

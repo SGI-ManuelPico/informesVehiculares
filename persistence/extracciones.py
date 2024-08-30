@@ -3,7 +3,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
-from persistence.archivoExcel import FuncionalidadExcel
+from persistence.funcionalidadExcel import FuncionalidadExcel
 import numpy as np
 
 

@@ -2,13 +2,13 @@ import sys, os, time
 import logging
 from datetime import datetime
 import pandas as pd
-from db.consultasImportantes import ConsultaImportante
+from db.consultaImportante import ConsultaImportante
 from forms.rpaCompleto import RPA
-from persistence.extraerExcel import Extracciones
-from persistence.insertarSQL import FuncionalidadSQL
-from persistence.archivoExcel import FuncionalidadExcel
+from persistence.extracciones import Extracciones
+from persistence.funcionalidadSQL import FuncionalidadSQL
+from persistence.funcionalidadExcel import FuncionalidadExcel
 from util.correosVehiculares import CorreosVehiculares
-from util.tratadoArchivos import TratadorArchivos
+from util.tratadorArchivos import TratadorArchivos
 
 def main():
     """

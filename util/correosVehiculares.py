@@ -8,7 +8,7 @@ import datetime
 import pandas as pd
 import textwrap
 from pretty_html_table import build_table
-from db.consultasImportantes import ConsultaImportante
+from db.consultaImportante import ConsultaImportante
 
 
 

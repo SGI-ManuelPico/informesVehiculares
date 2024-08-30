@@ -7,8 +7,8 @@ from openpyxl import load_workbook
 from datetime import datetime 
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
-from util.tratadoArchivos import TratadorArchivos
-from util.conversores import ConversoresExcel
+from util.tratadorArchivos import TratadorArchivos
+from util.conversoresExcel import ConversoresExcel
 import locale
 
 locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')

@@ -1,16 +1,16 @@
 import sys, os, time
-from forms.ituranForm import DatosIturan
-from forms.MDVRForm import DatosMDVR
-from forms.securitracForm import DatosSecuritrac
-from forms.ubicarForm import DatosUbicar
-from forms.ubicomForm import DatosUbicom
-from forms.wialonForm import DatosWialon
+from forms.datosIturan import DatosIturan
+from forms.datosMDVR import DatosMDVR
+from forms.datosSecuritrac import DatosSecuritrac
+from forms.datosUbicar import DatosUbicar
+from forms.datosUbicom import DatosUbicom
+from forms.datosWialon import DatosWialon
 from util.correosVehiculares import CorreosVehiculares
-from persistence.archivoExcel import FuncionalidadExcel
-from persistence.extraerExcel import Extracciones
-from persistence.scriptMySQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
+from persistence.funcionalidadExcel import FuncionalidadExcel
+from persistence.extracciones import Extracciones
+from persistence.actualizadorSQL import actualizarKilometraje, actualizarSeguimientoSQL, actualizarInfractoresSQL
 from persistence.estadoPlataforma import EstadoPlataforma
-from util.tratadoArchivos import TratadorArchivos
+from util.tratadorArchivos import TratadorArchivos
 
 ### Como estas funciones solo se van a ejecutar en el main, las defino acá. ###
 
