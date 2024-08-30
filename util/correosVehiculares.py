@@ -93,7 +93,7 @@ class CorreosVehiculares:
         self.tablaExcesos2 = self.tablaExcesos
         self.tablaExcesos2['Número'] = 1
         self.tablaExcesos2 = self.tablaExcesos2.drop(columns='Velocidad').groupby('Placa', as_index=False).agg({'Duración': 'sum', 'Conductor':'first', 'Número' : 'sum'})
-
+        self.tablaExcesos2 = self.tablaExcesos2.groupby('Conductor', as_index=False).agg({'Duración': 'sum', 'Placa':'first', 'Número' : 'sum'})
 
         listaConductores = self.tablaExcesos2['Conductor'].tolist()
 
@@ -123,8 +123,8 @@ class CorreosVehiculares:
             """
 
             self.tablaExcesos = self.tablaExcesos[['Placa', 'Duración', 'Velocidad', 'Conductor']]
-
-            if self.tablaExcesos3.loc[conductorVehicular]['Duración'] >300:
+            print(self.tablaExcesos3.loc[conductorVehicular]['Duración'])
+            if self.tablaExcesos3.loc[conductorVehicular]['Duración'] >300.00:
                 correoTexto2 = f"""
                 <p>Adicionalmente, se encontr&oacute; que sus excesos de velocidad acumularon m&aacute;s de 5 minutos en total. Espec&iacute;ficamente, su duraci&oacute;n total en exceso fue de {self.tablaExcesos3.loc[conductorVehicular]['Duración']} segundos. Esta informaci&oacute;n le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.</p>
 
@@ -241,6 +241,7 @@ class CorreosVehiculares:
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora', 'Conductor'])
         self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa', 'Conductor'])
+        print(self.tablaPuntos)
         self.tablaPuntos = self.tablaHorarios.groupby(['Placa', 'Conductor']).size().reset_index(name='Desplazamientos fuera de hora laboral')
         self.tablaPuntos = self.tablaPuntos.sort_values(by='Desplazamientos fuera de hora laboral', ascending=False)
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')

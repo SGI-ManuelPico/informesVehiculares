@@ -5,16 +5,16 @@
 # from forms.MDVRForm import DatosMDVR
 # from forms.securitracForm import DatosSecuritrac
 #from persistence.archivoExcel import FuncionalidadExcel
-from persistence.extraerExcel import Extracciones
-# from db.consultasImportantes import ConsultaImportante
-import xlrd
-import openpyxl
-import pandas as pd
+# from persistence.extraerExcel import Extracciones
+# # from db.consultasImportantes import ConsultaImportante
+# import xlrd
+# import openpyxl
+# import pandas as pd
 
 
-Extracciones().actualizarOdom(r"C:\Users\SGI SAS\Downloads\seguimiento.xlsx", r"C:\Users\SGI SAS\Downloads\report(3).csv", r"C:\Users\SGI SAS\Downloads\general_information_report_2024_08_19_00_00_00_2024_08_20_00_00_00_1724168143.xlsx")
+# Extracciones().actualizarOdom(r"C:\Users\SGI SAS\Downloads\seguimiento.xlsx", r"C:\Users\SGI SAS\Downloads\report(3).csv", r"C:\Users\SGI SAS\Downloads\general_information_report_2024_08_19_00_00_00_2024_08_20_00_00_00_1724168143.xlsx")
 
-
+print(type(300.00))
 # a,b=ConsultaImportante().tablaCorreoPersonal()
 # print(a)
 

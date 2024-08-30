@@ -1,8 +1,12 @@
 from db.conexionDB import conexionDB
 from datetime import datetime
+import datetime as dt
 import mysql.connector
 
 class ConsultaImportante:
+    def __init__(self):
+        self.dia = dt.date.today() - dt.timedelta(1)
+    
     def tablaCorreoPersonal(self):
         """
         Busca las tablas para los correos normales que se piden.
@@ -15,7 +19,7 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("SELECT placa, tiempoDeExceso, velocidadMaxima, conductor FROM vehiculos.infractores where date(fecha) = curdate();")
+        cursor.execute(f"SELECT placa, tiempoDeExceso, velocidadMaxima, conductor FROM vehiculos.infractores where date(fecha) = '{self.dia}';")
         self.tablaExcesos = cursor.fetchall()
         cursor.execute("select * from vehiculos.correovehicular")
         self.tablaCorreos = cursor.fetchall()
@@ -145,7 +149,7 @@ class ConsultaImportante:
         """
         Busca la tabla para el correo de vehículos con desplazamientos fuera de horario laboral.
         """
-        
+
         conexionBaseCorreos = conexionDB().establecerConexion()
         if conexionBaseCorreos:
             cursor = conexionBaseCorreos.cursor()
@@ -153,9 +157,9 @@ class ConsultaImportante:
             print("Error.")
 
         #Consulta de los correos necesarios para el correo.
-        cursor.execute("SELECT placa, fecha, conductor FROM vehiculos.fueraLaboral where date(fecha) like curdate();")
+        cursor.execute(f"""SELECT placa, fecha, conductor FROM vehiculos.fueraLaboral where date(fecha) like '{self.dia}';""")
         self.tablaHorarios = cursor.fetchall()
-        cursor.execute("SELECT placa, conductor FROM vehiculos.fueralaboral where date(fecha) like curdate();")
+        cursor.execute(f"""SELECT placa, conductor FROM vehiculos.fueralaboral where date(fecha) like '{self.dia}';""")
         self.tablaPuntos = cursor.fetchall()
 
         #Desconectar BD
