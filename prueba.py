@@ -7,9 +7,7 @@
 #from persistence.archivoExcel import FuncionalidadExcel
 # from persistence.extraerExcel import Extracciones
 # # from db.consultasImportantes import ConsultaImportante
-# import xlrd
-# import openpyxl
-# import pandas as pd
+import datetime, time, pandas, openpyxl, xlrd, win32com.client, mysql.connector, pretty_html_table
 
 
 # Extracciones().actualizarOdom(r"C:\Users\SGI SAS\Downloads\seguimiento.xlsx", r"C:\Users\SGI SAS\Downloads\report(3).csv", r"C:\Users\SGI SAS\Downloads\general_information_report_2024_08_19_00_00_00_2024_08_20_00_00_00_1724168143.xlsx")
