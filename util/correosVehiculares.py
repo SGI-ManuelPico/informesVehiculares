@@ -100,7 +100,7 @@ class CorreosVehiculares:
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
-            time.sleep(29)
+            time.sleep(2)
             self.tablaExcesos3 = self.tablaExcesos2[self.tablaExcesos2['Conductor'] == conductorVehicular]
             self.tablaExcesos3 = self.tablaExcesos3.set_index('Conductor')
 
