@@ -9,6 +9,7 @@ import pandas as pd
 import textwrap
 from pretty_html_table import build_table
 from db.consultaImportante import ConsultaImportante
+from texttable import Texttable
 
 
 
@@ -86,7 +87,6 @@ class CorreosVehiculares:
         """
 
         self.tablaExcesos, self.tablaCorreos = ConsultaImportante().tablaCorreoPersonal()
-
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaCorreos = pd.DataFrame(self.tablaCorreos,columns=['eliminar','correo','correoCopia']).drop(columns='eliminar')
         self.tablaExcesos = pd.DataFrame(self.tablaExcesos, columns=['Placa', 'Duración', 'Velocidad', 'Conductor'])
@@ -96,7 +96,7 @@ class CorreosVehiculares:
         self.tablaExcesos2 = self.tablaExcesos2.groupby('Conductor', as_index=False).agg({'Duración': 'sum', 'Placa':'first', 'Número' : 'sum'})
 
         listaConductores = self.tablaExcesos2['Conductor'].tolist()
-
+        print(listaConductores)
 
         #### Loop para realizar el envío del correo.
         for conductorVehicular in listaConductores:
@@ -113,44 +113,37 @@ class CorreosVehiculares:
             
             # Texto del correo.
             correoTexto = f"""
-            <p>Buenos d&iacute;as. Espero que se encuentre bien.</p>
-
-            <p>Mediante el presente correo encuentra los excesos de velocidad que tuvo en el d&iacute;a. Esta informaci&oacute;n le puede ayudar a mejorar sus h&aacute;bitos de conducci&oacute;n y, de esta manera, evitar posibles siniestros viales.</p>
-
-            <p>Conductor: {self.tablaExcesos3.reset_index().iloc[0]['Conductor']}<br>
-            N&uacute;mero de excesos de velocidad: {self.tablaExcesos3.loc[conductorVehicular]['Número']}<br>
-            Placa del veh&iacute;culo que maneja: {self.tablaExcesos3.loc[conductorVehicular]['Placa']}</p>
+            Buenos días. Espero que se encuentre bien.<br>
+            Mediante el presente correo encuentra los excesos de velocidad que tuvo en el día. Esta información le puede ayudar a mejorar sus hábitos de conducción y, de esta manera, evitar posibles siniestros viales.<br>
+            Conductor: {self.tablaExcesos3.reset_index().iloc[0]['Conductor']}<br>
+            Número de excesos de velocidad: {self.tablaExcesos3.loc[conductorVehicular]['Número']}<br>
+            Placa del vehículo que maneja: {self.tablaExcesos3.loc[conductorVehicular]['Placa']} <br>
             """
 
             self.tablaExcesos = self.tablaExcesos[['Placa', 'Duración', 'Velocidad', 'Conductor']]
             print(self.tablaExcesos3.loc[conductorVehicular]['Duración'])
+
+
             if self.tablaExcesos3.loc[conductorVehicular]['Duración'] >300.00:
-                correoTexto2 = f"""
-                <p>Adicionalmente, se encontr&oacute; que sus excesos de velocidad acumularon m&aacute;s de 5 minutos en total. Espec&iacute;ficamente, su duraci&oacute;n total en exceso fue de {self.tablaExcesos3.loc[conductorVehicular]['Duración']} segundos. Esta informaci&oacute;n le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.</p>
-
-                <p>Por otro lado, tambi&eacute;n se le env&iacute;a su registro de n&uacute;mero de excesos de velocidad realizados durante el d&iacute;a.</p>
-
-
-                {build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], 'green_light')}
-
-                Atentamente,
-                Departamento de Tecnología y desarrollo, SGI SAS
-                """
+                correoTexto2 = f"""Adicionalmente, se encontró que sus excesos de velocidad acumularon más de 5 minutos en total. Específicamente, su duración total en exceso fue de {self.tablaExcesos3.loc[conductorVehicular]['Duración']} segundos. Esta información le puede ser de vital importancia para evitar situaciones que le puedan colocar en un riesgo importante para su vida.<br>
+Por otro lado, también se le envía su registro de número de excesos de velocidad realizados durante el día.<br>"""
+                correoTexto3 = f"""{build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], "green_light")}<br>"""
+                correoTexto4 = f"""
+Atentamente,<br>
+Departamento de Tecnología y desarrollo, SGI SAS"""
             else:
-                correoTexto2 = f"""
-                <p>Por otro lado, a trav&eacute;s de este medio se le env&iacute;a su registro de n&uacute;mero de excesos de velocidad realizados durante el d&iacute;a.</p>
-
-                {build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], 'green_light')}
-
-                <p>Atentamente,<br>
-                Departamento de Tecnolog&iacute;a y desarrollo, SGI SAS</p>
-
-                """
+                correoTexto2 = f"Por otro lado, a través de este medio se le envía su registro de número de excesos de velocidad realizados durante el día.<br> "
+                correoTexto3 = f"""{build_table(self.tablaExcesos[self.tablaExcesos['Conductor'] == conductorVehicular], "green_light")} <br>"""
+                correoTexto4 = f"""
+Atentamente, <br>
+Departamento de Tecnología y desarrollo, SGI SAS"""
             
             # Para formatear el texto de manera correcta.
-            correoTexto2 = textwrap.dedent(correoTexto2)
+            #correoTexto2 = textwrap.dedent(correoTexto2)
             correoTexto = textwrap.dedent(correoTexto)
-            correoTexto = correoTexto + correoTexto2
+            correoTexto2 = textwrap.dedent(correoTexto2)
+            correoTexto4 = textwrap.dedent(correoTexto4)
+            correoTexto = correoTexto + correoTexto2 + correoTexto3 + correoTexto4
 
             # Creación del correo.
             mensajeCorreo = MIMEMultipart()
@@ -159,7 +152,6 @@ class CorreosVehiculares:
             mensajeCorreo['Cc'] = ", ".join(correoCopia)
             mensajeCorreo['Subject'] = correoAsunto
             mensajeCorreo.attach(MIMEText(correoTexto, 'html'))
-
 
             # Inicializar el correo y enviar.
             servidorCorreo = smtplib.SMTP('smtp.hostinger.com', 587)
@@ -241,6 +233,7 @@ class CorreosVehiculares:
         # Modificaciones iniciales a los datos de las consultas.
         self.tablaHorarios = pd.DataFrame(self.tablaHorarios,columns=['Placa','Fecha y hora', 'Conductor'])
         self.tablaPuntos = pd.DataFrame(self.tablaHorarios,columns=['Placa', 'Conductor'])
+        print("a")
         print(self.tablaPuntos)
         self.tablaPuntos = self.tablaHorarios.groupby(['Placa', 'Conductor']).size().reset_index(name='Desplazamientos fuera de hora laboral')
         self.tablaPuntos = self.tablaPuntos.sort_values(by='Desplazamientos fuera de hora laboral', ascending=False)

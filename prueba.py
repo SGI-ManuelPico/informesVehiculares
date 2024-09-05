@@ -1,110 +1,25 @@
-# from db.conexionDB import conexionDB
-# from forms.rpaCompleto import RPA
-# from forms.wialonForm import DatosWialon
-# from util.tratadoArchivos import TratadorArchivos
-# from forms.MDVRForm import DatosMDVR
-# from forms.securitracForm import DatosSecuritrac
-#from persistence.archivoExcel import FuncionalidadExcel
-# from persistence.extraerExcel import Extracciones
-# # from db.consultasImportantes import ConsultaImportante
-import datetime, time, pandas, openpyxl, xlrd, win32com.client, mysql.connector, pretty_html_table
+import pandas as pd
+from texttable import Texttable
 
+# Create a sample DataFrame
+df = pd.DataFrame({
+    'Name': ['John', 'Jane', 'Bob'],
+    'Age': [28, 34, 22],
+    'City': ['New York', 'Los Angeles', 'Chicago']
+})
 
-# Extracciones().actualizarOdom(r"C:\Users\SGI SAS\Downloads\seguimiento.xlsx", r"C:\Users\SGI SAS\Downloads\report(3).csv", r"C:\Users\SGI SAS\Downloads\general_information_report_2024_08_19_00_00_00_2024_08_20_00_00_00_1724168143.xlsx")
+# Create a Texttable object
+table = Texttable()
+table.set_deco(Texttable.HEADER)
+table.set_cols_dtype(['t', 'i', 't'])  # t is text, i is integer
+table.set_cols_align(["l", "r", "l"])  # l is left, r is right
 
-print(type(300.00))
-# a,b=ConsultaImportante().tablaCorreoPersonal()
-# print(a)
+# Add header
+table.add_row(df.columns.tolist())
 
-# consulta = ConsultaImportante()
-# wialon = DatosWialon()
-# mdvr = DatosMDVR()
-# secu = DatosSecuritrac()
+# Add rows
+for row in df.itertuples(index=False):
+    table.add_row(row)
 
-# rpa = RPA()
-# functionalidad = FuncionalidadExcel()
-
-# extracciones = Extracciones()
-
-
-# file_ubicar1 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputUbicar\general_information_report_2024_08_01_00_00_00_2024_08_02_00_00_00_1722540202.xlsx"
-# file_ubicar2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputUbicar\overspeeds_report_2024_08_01_00_00_00_2024_08_02_00_00_00_1722540205.xlsx"
-# file_mdvr1 = r'C:\Users\SGI SAS\Documents\GitHub\SGI\outputMDVR\general_information_report_2024_08_01_00_00_00_2024_08_02_00_00_00_1722540147.xlsx'
-# file_mdvr2 = r'C:\Users\SGI SAS\Documents\GitHub\SGI\outputMDVR\overspeeds_report_2024_08_01_00_00_00_2024_08_02_00_00_00_1722540155.xlsx'
-# file_ubicom1 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputUbicom\ReporteDiario.xls"
-# file_ubicom2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputUbicom\Estacionados.xls"
-# file_securitrac = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputSecuritrac\exported-excel.xls"
-# file_wialon1 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputWialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-08-01_14-24-44.xlsx"
-# file_wialon2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputWialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-08-01_14-24-53.xlsx"  
-# file_wialon3 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputWialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-08-01_14-25-02.xlsx"
-# file_ituran1 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report.csv"
-# file_ituran2 = r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report (1).csv"
-# # datos = functionalidad.extraerMDVR(file1, file2)
-# # print(datos)
-
-# # rpa.ejecutarRPAMDVR()
-# # rpa.ejecutarRPAIturan()
-# # rpa.ejecutarRPASecuritrac()
-# # rpa.ejecutarRPAUbicar()
-# # rpa.ejecutarRPAWialon()
-# # rpa.ejecutarRPAUbicom()
-
-
-# # datos = functionalidad.extraerIturan(file_ituran1, file_ituran2)
-# # print(datos)
-
-
-# # def OdomIturan(file):
-# #     # Leer el archivo de Excel
-# #     od = pd.read_csv(file)
-
-# #     # Extraer la placa y el odómetro
-
-# #     df = od[['V_PLATE_NUMBER', 'END_ODOMETER']]
-
-# #     # Renombrar las columnas
-
-# #     df.columns = ['PLACA', 'KILOMETRAJE']
-
-# #     # Crear el diccionario con el formato requerido
-
-# #     datos = df.to_dict('records')
-# #     return datos
-
-# # odom = OdomIturan(r'C:\Users\SGI SAS\Documents\GitHub\SGI\outputIturan\report (3).csv')
-
-# # print(odom)
-
-# # functionalidad.extraerIturan(file_ituran1, file_ituran2)
-
-# # wialon.rpaWialon()
-
-# # x, y = consulta.tablaCorreoLaboral()
-
-# # print(x)
-
-
-# rutasLaboral = {'securitrac': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputSecuritrac\exported-excel.xls",
-
-#             'mdvr': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputMDVR\drives_stops_drivers_report_2024_08_09_00_00_00_2024_08_10_00_00_00_1723225380.xlsx",
-
-#             'ituran': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputIturan\report (2).csv",
-
-#             'ubicar': r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputUbicar\drives_stops_report_2024_08_09_00_00_00_2024_08_10_00_00_00_1723225435.xlsx",
-
-#             'wialon': [r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\JTV645_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-06.xlsx", r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\LPN816_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-14.xlsx", r"C:\Users\SGI SAS\Documents\GitHub\SGI\outputPrueba\outputWialon\LPN821_INFORME_GENERAL_TM_V1.0_2024-08-09_12-45-23.xlsx"]
-
-#             }
-
-# df = functionalidad.fueraLaboralTodos(rutasLaboral)
-
-# print(df)
-
-
-
-
-
-
-
-
-
+# Generate the table
+print(table.draw())
